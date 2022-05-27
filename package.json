@@ -3,10 +3,9 @@
   "version": "1.0.0",
   "description": "This plugin helps you import and export data from and to your database in just few clicks.",
   "strapi": {
-    "name": "Import / Export",
+    "name": "import-export-entries",
     "description": "Import and export data from and to your database",
-    "kind": "plugin",
-    "displayName": "Import Export"
+    "kind": "plugin"
   },
   "dependencies": {
     "@monaco-editor/react": "4.4.5",

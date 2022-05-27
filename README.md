@@ -1,4 +1,4 @@
-# Strapi Plugin Import Export
+# Strapi Plugin Import Export Entries
 
 This plugin helps you import and export data from and to your database in just few clicks.
 
