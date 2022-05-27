@@ -1,0 +1,12 @@
+.plugin-ie-alerts {
+    position: fixed;
+    top: 0;
+    left: 50%;
+    transform: translate(-50%, 0);
+    z-index: 10000;
+    padding: 16px;
+}
+
+.plugin-ie-alerts > *:not(:first-child) {
+    margin-top: 16px;
+}

@@ -1,0 +1,12 @@
+{
+    "plugin.name": "Import Export",
+
+    "plugin.cta.back-to-options": "Back To Options",
+    "plugin.cta.cancel": "Cancel",
+    "plugin.cta.copy-to-clipboard": "Copy To Clipboard",
+    "plugin.cta.download-file": "Download File",
+    "plugin.cta.get-data": "Fetch Data",
+    "plugin.cta.export": "Export",
+    "plugin.cta.import": "Import",
+    "plugin.cta.remove-file": "Remove File"
+}

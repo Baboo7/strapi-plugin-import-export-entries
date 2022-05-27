@@ -1,0 +1,52 @@
+{
+  "name": "strapi-plugin-import-export-entries",
+  "version": "1.0.0",
+  "description": "This plugin helps you import and export data from and to your database in just few clicks.",
+  "strapi": {
+    "name": "Import / Export",
+    "description": "Import and export data from and to your database",
+    "kind": "plugin",
+    "displayName": "Import Export"
+  },
+  "dependencies": {
+    "@monaco-editor/react": "4.4.5",
+    "csvtojson": "2.0.10",
+    "react-singleton-hook": "3.3.0"
+  },
+  "peerDependencies": {
+    "@strapi/strapi": "^4.0.0"
+  },
+  "author": {
+    "name": "Baboo",
+    "url" : "https://github.com/Baboo7"
+  },
+  "maintainers": [
+    {
+      "name": "Baboo",
+      "url" : "https://github.com/Baboo7"
+    }
+  ],
+  "engines": {
+    "node": ">=12.x.x <=16.x.x",
+    "npm": ">=6.0.0"
+  },
+  "keywords": [
+    "strapi",
+    "plugin",
+    "strapi",
+    "import",
+    "data",
+    "export",
+    "data",
+    "content"
+  ],
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Baboo7/strapi-plugin-import-export-entries.git"
+  },
+  "bugs": {
+    "url": "https://github.com/Baboo7/strapi-plugin-import-export-entries/issues"
+  },
+  "homepage": "https://github.com/Baboo7/strapi-plugin-import-export-entries#readme",
+  "license": "MIT"
+}

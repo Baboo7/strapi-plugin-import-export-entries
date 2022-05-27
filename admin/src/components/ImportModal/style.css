@@ -1,0 +1,47 @@
+.plugin-ie-import_modal_body > *:not(:first-child) {
+    margin-top: 16px;
+}
+
+.plugin-ie-import_modal_input-label {
+    --hover-color: hsl(210, 100%, 50%);
+
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    flex: 1;
+    padding: 48px;
+    border-width: 3px;
+    border-color: #ddd;
+    border-style: dashed;
+    border-radius: 12px;
+    cursor: pointer;
+}
+
+.plugin-ie-import_modal_input-label:hover {
+    border-color: var(--hover-color);
+}
+
+.plugin-ie-import_modal_input-label--dragged-over {
+    border-color: var(--hover-color);
+}
+
+.plugin-ie-import_modal_input-label--dragged-over::after {
+    content: "";
+    display: block;
+    position: absolute;
+    top: 0;
+    right: 0;
+    bottom: 0;
+    left: 0;
+    z-index: 5;
+}
+
+.plugin-ie-import_modal_input-label > *:not(:first-child) {
+    margin-top: 16px;
+}
+
+.plugin-ie-import_modal_input-label input {
+    display: none;
+}
