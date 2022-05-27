@@ -1,6 +1,6 @@
 {
   "name": "strapi-plugin-import-export-entries",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "This plugin helps you import and export data from and to your database in just few clicks.",
   "strapi": {
     "name": "import-export-entries",
@@ -17,12 +17,12 @@
   },
   "author": {
     "name": "Baboo",
-    "url" : "https://github.com/Baboo7"
+    "url": "https://github.com/Baboo7"
   },
   "maintainers": [
     {
       "name": "Baboo",
-      "url" : "https://github.com/Baboo7"
+      "url": "https://github.com/Baboo7"
     }
   ],
   "engines": {
