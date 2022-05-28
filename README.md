@@ -10,6 +10,8 @@ Strapi v4 is required.
 
 ## Installation
 
+1. Download
+
 ```
 yarn add strapi-plugin-import-export-entries
 ```
@@ -18,6 +20,57 @@ or
 
 ```
 npm i strapi-plugin-import-export-entries
+```
+
+2. Enable the plugin
+
+Add in the file `config/plugins.js`:
+
+```js
+module.exports = ({ env }) => ({
+  //...
+  "import-export-entries": {
+    enabled: true,
+  },
+  //...
+});
+```
+
+3. Update the config of the `security` middleware:
+
+The `security` middleware needs to be configured to enable the use of the great **Monaco** code editor.
+
+In the file `config/middlewares.js`, replace:
+
+```js
+module.exports = [
+  //...
+  "strapi::security",
+  //...
+];
+```
+
+with
+
+```js
+module.exports = ({ env }) => ({
+  //...
+  {
+    name: "strapi::security",
+    config: {
+      contentSecurityPolicy: {
+        useDefaults: true,
+        directives: {
+          // Enable the download of the Monaco editor
+          // from cdn.jsdelivr.net.
+          "script-src": ["'self'", "cdn.jsdelivr.net", "blob:"],
+          upgradeInsecureRequests: null,
+        },
+      },
+    },
+  },
+  //...
+});
 ```
 
 ## Rebuild the admin panel
