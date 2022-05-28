@@ -2,7 +2,25 @@
 
 This plugin helps you import and export data from and to your database in just few clicks.
 
-<img src="./doc/scr-ui.png" alt="UI" width="500"/>
+<p align="center">
+  <img src="./doc/logo.png" alt="UI" width="300"/>
+</p>
+
+## Screenshots
+
+<p align="center">
+  <img src="./doc/scr-ui.png" alt="UI" width="500"/>
+</p>
+
+## Table Of Content
+
+- [Requirements](#requirements)
+- [Installation](#installation)
+- [Rebuild The Admin Panel](#rebuild-the-admin-panel)
+- [Usage](#usage)
+- [Features](#features)
+- [Author](#author)
+- [Acknowledgments](#acknowledgments)
 
 ## Requirements
 
@@ -73,7 +91,7 @@ module.exports = ({ env }) => ({
 });
 ```
 
-## Rebuild the admin panel
+## Rebuild The Admin Panel
 
 New releases can introduce changes to the administration panel that require a rebuild. Rebuild the admin panel with one of the following commands:
 
@@ -86,6 +104,14 @@ or
 ```
 npm run build --clean
 ```
+
+## Usage
+
+Once the plugin is installed and setup, the functionnalities are accessible on the content management page of a collection.
+
+<p align="center">
+  <img src="./doc/scr-usage.png" alt="UI" width="500"/>
+</p>
 
 ## Features
 
