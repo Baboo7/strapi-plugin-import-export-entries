@@ -5,7 +5,8 @@
   "strapi": {
     "name": "import-export-entries",
     "description": "Import and export data from and to your database",
-    "kind": "plugin"
+    "kind": "plugin",
+    "displayName": "Import Export Entries"
   },
   "dependencies": {
     "@monaco-editor/react": "4.4.5",
