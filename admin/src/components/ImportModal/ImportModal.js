@@ -10,18 +10,17 @@ import { Portal } from "@strapi/design-system/Portal";
 import { Typography } from "@strapi/design-system/Typography";
 import IconFile from "@strapi/icons/File";
 import React, { useState } from "react";
-import { useIntl } from "react-intl";
 
 import "./style.css";
 import ImportProxy from "../../api/importProxy";
 import { useSlug } from "../../hooks/useSlug";
 import { dataFormats } from "../../utils/dataConverter";
-import getTrad from "../../utils/getTrad";
 import { Editor } from "../Editor/Editor";
 import { useAlerts } from "../../hooks/useAlerts";
+import { useI18n } from "../../hooks/useI18n";
 
 export const ImportModal = ({ onClose }) => {
-  const { formatMessage } = useIntl();
+  const { i18n } = useI18n();
   const { slug } = useSlug();
   const { notify } = useAlerts();
 
@@ -167,7 +166,7 @@ export const ImportModal = ({ onClose }) => {
             <>
               {data && (
                 <Button onClick={removeFile} variant="tertiary">
-                  {formatMessage({ id: getTrad("plugin.cta.remove-file") })}
+                  {i18n("plugin.cta.remove-file")}
                 </Button>
               )}
             </>
@@ -176,7 +175,7 @@ export const ImportModal = ({ onClose }) => {
             <>
               {data && (
                 <Button onClick={uploadData}>
-                  {formatMessage({ id: getTrad("plugin.cta.import") })}
+                  {i18n("plugin.cta.import")}
                 </Button>
               )}
             </>

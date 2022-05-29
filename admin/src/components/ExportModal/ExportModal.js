@@ -14,7 +14,6 @@ import { Select, Option } from "@strapi/design-system/Select";
 import { Typography } from "@strapi/design-system/Typography";
 import { pick } from "lodash";
 import React, { useEffect, useState } from "react";
-import { useIntl } from "react-intl";
 import { useLocation } from "react-router-dom";
 import qs from "qs";
 
@@ -23,12 +22,12 @@ import ExportProxy from "../../api/exportProxy";
 import { useDownloadFile } from "../../hooks/useDownloadFile";
 import { useSlug } from "../../hooks/useSlug";
 import { dataConverterConfigs, dataFormats } from "../../utils/dataConverter";
-import getTrad from "../../utils/getTrad";
 import { Editor } from "../Editor/Editor";
 import { useAlerts } from "../../hooks/useAlerts";
+import { useI18n } from "../../hooks/useI18n";
 
 export const ExportModal = ({ onClose }) => {
-  const { formatMessage } = useIntl();
+  const { i18n } = useI18n();
   const { search } = useLocation();
   const { downloadFile, withTimestamp } = useDownloadFile();
   const { slug } = useSlug();
@@ -179,9 +178,7 @@ export const ExportModal = ({ onClose }) => {
             <>
               {!!data && (
                 <Button variant="tertiary" onClick={clearData}>
-                  {formatMessage({
-                    id: getTrad("plugin.cta.back-to-options"),
-                  })}
+                  {i18n("plugin.cta.back-to-options")}
                 </Button>
               )}
             </>
@@ -189,19 +186,15 @@ export const ExportModal = ({ onClose }) => {
           endActions={
             <>
               {!data && (
-                <Button onClick={getData}>
-                  {formatMessage({ id: getTrad("plugin.cta.get-data") })}
-                </Button>
+                <Button onClick={getData}>{i18n("plugin.cta.get-data")}</Button>
               )}
               {!!data && (
                 <>
                   <Button variant="secondary" onClick={copyToClipboard}>
-                    {formatMessage({
-                      id: getTrad("plugin.cta.copy-to-clipboard"),
-                    })}
+                    {i18n("plugin.cta.copy-to-clipboard")}
                   </Button>
                   <Button onClick={writeDataToFile}>
-                    {formatMessage({ id: getTrad("plugin.cta.download-file") })}
+                    {i18n("plugin.cta.download-file")}
                   </Button>
                 </>
               )}
