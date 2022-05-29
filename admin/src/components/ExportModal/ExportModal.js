@@ -1,6 +1,5 @@
 import { Button } from "@strapi/design-system/Button";
 import { Checkbox } from "@strapi/design-system/Checkbox";
-import { EmptyStateLayout } from "@strapi/design-system/EmptyStateLayout";
 import {
   ModalLayout,
   ModalBody,
@@ -13,7 +12,6 @@ import { Loader } from "@strapi/design-system/Loader";
 import { Portal } from "@strapi/design-system/Portal";
 import { Select, Option } from "@strapi/design-system/Select";
 import { Typography } from "@strapi/design-system/Typography";
-import IconFile from "@strapi/icons/File";
 import { pick } from "lodash";
 import React, { useEffect, useState } from "react";
 import { useIntl } from "react-intl";
