@@ -11,6 +11,12 @@ This plugin helps you import and export data from and to your database in just f
 <p align="center">
   <img src="./doc/scr-ui.png" alt="UI" width="500"/>
 </p>
+<p align="center">
+  <img src="./doc/scr-ui-import.png" alt="UI" width="500"/>
+</p>
+<p align="center">
+  <img src="./doc/scr-ui-export.png" alt="UI" width="500"/>
+</p>
 
 ## Table Of Content
 
