@@ -24,6 +24,7 @@ import { useSlug } from "../../hooks/useSlug";
 import { dataConverterConfigs, dataFormats } from "../../utils/dataConverter";
 import { Editor } from "../Editor/Editor";
 import { useAlerts } from "../../hooks/useAlerts";
+import { handleRequestErr } from "../../utils/error";
 import { useI18n } from "../../hooks/useI18n";
 
 export const ExportModal = ({ onClose }) => {
@@ -47,9 +48,27 @@ export const ExportModal = ({ onClose }) => {
     const searchQry = qs.stringify(pick(qs.parse(search), ["filters", "sort"]));
 
     setFetchingData(true);
-    const data = await getEntries(slug, searchQry);
-    setData(data);
-    setFetchingData(false);
+    try {
+      const res = await getEntries(slug, searchQry);
+      setData(res.data);
+    } catch (err) {
+      handleRequestErr(err, {
+        403: () =>
+          notify(
+            i18n("plugin.message.export.error.forbidden.title"),
+            i18n("plugin.message.export.error.forbidden.message"),
+            "danger"
+          ),
+        default: () =>
+          notify(
+            i18n("plugin.message.export.error.unexpected.title"),
+            i18n("plugin.message.export.error.unexpected.message"),
+            "danger"
+          ),
+      });
+    } finally {
+      setFetchingData(false);
+    }
   };
 
   const convertData = async () => {
@@ -101,12 +120,12 @@ export const ExportModal = ({ onClose }) => {
   };
 
   const getEntries = async (slug, search) => {
-    const data = await ExportProxy.getByContentType({
+    const res = await ExportProxy.getByContentType({
       slug,
       search,
       applySearch: optionApplyFilters,
     });
-    return data.data;
+    return res;
   };
 
   return (

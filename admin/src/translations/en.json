@@ -8,5 +8,14 @@
     "plugin.cta.get-data": "Fetch Data",
     "plugin.cta.export": "Export",
     "plugin.cta.import": "Import",
-    "plugin.cta.remove-file": "Remove File"
+    "plugin.cta.remove-file": "Remove File",
+
+    "plugin.message.export.error.forbidden.title": "Forbidden",
+    "plugin.message.export.error.forbidden.message": "You don't have permission to read this data type.",
+    "plugin.message.export.error.unexpected.title": "Export failed",
+    "plugin.message.export.error.unexpected.message": "An unexpected error occured while exporting your data.",
+    "plugin.message.import.error.forbidden.title": "Forbidden",
+    "plugin.message.import.error.forbidden.message": "You don't have permission to write this data type.",
+    "plugin.message.import.error.unexpected.title": "Import failed",
+    "plugin.message.import.error.unexpected.message": "An unexpected error occured while importing your data."
 }

@@ -17,6 +17,7 @@ import { useSlug } from "../../hooks/useSlug";
 import { dataFormats } from "../../utils/dataConverter";
 import { Editor } from "../Editor/Editor";
 import { useAlerts } from "../../hooks/useAlerts";
+import { handleRequestErr } from "../../utils/error";
 import { useI18n } from "../../hooks/useI18n";
 
 export const ImportModal = ({ onClose }) => {
@@ -69,11 +70,20 @@ export const ImportModal = ({ onClose }) => {
         "success"
       );
     } catch (err) {
-      notify(
-        "Import failed",
-        "An error occured while importing your data",
-        "danger"
-      );
+      handleRequestErr(err, {
+        403: () =>
+          notify(
+            i18n("plugin.message.import.error.forbidden.title"),
+            i18n("plugin.message.import.error.forbidden.message"),
+            "danger"
+          ),
+        default: () =>
+          notify(
+            i18n("plugin.message.import.error.unexpected.title"),
+            i18n("plugin.message.import.error.unexpected.message"),
+            "danger"
+          ),
+      });
     }
   };
 
