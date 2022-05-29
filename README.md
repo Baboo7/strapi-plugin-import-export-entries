@@ -118,13 +118,13 @@ Once the plugin is installed and setup, the functionnalities are accessible on t
 ### Import
 
 - Import data directly from the Content Manager
-- Read data from CSV and JSON file or from typing raw text
+- Import data from CSV and JSON file or from typing raw text according to user permissions
 - Import contents to collection type (NOT single type yet)
 
 ### Export
 
 - Export data directly from the Content Manager
-- Export CSV and JSON contents
+- Export CSV and JSON contents according to user permissions
 - Download files or copy exported data to clipboard
 
 ## Author
