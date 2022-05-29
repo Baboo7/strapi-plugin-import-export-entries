@@ -132,6 +132,7 @@ Once the plugin is installed and setup, the functionnalities are accessible on t
 - Export data directly from the Content Manager
 - Export CSV and JSON contents according to user permissions
 - Download files or copy exported data to clipboard
+- Filter & sort data using Content Manager filters & sorting
 
 ## Author
 
