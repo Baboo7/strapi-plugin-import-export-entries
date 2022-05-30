@@ -4,7 +4,7 @@
   "description": "This plugin helps you import and export data from and to your database in just few clicks.",
   "strapi": {
     "name": "import-export-entries",
-    "description": "Import and export data from and to your database",
+    "description": "Import and export data from and to your database in just few clicks.",
     "kind": "plugin",
     "displayName": "Import Export Entries"
   },
