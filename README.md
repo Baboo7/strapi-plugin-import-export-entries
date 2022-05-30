@@ -6,6 +6,21 @@ This plugin helps you import and export data from and to your database in just f
   <img src="./doc/logo.png" alt="UI" width="300"/>
 </p>
 
+## Features
+
+### Import
+
+- Import data directly from the Content Manager
+- Import data from CSV and JSON file or from typing raw text according to user permissions
+- Import contents to collection type (NOT single type yet)
+
+### Export
+
+- Export data directly from the Content Manager
+- Export CSV and JSON contents according to user permissions
+- Download files or copy exported data to clipboard
+- Filter & sort data using Content Manager filters & sorting
+
 ## Screenshots
 
 <p align="center">
@@ -24,7 +39,6 @@ This plugin helps you import and export data from and to your database in just f
 - [Installation](#installation)
 - [Rebuild The Admin Panel](#rebuild-the-admin-panel)
 - [Usage](#usage)
-- [Features](#features)
 - [Author](#author)
 - [Acknowledgments](#acknowledgments)
 
@@ -118,21 +132,6 @@ Once the plugin is installed and setup, the functionnalities are accessible on t
 <p align="center">
   <img src="./doc/scr-usage.png" alt="UI" width="500"/>
 </p>
-
-## Features
-
-### Import
-
-- Import data directly from the Content Manager
-- Import data from CSV and JSON file or from typing raw text according to user permissions
-- Import contents to collection type (NOT single type yet)
-
-### Export
-
-- Export data directly from the Content Manager
-- Export CSV and JSON contents according to user permissions
-- Download files or copy exported data to clipboard
-- Filter & sort data using Content Manager filters & sorting
 
 ## Author
 
