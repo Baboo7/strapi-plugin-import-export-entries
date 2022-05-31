@@ -2,22 +2,29 @@
 
 const qs = require("qs");
 
+const { getService, Services } = require("../utils");
+
 const exportData = async (ctx) => {
   if (!hasPermissions(ctx)) {
     return ctx.forbidden();
   }
 
-  let { slug, search, applySearch } = ctx.request.body;
+  let { slug, search, applySearch, exportFormat = "json" } = ctx.request.body;
 
-  let query = {};
+  let query = { populate: "*" };
   if (applySearch) {
     query = buildFilterQuery(search);
   }
 
-  const entries = await strapi.db.query(slug).findMany(query);
+  const entries = await strapi.entityService.findMany(slug, query);
+
+  const data = getService(Services.DATA_CONVERTER).convertEntries(entries, {
+    slug,
+    dataFormat: exportFormat,
+  });
 
   ctx.body = {
-    data: entries,
+    data,
   };
 };
 

@@ -34,22 +34,20 @@ export const ExportModal = ({ onClose }) => {
   const { slug } = useSlug();
   const { notify } = useAlerts();
 
+  const [optionExportFormat, setOptionExportFormat] = useState(dataFormats.CSV);
   const [optionApplyFilters, setOptionApplyFilters] = useState(false);
-  const [exportFormat, setExportFormat] = useState(dataFormats.CSV);
   const [data, setData] = useState(null);
-  const [dataConverted, setDataConverted] = useState("");
   const [fetchingData, setFetchingData] = useState(false);
 
-  useEffect(() => {
-    convertData();
-  }, [data, exportFormat]);
-
   const getData = async () => {
-    const searchQry = qs.stringify(pick(qs.parse(search), ["filters", "sort"]));
-
     setFetchingData(true);
     try {
-      const res = await getEntries(slug, searchQry);
+      const res = await ExportProxy.getByContentType({
+        slug,
+        search: qs.stringify(pick(qs.parse(search), ["filters", "sort"])),
+        applySearch: optionApplyFilters,
+        exportFormat: optionExportFormat,
+      });
       setData(res.data);
     } catch (err) {
       handleRequestErr(err, {
@@ -71,27 +69,11 @@ export const ExportModal = ({ onClose }) => {
     }
   };
 
-  const convertData = async () => {
-    if (!data) {
-      return;
-    }
-
-    const converter = dataConverterConfigs[exportFormat];
-    if (!converter) {
-      throw new Error(
-        `File extension ${exportFormat} not supported to export data.`
-      );
-    }
-
-    const { convertData } = converter;
-    setDataConverted(convertData(data));
-  };
-
   const writeDataToFile = async () => {
-    const converter = dataConverterConfigs[exportFormat];
+    const converter = dataConverterConfigs[optionExportFormat];
     if (!converter) {
       throw new Error(
-        `File extension ${exportFormat} not supported to export data.`
+        `File extension ${optionExportFormat} not supported to export data.`
       );
     }
 
@@ -100,14 +82,14 @@ export const ExportModal = ({ onClose }) => {
       .replaceAll(":", "-")
       .replaceAll("--", "-");
     downloadFile(
-      dataConverted,
+      data,
       withTimestamp(fileName),
       `${fileContentType};charset=utf-8;`
     );
   };
 
   const copyToClipboard = () => {
-    navigator.clipboard.writeText(dataConverted);
+    navigator.clipboard.writeText(data);
     notify(
       "Copied to clipboard",
       "Your data has been copied to your clipboard successfully.",
@@ -117,15 +99,6 @@ export const ExportModal = ({ onClose }) => {
 
   const clearData = () => {
     setData(null);
-  };
-
-  const getEntries = async (slug, search) => {
-    const res = await ExportProxy.getByContentType({
-      slug,
-      search,
-      applySearch: optionApplyFilters,
-    });
-    return res;
   };
 
   return (
@@ -151,6 +124,26 @@ export const ExportModal = ({ onClose }) => {
           )}
           {!data && !fetchingData && (
             <>
+              <Grid gap={8}>
+                <GridItem col={12}>
+                  <Select
+                    id="export-format"
+                    label="Export Format"
+                    required
+                    placeholder="Export Format"
+                    value={optionExportFormat}
+                    onChange={setOptionExportFormat}
+                  >
+                    <Option value={dataFormats.CSV}>
+                      {dataFormats.CSV.toUpperCase()}
+                    </Option>
+                    <Option value={dataFormats.JSON}>
+                      {dataFormats.JSON.toUpperCase()}
+                    </Option>
+                  </Select>
+                </GridItem>
+              </Grid>
+
               <Flex direction="column" alignItems="start" gap="16px">
                 <Typography fontWeight="bold" textColor="neutral800" as="h2">
                   Options
@@ -166,29 +159,7 @@ export const ExportModal = ({ onClose }) => {
           )}
           {data && !fetchingData && (
             <>
-              <Grid gap={8}>
-                <GridItem col={12}>
-                  <Select
-                    id="export-format"
-                    label="Export Format"
-                    required
-                    placeholder="Export Format"
-                    value={exportFormat}
-                    onChange={setExportFormat}
-                  >
-                    <Option value={dataFormats.CSV}>
-                      {dataFormats.CSV.toUpperCase()}
-                    </Option>
-                    <Option value={dataFormats.JSON}>
-                      {dataFormats.JSON.toUpperCase()}
-                    </Option>
-                  </Select>
-                </GridItem>
-              </Grid>
-
-              {!!data && (
-                <Editor content={dataConverted} language={exportFormat} />
-              )}
+              <Editor content={data} language={optionExportFormat} />
             </>
           )}
         </ModalBody>
