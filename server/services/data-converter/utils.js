@@ -10,7 +10,7 @@ const convertStrArrayToCsv = (entry) => {
     .join(",");
 };
 
-const convertToCsv = (entries) => {
+const convertToCsv = (entries, options) => {
   const columnTitles = Object.keys(entries[0]);
   const content = [convertStrArrayToCsv(columnTitles)]
     .concat(
@@ -22,13 +22,34 @@ const convertToCsv = (entries) => {
   return content;
 };
 
-const convertToJson = (entries) => {
+const convertToJson = (entries, options) => {
   entries = JSON.stringify(entries, null, "\t");
-
   return entries;
 };
 
+const withBeforeConvert = (convertFn) => (entries, options) => {
+  entries = beforeConvert(entries, options);
+  entries = convertFn(entries, options);
+  return entries;
+};
+
+const beforeConvert = (entries, options) => {
+  if (options.relationsAsId) {
+    const relationKeys = getAttributeNamesByType(options.slug, "relation");
+    entries = entries.map((entry) => {
+      relationKeys.forEach((key) => (entry[key] = entry[key].id));
+      return entry;
+    });
+  }
+  return entries;
+};
+
+const getAttributeNamesByType = (slug, type) => {
+  const attributes = strapi.db.metadata.get(slug).attributes;
+  return Object.keys(attributes).filter((key) => attributes[key].type === type);
+};
+
 module.exports = {
-  convertToCsv,
-  convertToJson,
+  convertToCsv: withBeforeConvert(convertToCsv),
+  convertToJson: withBeforeConvert(convertToJson),
 };

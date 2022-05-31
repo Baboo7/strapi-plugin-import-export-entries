@@ -9,7 +9,8 @@ const exportData = async (ctx) => {
     return ctx.forbidden();
   }
 
-  let { slug, search, applySearch, exportFormat = "json" } = ctx.request.body;
+  let { slug, search, applySearch, exportFormat, relationsAsId } =
+    ctx.request.body;
 
   let query = { populate: "*" };
   if (applySearch) {
@@ -21,6 +22,7 @@ const exportData = async (ctx) => {
   const data = getService(Services.DATA_CONVERTER).convertEntries(entries, {
     slug,
     dataFormat: exportFormat,
+    relationsAsId,
   });
 
   ctx.body = {

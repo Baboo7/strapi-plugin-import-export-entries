@@ -14,10 +14,19 @@ const dataConverterConfigs = {
   },
 };
 
-const convertEntries = (entries, { slug, dataFormat }) => {
-  const converter = getConverter(dataFormat);
+/**
+ *
+ * @param {Array<Object>} entries
+ * @param {Object} options
+ * @param {string} options.slug
+ * @param {string} options.dataFormat
+ * @param {boolean} options.relationsAsId
+ * @returns
+ */
+const convertEntries = (entries, options) => {
+  const converter = getConverter(options.dataFormat);
 
-  const convertedData = converter.convertEntries(entries, { slug });
+  const convertedData = converter.convertEntries(entries, options);
 
   return convertedData;
 };

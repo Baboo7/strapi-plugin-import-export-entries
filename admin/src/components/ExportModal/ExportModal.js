@@ -36,6 +36,7 @@ export const ExportModal = ({ onClose }) => {
 
   const [optionExportFormat, setOptionExportFormat] = useState(dataFormats.CSV);
   const [optionApplyFilters, setOptionApplyFilters] = useState(false);
+  const [optionRelationsAsId, setOptionRelationsAsId] = useState(false);
   const [data, setData] = useState(null);
   const [fetchingData, setFetchingData] = useState(false);
 
@@ -47,6 +48,7 @@ export const ExportModal = ({ onClose }) => {
         search: qs.stringify(pick(qs.parse(search), ["filters", "sort"])),
         applySearch: optionApplyFilters,
         exportFormat: optionExportFormat,
+        relationsAsId: optionRelationsAsId,
       });
       setData(res.data);
     } catch (err) {
@@ -148,6 +150,12 @@ export const ExportModal = ({ onClose }) => {
                 <Typography fontWeight="bold" textColor="neutral800" as="h2">
                   Options
                 </Typography>
+                <Checkbox
+                  value={optionRelationsAsId}
+                  onValueChange={setOptionRelationsAsId}
+                >
+                  Export relations as id.
+                </Checkbox>
                 <Checkbox
                   value={optionApplyFilters}
                   onValueChange={setOptionApplyFilters}
