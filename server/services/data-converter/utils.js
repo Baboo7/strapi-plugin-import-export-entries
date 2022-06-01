@@ -5,7 +5,7 @@ const convertEntryToStrArray = (entry, keys) => {
 const convertStrArrayToCsv = (entry) => {
   return entry
     .map(String)
-    .map((v) => v.replaceAll('"', '""'))
+    .map((v) => v.replace(/"/g, '""'))
     .map((v) => `"${v}"`)
     .join(",");
 };
