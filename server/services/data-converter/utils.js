@@ -37,7 +37,12 @@ const beforeConvert = (entries, options) => {
   if (options.relationsAsId) {
     const relationKeys = getAttributeNamesByType(options.slug, "relation");
     entries = entries.map((entry) => {
-      relationKeys.forEach((key) => (entry[key] = entry[key].id));
+      relationKeys.forEach((key) => {
+        let relation = entry[key];
+        if (relation) {
+          relation = relation.id;
+        }
+      });
       return entry;
     });
   }
