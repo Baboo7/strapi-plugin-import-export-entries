@@ -1,15 +1,3 @@
-const convertEntryToStrArray = (entry, keys) => {
-  return keys.map((key) => entry[key]);
-};
-
-const convertStrArrayToCsv = (entry) => {
-  return entry
-    .map(String)
-    .map((v) => v.replace(/"/g, '""'))
-    .map((v) => `"${v}"`)
-    .join(",");
-};
-
 const convertToCsv = (entries, options) => {
   const columnTitles = getAttributeNames(options.slug);
   const content = [convertStrArrayToCsv(columnTitles)]
@@ -20,6 +8,26 @@ const convertToCsv = (entries, options) => {
     )
     .join("\r\n");
   return content;
+};
+
+const convertStrArrayToCsv = (entry) => {
+  return entry
+    .map(stringifyEntry)
+    .map((v) => v.replace(/"/g, '""'))
+    .map((v) => `"${v}"`)
+    .join(",");
+};
+
+const stringifyEntry = (entry) => {
+  if (typeof entry === "object") {
+    return JSON.stringify(entry);
+  }
+
+  return String(entry);
+};
+
+const convertEntryToStrArray = (entry, keys) => {
+  return keys.map((key) => entry[key]);
 };
 
 const convertToJson = (entries, options) => {
