@@ -45,8 +45,6 @@ const hasPermissions = (ctx) => {
 const buildFilterQuery = (search) => {
   let { filters, sort } = qs.parse(search);
 
-  let where = filters;
-
   const [attr, value] = sort?.split(":").map((v) => v.toLowerCase());
   let orderBy = {};
   if (attr && value) {
@@ -54,7 +52,7 @@ const buildFilterQuery = (search) => {
   }
 
   return {
-    where,
+    filters,
     orderBy,
   };
 };
