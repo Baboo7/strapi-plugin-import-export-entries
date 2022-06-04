@@ -14,7 +14,7 @@ const exportData = async (ctx) => {
 
   let query = { populate: "*" };
   if (applySearch) {
-    query = buildFilterQuery(search);
+    query = { ...query, ...buildFilterQuery(search) };
   }
 
   const entries = await strapi.entityService.findMany(slug, query);
@@ -43,17 +43,17 @@ const hasPermissions = (ctx) => {
 };
 
 const buildFilterQuery = (search) => {
-  let { filters, sort } = qs.parse(search);
+  let { filters, sort: sortRaw } = qs.parse(search);
 
-  const [attr, value] = sort?.split(":").map((v) => v.toLowerCase());
-  let orderBy = {};
+  const [attr, value] = sortRaw?.split(":").map((v) => v.toLowerCase());
+  let sort = {};
   if (attr && value) {
-    orderBy[attr] = value;
+    sort[attr] = value;
   }
 
   return {
     filters,
-    orderBy,
+    sort,
   };
 };
 
