@@ -11,7 +11,7 @@ const convertStrArrayToCsv = (entry) => {
 };
 
 const convertToCsv = (entries, options) => {
-  const columnTitles = Object.keys(entries[0]);
+  const columnTitles = getAttributeNames(options.slug);
   const content = [convertStrArrayToCsv(columnTitles)]
     .concat(
       entries
@@ -48,9 +48,15 @@ const beforeConvert = (entries, options) => {
   return entries;
 };
 
-const getAttributeNamesByType = (slug, type) => {
+const getAttributeNames = (slug, filterType) => {
   const attributes = strapi.db.metadata.get(slug).attributes;
-  return Object.keys(attributes).filter((key) => attributes[key].type === type);
+  const names = Object.keys(attributes);
+
+  if (filterType) {
+    return names.filter((key) => attributes[key].type === filterType);
+  }
+
+  return names;
 };
 
 module.exports = {
