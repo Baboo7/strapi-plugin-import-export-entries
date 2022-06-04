@@ -35,12 +35,11 @@ const withBeforeConvert = (convertFn) => (entries, options) => {
 
 const beforeConvert = (entries, options) => {
   if (options.relationsAsId) {
-    const relationKeys = getAttributeNamesByType(options.slug, "relation");
+    const relationKeys = getAttributeNames(options.slug, "relation");
     entries = entries.map((entry) => {
       relationKeys.forEach((key) => {
-        let relation = entry[key];
-        if (relation) {
-          relation = relation.id;
+        if (entry[key]) {
+          entry[key] = entry[key].id;
         }
       });
       return entry;
