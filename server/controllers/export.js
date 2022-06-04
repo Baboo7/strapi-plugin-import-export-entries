@@ -2,6 +2,7 @@
 
 const qs = require("qs");
 
+const { ObjectBuilder } = require("../../libs/objects");
 const { getService, Services } = require("../utils");
 
 const exportData = async (ctx) => {
@@ -12,10 +13,12 @@ const exportData = async (ctx) => {
   let { slug, search, applySearch, exportFormat, relationsAsId } =
     ctx.request.body;
 
-  let query = { populate: "*" };
+  const queryBuilder = new ObjectBuilder();
+  queryBuilder.extend({ populate: "*" });
   if (applySearch) {
-    query = { ...query, ...buildFilterQuery(search) };
+    queryBuilder.extend(buildFilterQuery(search));
   }
+  const query = queryBuilder.get();
 
   const entries = await strapi.entityService.findMany(slug, query);
 
