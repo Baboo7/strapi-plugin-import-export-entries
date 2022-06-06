@@ -24,7 +24,6 @@ const catchError = async (fn, ...args) => {
 };
 
 module.exports = {
-  Services,
   getService,
   catchError,
 };
