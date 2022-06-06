@@ -1,6 +1,6 @@
 {
   "name": "strapi-plugin-import-export-entries",
-  "version": "1.3.5",
+  "version": "1.3.6",
   "description": "This plugin helps you import and export data from and to your database in just few clicks.",
   "strapi": {
     "name": "import-export-entries",
