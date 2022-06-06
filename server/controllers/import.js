@@ -1,23 +1,34 @@
 "use strict";
 
 const csvtojson = require("csvtojson");
-const isEmpty = require("lodash/isEmpty");
+
+const { ObjectBuilder } = require("../../libs/objects");
+const { catchError } = require("../utils");
+const { getModelAttributes } = require("../utils/models");
 
 const importData = async (ctx) => {
   if (!hasPermissions(ctx)) {
     return ctx.forbidden();
   }
 
+  const { user } = ctx.state;
   const { slug, data: dataRaw, format } = ctx.request.body;
 
   let data;
   if (format === "csv") {
-    data = await csvtojson().fromString(dataRaw);
+    data = await importCsv(dataRaw, { slug });
   } else if (format === "json") {
-    data = JSON.parse(dataRaw);
+    data = await importJson(dataRaw, { slug });
   }
 
-  const processed = await Promise.all(data.map(updateOrCreateFlow(slug)));
+  const processed = [];
+  for (let datum of data) {
+    const res = await catchError(
+      (datum) => updateOrCreate(user, slug, datum),
+      datum
+    );
+    processed.push(res);
+  }
 
   const failures = processed
     .filter((p) => !p.success)
@@ -40,36 +51,63 @@ const hasPermissions = (ctx) => {
   return permissionChecker.can.create() && permissionChecker.can.update();
 };
 
-const updateOrCreateFlow = (slug) => async (d) => {
-  const res = await catchError((d) => updateOrCreate(slug, d), d);
-  return res;
+const importCsv = async (dataRaw, { slug }) => {
+  let data = await csvtojson().fromString(dataRaw);
+
+  const relationNames = getModelAttributes(slug, "relation").map((a) => a.name);
+  data = data.map((datum) => {
+    for (let name of relationNames) {
+      try {
+        datum[name] = JSON.parse(datum[name]);
+      } catch (err) {
+        strapi.log.error(err);
+      }
+    }
+    return datum;
+  });
+
+  return data;
 };
 
-const updateOrCreate = async (slug, data) => {
-  const where = {};
+const importJson = async (dataRaw, { slug }) => {
+  let data = JSON.parse(dataRaw);
+  return data;
+};
+
+const updateOrCreate = async (user, slug, data) => {
+  const relations = getModelAttributes(slug, "relation");
+  const processingRelations = relations.map((rel) =>
+    updateOrCreateRelation(user, data, rel)
+  );
+  await Promise.all(processingRelations);
+
+  const whereBuilder = new ObjectBuilder();
   if (data.id) {
-    where.id = data.id;
+    whereBuilder.extend({ id: data.id });
   }
+  const where = whereBuilder.get();
 
   let entry;
-  if (isEmpty(where)) {
-    entry = await strapi.db.query(slug).create({
-      data,
-    });
+  if (!where.id) {
+    entry = await strapi.db.query(slug).create({ data });
   } else {
-    entry = await strapi.db.query(slug).update({
-      where,
-      data,
-    });
+    entry = await strapi.db.query(slug).update({ where, data });
+
+    if (!entry) {
+      entry = await strapi.db.query(slug).create({ data });
+    }
   }
+
+  return entry;
 };
 
-const catchError = async (fn, ...args) => {
-  try {
-    await fn(...args);
-    return { success: true };
-  } catch (err) {
-    return { success: false, error: err.message, args };
+const updateOrCreateRelation = async (user, data, rel) => {
+  const relName = rel.name;
+  if (["createdBy", "updatedBy"].includes(relName)) {
+    data[relName] = user.id;
+  } else if (data[relName] && typeof data[relName] === "object") {
+    const entry = await updateOrCreate(user, rel.target, data[relName]);
+    data[relName] = entry?.id || null;
   }
 };
 
