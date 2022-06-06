@@ -105,7 +105,9 @@ const updateOrCreateRelation = async (user, data, rel) => {
   const relName = rel.name;
   if (["createdBy", "updatedBy"].includes(relName)) {
     data[relName] = user.id;
-  } else if (data[relName] && typeof data[relName] === "object") {
+  }
+  // data[relName] has to be checked since typeof null === "object".
+  else if (data[relName] && typeof data[relName] === "object") {
     const entry = await updateOrCreate(user, rel.target, data[relName]);
     data[relName] = entry?.id || null;
   }
