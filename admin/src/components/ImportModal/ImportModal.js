@@ -1,5 +1,8 @@
 import { Button } from "@strapi/design-system/Button";
+import { EmptyStateLayout } from "@strapi/design-system/EmptyStateLayout";
 import { Flex } from "@strapi/design-system/Flex";
+import { Icon } from "@strapi/design-system/Icon";
+import { Loader } from "@strapi/design-system/Loader";
 import {
   ModalLayout,
   ModalBody,
@@ -8,9 +11,9 @@ import {
 } from "@strapi/design-system/ModalLayout";
 import { Portal } from "@strapi/design-system/Portal";
 import { Typography } from "@strapi/design-system/Typography";
+import CheckCircle from "@strapi/icons/CheckCircle";
 import IconFile from "@strapi/icons/File";
 import React, { useState } from "react";
-
 import "./style.css";
 import ImportProxy from "../../api/importProxy";
 import { useSlug } from "../../hooks/useSlug";
@@ -19,6 +22,12 @@ import { Editor } from "../Editor/Editor";
 import { useAlerts } from "../../hooks/useAlerts";
 import { handleRequestErr } from "../../utils/error";
 import { useI18n } from "../../hooks/useI18n";
+
+const ModalState = {
+  SUCCESS: "success",
+  PARTIAL: "partial",
+  UNSET: "unset",
+};
 
 export const ImportModal = ({ onClose }) => {
   const { i18n } = useI18n();
@@ -30,6 +39,9 @@ export const ImportModal = ({ onClose }) => {
   const [labelClassNames, setLabelClassNames] = useState(
     "plugin-ie-import_modal_input-label"
   );
+  const [uploadSuccessful, setUploadSuccessful] = useState(ModalState.UNSET);
+  const [uploadingData, setUploadingData] = useState(false);
+  const [importFailuresContent, setImportFailuresContent] = useState("");
 
   const onDataChanged = (data) => {
     setData(data);
@@ -62,13 +74,31 @@ export const ImportModal = ({ onClose }) => {
   };
 
   const uploadData = async () => {
+    setUploadingData(true);
     try {
-      await ImportProxy.importData({ slug, data, format: dataFormat });
-      notify(
-        "Import successful",
-        "Your data has been imported successfully. Refresh your page to see the latest updates.",
-        "success"
-      );
+      const res = await ImportProxy.importData({
+        slug,
+        data,
+        format: dataFormat,
+      });
+
+      const { failures } = res;
+      if (!failures.length) {
+        setUploadSuccessful(ModalState.SUCCESS);
+        notify(
+          "Import successful",
+          "Your data has been imported successfully. Refresh your page to see the latest updates.",
+          "success"
+        );
+      } else {
+        setUploadSuccessful(ModalState.PARTIAL);
+        setImportFailuresContent(JSON.stringify(failures, null, "\t"));
+        notify(
+          "Import partially failed",
+          "Some data failed to be imported. See below for detailed information.",
+          "danger"
+        );
+      }
     } catch (err) {
       handleRequestErr(err, {
         403: () =>
@@ -84,6 +114,8 @@ export const ImportModal = ({ onClose }) => {
             "danger"
           ),
       });
+    } finally {
+      setUploadingData(false);
     }
   };
 
@@ -120,6 +152,23 @@ export const ImportModal = ({ onClose }) => {
     readFile(file);
   };
 
+  const copyToClipboard = () => {
+    navigator.clipboard.writeText(data);
+    notify("Copied", "", "success");
+  };
+
+  const showLoader = uploadingData;
+  const showFileDragAndDrop =
+    !uploadingData && uploadSuccessful === ModalState.UNSET && !data;
+  const showEditor =
+    !uploadingData && uploadSuccessful === ModalState.UNSET && data;
+  const showSuccess = !uploadingData && uploadSuccessful === ModalState.SUCCESS;
+  const showPartialSuccess =
+    !uploadingData && uploadSuccessful === ModalState.PARTIAL;
+
+  const showImportButton = showEditor;
+  const showRemoveFileButton = showEditor;
+
   return (
     <Portal>
       <ModalLayout onClose={onClose} labelledBy="title">
@@ -134,7 +183,7 @@ export const ImportModal = ({ onClose }) => {
           </Typography>
         </ModalHeader>
         <ModalBody className="plugin-ie-import_modal_body">
-          {!data && (
+          {showFileDragAndDrop && (
             <Flex>
               <label
                 className={labelClassNames}
@@ -163,18 +212,60 @@ export const ImportModal = ({ onClose }) => {
               </label>
             </Flex>
           )}
-          {data && (
+          {showLoader && (
+            <>
+              <Flex justifyContent="center">
+                <Loader>Importing data...</Loader>
+              </Flex>
+            </>
+          )}
+          {showEditor && (
             <Editor
               content={data}
               language={dataFormat}
               onChange={onDataChanged}
             />
           )}
+          {showSuccess && (
+            <>
+              <EmptyStateLayout
+                icon={
+                  <Icon
+                    width="6rem"
+                    height="6rem"
+                    color="success500"
+                    as={CheckCircle}
+                  />
+                }
+                content={"Your data has been imported successfully."}
+                action={
+                  <Button onClick={onClose} variant="tertiary">
+                    {i18n("plugin.cta.close")}
+                  </Button>
+                }
+              />
+            </>
+          )}
+          {showPartialSuccess && (
+            <>
+              <Typography textColor="neutral800" fontWeight="bold" as="h2">
+                Import Partially Failed
+              </Typography>
+              <Typography textColor="neutral800" as="p">
+                Detailed Information:
+              </Typography>
+              <Editor
+                content={importFailuresContent}
+                language={"json"}
+                readOnly
+              />
+            </>
+          )}
         </ModalBody>
         <ModalFooter
           startActions={
             <>
-              {data && (
+              {showRemoveFileButton && (
                 <Button onClick={removeFile} variant="tertiary">
                   {i18n("plugin.cta.remove-file")}
                 </Button>
@@ -183,9 +274,14 @@ export const ImportModal = ({ onClose }) => {
           }
           endActions={
             <>
-              {data && (
+              {showImportButton && (
                 <Button onClick={uploadData}>
                   {i18n("plugin.cta.import")}
+                </Button>
+              )}
+              {showPartialSuccess && (
+                <Button variant="secondary" onClick={copyToClipboard}>
+                  {i18n("plugin.cta.copy-to-clipboard")}
                 </Button>
               )}
             </>
