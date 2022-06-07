@@ -1,10 +1,9 @@
 "use strict";
 
-const csvtojson = require("csvtojson");
-
-const { ObjectBuilder } = require("../../libs/objects");
-const { catchError } = require("../utils");
-const { getModelAttributes } = require("../utils/models");
+const { ObjectBuilder } = require("../../../libs/objects");
+const { catchError } = require("../../utils");
+const { getModelAttributes } = require("../../utils/models");
+const { parseInputData } = require("./utils/parsers");
 
 const importData = async (ctx) => {
   if (!hasPermissions(ctx)) {
@@ -14,12 +13,7 @@ const importData = async (ctx) => {
   const { user } = ctx.state;
   const { slug, data: dataRaw, format } = ctx.request.body;
 
-  let data;
-  if (format === "csv") {
-    data = await importCsv(dataRaw, { slug });
-  } else if (format === "json") {
-    data = await importJson(dataRaw, { slug });
-  }
+  const data = await parseInputData(format, dataRaw, { slug });
 
   const processed = [];
   for (let datum of data) {
@@ -49,29 +43,6 @@ const hasPermissions = (ctx) => {
     .create({ userAbility, model: slug });
 
   return permissionChecker.can.create() && permissionChecker.can.update();
-};
-
-const importCsv = async (dataRaw, { slug }) => {
-  let data = await csvtojson().fromString(dataRaw);
-
-  const relationNames = getModelAttributes(slug, "relation").map((a) => a.name);
-  data = data.map((datum) => {
-    for (let name of relationNames) {
-      try {
-        datum[name] = JSON.parse(datum[name]);
-      } catch (err) {
-        strapi.log.error(err);
-      }
-    }
-    return datum;
-  });
-
-  return data;
-};
-
-const importJson = async (dataRaw, { slug }) => {
-  let data = JSON.parse(dataRaw);
-  return data;
 };
 
 const updateOrCreate = async (user, slug, data) => {

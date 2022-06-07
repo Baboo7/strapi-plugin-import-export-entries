@@ -1,3 +1,5 @@
+"use strict";
+
 /**
  * AttributeType.
  * @typedef {("boolean"|"datetime"|"increments"|"number"|"relation"|"string"|"text")} AttributeType
@@ -12,13 +14,22 @@
  */
 
 /**
+ * Get a model.
+ * @param {string} slug
+ * @return {{attributes: {[k:string]: Attribute}}}
+ */
+const getModel = (slug) => {
+  return strapi.db.metadata.get(slug);
+};
+
+/**
  * Get the attributes of a model.
  * @param {string} slug - Slug of the model.
  * @param {AttributeType} [filterType] - Only attributes matching the type will be kept.
  * @returns {Array<Attribute>}
  */
 const getModelAttributes = (slug, filterType) => {
-  const attributesObj = strapi.db.metadata.get(slug).attributes;
+  const attributesObj = getModel(slug).attributes;
   const attributes = Object.keys(attributesObj).reduce(
     (acc, key) => acc.concat({ ...attributesObj[key], name: key }),
     []
@@ -32,5 +43,6 @@ const getModelAttributes = (slug, filterType) => {
 };
 
 module.exports = {
+  getModel,
   getModelAttributes,
 };
