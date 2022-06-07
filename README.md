@@ -135,7 +135,7 @@ Once the plugin is installed and setup, the functionnalities are accessible on t
 
 ### Import Example
 
-Let's consider data to represents yoga courses. We have a `course` table where each `course` refers to a `beautiful_place` (stored in the `beautiful_place` table).
+Let's consider some data that represents yoga courses. We have a `course` table where each `course` refers to a `beautiful_place` (stored in the `beautiful_place` table).
 
 Here we are importing the following 3 entries to the `course` table.
 
