@@ -92,11 +92,7 @@ export const ExportModal = ({ onClose }) => {
 
   const copyToClipboard = () => {
     navigator.clipboard.writeText(data);
-    notify(
-      "Copied to clipboard",
-      "Your data has been copied to your clipboard successfully.",
-      "success"
-    );
+    notify("Copied", "", "success");
   };
 
   const clearData = () => {
