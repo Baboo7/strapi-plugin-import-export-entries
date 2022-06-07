@@ -17,7 +17,7 @@ import React, { useState } from "react";
 import "./style.css";
 import ImportProxy from "../../api/importProxy";
 import { useSlug } from "../../hooks/useSlug";
-import { dataFormats } from "../../utils/dataConverter";
+import { dataFormats } from "../../utils/dataFormats";
 import { Editor } from "../Editor/Editor";
 import { useAlerts } from "../../hooks/useAlerts";
 import { handleRequestErr } from "../../utils/error";

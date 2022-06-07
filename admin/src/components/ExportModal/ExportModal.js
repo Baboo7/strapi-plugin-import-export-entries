@@ -13,7 +13,7 @@ import { Portal } from "@strapi/design-system/Portal";
 import { Select, Option } from "@strapi/design-system/Select";
 import { Typography } from "@strapi/design-system/Typography";
 import { pick } from "lodash";
-import React, { useEffect, useState } from "react";
+import React, { useState } from "react";
 import { useLocation } from "react-router-dom";
 import qs from "qs";
 
@@ -21,7 +21,7 @@ import "./style.css";
 import ExportProxy from "../../api/exportProxy";
 import { useDownloadFile } from "../../hooks/useDownloadFile";
 import { useSlug } from "../../hooks/useSlug";
-import { dataConverterConfigs, dataFormats } from "../../utils/dataConverter";
+import { dataFormatConfigs, dataFormats } from "../../utils/dataFormats";
 import { Editor } from "../Editor/Editor";
 import { useAlerts } from "../../hooks/useAlerts";
 import { handleRequestErr } from "../../utils/error";
@@ -72,14 +72,14 @@ export const ExportModal = ({ onClose }) => {
   };
 
   const writeDataToFile = async () => {
-    const converter = dataConverterConfigs[optionExportFormat];
-    if (!converter) {
+    const config = dataFormatConfigs[optionExportFormat];
+    if (!config) {
       throw new Error(
         `File extension ${optionExportFormat} not supported to export data.`
       );
     }
 
-    const { fileExt, fileContentType } = converter;
+    const { fileExt, fileContentType } = config;
     const fileName = `export_${slug}.${fileExt}`
       .replaceAll(":", "-")
       .replaceAll("--", "-");
