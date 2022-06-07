@@ -14,7 +14,7 @@ export const Editor = ({
     <EditorLib
       className="plugin-ie-editor"
       style={style}
-      height="30vh"
+      height="40vh"
       theme="vs-dark"
       language={language}
       value={content}
