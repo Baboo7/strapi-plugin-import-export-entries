@@ -46,7 +46,16 @@ const beforeConvert = (entries, options) => {
     const relationKeys = getAttributeNames(options.slug, "relation");
     entries = entries.map((entry) => {
       relationKeys.forEach((key) => {
-        if (entry[key]) {
+        if (!entry[key]) {
+          entry[key] = null;
+        } else if (Array.isArray(entry[key])) {
+          entry[key] = entry[key].map((rel) => {
+            if (typeof rel === "object") {
+              return rel.id;
+            }
+            return rel;
+          });
+        } else if (typeof entry[key] === "object") {
           entry[key] = entry[key].id;
         }
       });
