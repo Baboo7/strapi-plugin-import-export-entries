@@ -78,6 +78,13 @@ const updateOrCreateRelation = async (user, data, rel) => {
     data[relName] = user.id;
   }
   // data[relName] has to be checked since typeof null === "object".
+  else if (data[relName] && Array.isArray(data[relName])) {
+    const entries = await Promise.all(
+      data[relName].map((relData) => updateOrCreate(user, rel.target, relData))
+    );
+    data[relName] = entries.map((entry) => entry.id);
+  }
+  // data[relName] has to be checked since typeof null === "object".
   else if (data[relName] && typeof data[relName] === "object") {
     const entry = await updateOrCreate(user, rel.target, data[relName]);
     data[relName] = entry?.id || null;
