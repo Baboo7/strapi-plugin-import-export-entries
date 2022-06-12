@@ -167,7 +167,7 @@ export const ExportModal = ({ onClose }) => {
                 <GridItem col={12}>
                   <Field name="Populate" hint="Apply custom populate to exported data (simple string separate by comma). keep empty for populate *">
                     <FieldLabel>Populate</FieldLabel>
-                    <FieldInput type="text" placeholder="Placeholder" onChange={(e) => setOptionApplyPopulate(e.target.value)} />
+                    <FieldInput type="text" onChange={(e) => setOptionApplyPopulate(e.target.value)} />
                     <FieldHint />
                   </Field>
                 </GridItem>
