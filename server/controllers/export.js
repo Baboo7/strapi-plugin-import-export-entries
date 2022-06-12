@@ -10,11 +10,15 @@ const exportData = async (ctx) => {
     return ctx.forbidden();
   }
 
-  let { slug, search, applySearch, exportFormat, relationsAsId } =
+  let { slug, search, applySearch, exportFormat, relationsAsId, applyPopulate } =
     ctx.request.body;
 
+  const populate = applyPopulate
+    ? applyPopulate.split(",").map((v) => v.trim())
+    : "*";
+
   const queryBuilder = new ObjectBuilder();
-  queryBuilder.extend({ populate: "*" });
+  queryBuilder.extend({ populate: populate });
   if (applySearch) {
     queryBuilder.extend(buildFilterQuery(search));
   }
