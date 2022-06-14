@@ -13,11 +13,11 @@ const exportData = async (ctx) => {
   let { slug, search, applySearch, exportFormat, relationsAsId, applyPopulate } =
     ctx.request.body;
 
-  const populate = applyPopulate
-    ? applyPopulate.split(",").map((v) => v.trim())
-    : "*";
+  const schema = strapi.getModel(slug).__schema__;
+  const populate = getPopulateFromSchema(schema);
 
   const queryBuilder = new ObjectBuilder();
+
   queryBuilder.extend({ populate: populate });
   if (applySearch) {
     queryBuilder.extend(buildFilterQuery(search));
@@ -62,6 +62,29 @@ const buildFilterQuery = (search) => {
     filters,
     sort,
   };
+};
+
+const populateAttribute = function({ components }) {
+  if (components) {
+    const populate = components.reduce((currentValue, current) => {
+      return { ...currentValue, [current.split(".").pop()]: { populate: "*" } };
+    }, {});
+    return { populate };
+  }
+  return { populate: "*" };
+}
+
+const getPopulateFromSchema = function (schema) {
+  return Object.keys(schema.attributes).reduce((currentValue, current) => {
+    const attribute = schema.attributes[current];
+    if (!["dynamiczone", "component"].includes(attribute.type)) {
+      return currentValue;
+    }
+    return {
+      ...currentValue,
+      [current]: populateAttribute(attribute),
+    };
+  }, {});
 };
 
 module.exports = ({ strapi }) => ({
