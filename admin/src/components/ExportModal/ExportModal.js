@@ -1,7 +1,5 @@
 import { Button } from "@strapi/design-system/Button";
 import { Checkbox } from "@strapi/design-system/Checkbox";
-import { Field, FieldLabel, FieldHint, FieldInput  } from '@strapi/design-system/Field';
-
 import {
   ModalLayout,
   ModalBody,
@@ -39,7 +37,6 @@ export const ExportModal = ({ onClose }) => {
   const [optionExportFormat, setOptionExportFormat] = useState(dataFormats.CSV);
   const [optionApplyFilters, setOptionApplyFilters] = useState(false);
   const [optionRelationsAsId, setOptionRelationsAsId] = useState(false);
-  const [optionApplyPopulate, setOptionApplyPopulate] = useState('');
   const [data, setData] = useState(null);
   const [fetchingData, setFetchingData] = useState(false);
 
@@ -52,7 +49,6 @@ export const ExportModal = ({ onClose }) => {
         applySearch: optionApplyFilters,
         exportFormat: optionExportFormat,
         relationsAsId: optionRelationsAsId,
-        applyPopulate: optionApplyPopulate,
       });
       setData(res.data);
     } catch (err) {
@@ -163,15 +159,6 @@ export const ExportModal = ({ onClose }) => {
                   Apply filters and sort to exported data.
                 </Checkbox>
               </Flex>
-              <Grid gap={8}>
-                <GridItem col={12}>
-                  <Field name="Populate" hint="Apply custom populate to exported data (simple string separate by comma). keep empty for populate *">
-                    <FieldLabel>Populate</FieldLabel>
-                    <FieldInput type="text" onChange={(e) => setOptionApplyPopulate(e.target.value)} />
-                    <FieldHint />
-                  </Field>
-                </GridItem>
-              </Grid>
             </>
           )}
           {data && !fetchingData && (
