@@ -74,10 +74,14 @@ const populateAttribute = function({ components }) {
   return { populate: "*" };
 }
 
-const getPopulateFromSchema = function (schema) {
-  return Object.keys(schema.attributes).reduce((currentValue, current) => {
+ const  getPopulateFromSchema = function (schema)  { 
+  let populate = Object.keys(schema.attributes).reduce((currentValue, current) => {
     const attribute = schema.attributes[current];
+
     if (!["dynamiczone", "component"].includes(attribute.type)) {
+      if(attribute.type === 'relation') {
+        return { ...currentValue, [current]: '*' };
+      }
       return currentValue;
     }
     return {
@@ -85,6 +89,15 @@ const getPopulateFromSchema = function (schema) {
       [current]: populateAttribute(attribute),
     };
   }, {});
+
+  ['createdBy', 'updatedBy'].map( i => {
+    Object.defineProperty(populate, i, {
+      value: '*',
+      enumerable: true
+    })
+  })
+  
+  return populate
 };
 
 module.exports = ({ strapi }) => ({
