@@ -39,6 +39,8 @@ Import/Export data from and to your database in just few clicks.
 - [Installation](#installation)
 - [Rebuild The Admin Panel](#rebuild-the-admin-panel)
 - [Usage](#usage)
+  - [Services](#services)
+  - [Examples](#examples)
 - [Author](#author)
 - [Acknowledgments](#acknowledgments)
 
@@ -133,7 +135,45 @@ Once the plugin is installed and setup, the functionnalities are accessible on t
   <img src="./doc/scr-usage.png" alt="UI" width="500"/>
 </p>
 
-### Import Example
+### Services
+
+```ts
+/*****************************
+ * Service "import".
+ ****************************/
+
+/**
+ * Get the service.
+ */
+strapi.plugin("import-export-entries").service("import");
+
+/**
+ * Method importData.
+ */
+importData(
+  /** See Example 1 for the shape of the objects. */
+  dataRaw: object[],
+  options: {
+    /** Slug of the model to import to. */
+    slug: string;
+    /** Format of the imported data. */
+    format: "csv" | "json";
+    /** User importing data. */
+    user: object;
+  }
+) : Promise<{
+  failures: {
+    /** Error raised. */
+    error: Error;
+    /** Data for which import failed. */
+    data: object;
+  }[]
+}>;
+```
+
+### Examples
+
+#### Example 1: Import Through Content Manager
 
 Let's consider some data that represents yoga courses. We have a `course` table where each `course` refers to a `beautiful_place` (stored in the `beautiful_place` table).
 
