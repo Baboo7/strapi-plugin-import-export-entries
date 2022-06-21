@@ -145,12 +145,13 @@ Once the plugin is installed and setup, the functionnalities are accessible on t
 /**
  * Get the service.
  */
-strapi.plugin("import-export-entries").service("import");
+const service = strapi.plugin("import-export-entries").service("import");
 
 /**
  * Method importData.
  */
-importData(
+
+await service.importData(
   /** See Example 1 for the shape of the objects. */
   dataRaw: object[],
   options: {
