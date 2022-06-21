@@ -150,7 +150,6 @@ const service = strapi.plugin("import-export-entries").service("import");
 /**
  * Method importData.
  */
-
 await service.importData(
   /** See Example 1 for the shape of the objects. */
   dataRaw: object[],
