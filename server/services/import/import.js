@@ -52,9 +52,9 @@ const importData = async (dataRaw, { slug, format, user }) => {
  */
 const updateOrCreate = async (user, slug, data) => {
   const relations = getModelAttributes(slug, "relation");
-  const processingRelations = relations.map((rel) =>
-    updateOrCreateRelation(user, rel, data)
-  );
+  const processingRelations = relations.map(async (rel) => {
+    data[rel.name] = await updateOrCreateRelation(user, rel, data[rel.name]);
+  });
   await Promise.all(processingRelations);
 
   const whereBuilder = new ObjectBuilder();
@@ -81,24 +81,24 @@ const updateOrCreate = async (user, slug, data) => {
  * Update or create a relation.
  * @param {Object} user
  * @param {Attribute} rel
- * @param {number | Object | Array<Object>} data
+ * @param {number | Object | Array<Object>} relData
  */
-const updateOrCreateRelation = async (user, rel, data) => {
+const updateOrCreateRelation = async (user, rel, relData) => {
   const relName = rel.name;
   if (["createdBy", "updatedBy"].includes(relName)) {
-    data[relName] = user.id;
+    return user.id;
   }
-  // data[relName] has to be checked since typeof null === "object".
-  else if (data[relName] && Array.isArray(data[relName])) {
+  // relData has to be checked since typeof null === "object".
+  else if (relData && Array.isArray(relData)) {
     const entries = await Promise.all(
-      data[relName].map((relData) => updateOrCreate(user, rel.target, relData))
+      relData.map((relDatum) => updateOrCreate(user, rel.target, relDatum))
     );
-    data[relName] = entries.map((entry) => entry.id);
+    return entries.map((entry) => entry.id);
   }
-  // data[relName] has to be checked since typeof null === "object".
-  else if (data[relName] && typeof data[relName] === "object") {
-    const entry = await updateOrCreate(user, rel.target, data[relName]);
-    data[relName] = entry?.id || null;
+  // relData has to be checked since typeof null === "object".
+  else if (relData && typeof relData === "object") {
+    const entry = await updateOrCreate(user, rel.target, relData);
+    return entry?.id || null;
   }
 };
 
