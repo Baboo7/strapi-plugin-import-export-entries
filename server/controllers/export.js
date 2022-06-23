@@ -4,6 +4,7 @@ const qs = require("qs");
 
 const { ObjectBuilder } = require("../../libs/objects");
 const { getService, Services } = require("../utils");
+const {  getModel } = require("../utils/models");
 
 const exportData = async (ctx) => {
   if (!hasPermissions(ctx)) {
@@ -13,7 +14,7 @@ const exportData = async (ctx) => {
   let { slug, search, applySearch, exportFormat, relationsAsId } =
     ctx.request.body;
 
-  const schema = strapi.getModel(slug).__schema__;
+  const schema = getModel(slug);
   const populate = getPopulateFromSchema(schema);
 
   const queryBuilder = new ObjectBuilder();
@@ -64,38 +65,35 @@ const buildFilterQuery = (search) => {
   };
 };
 
-const populateAttribute = function({ components }) {
+const populateAttribute = ({ components }) => {
   if (components) {
-    const populate = components.reduce((currentValue, current) => {
-      return { ...currentValue, [current.split(".").pop()]: { populate: "*" } };
+    const populate = components.reduce((populate, attributeName) => {
+      return { ...populate, [attributeName.split(".").pop()]: { populate: "*" } };
     }, {});
     return { populate };
   }
   return { populate: "*" };
 }
 
- const  getPopulateFromSchema = function (schema)  { 
-  let populate = Object.keys(schema.attributes).reduce((currentValue, current) => {
-    const attribute = schema.attributes[current];
+const  getPopulateFromSchema = (schema) => {
+  let populate = Object.keys(schema.attributes).reduce((populate, attributeName) => {
+    const attribute = schema.attributes[attributeName];
 
-    if (!["dynamiczone", "component"].includes(attribute.type)) {
-      if(attribute.type === 'relation') {
-        return { ...currentValue, [current]: '*' };
-      }
-      return currentValue;
+    if(attribute.type === 'relation') {
+      return { ...populate, [attributeName]: { populate: '*' } };
     }
-    return {
-      ...currentValue,
-      [current]: populateAttribute(attribute),
-    };
+
+    if (["dynamiczone", "component"].includes(attribute.type)) {
+      return {
+        ...populate,
+        [attributeName]: populateAttribute(attribute),
+      };
+    }
+
+    return populate;
   }, {});
 
-  ['createdBy', 'updatedBy'].map( i => {
-    Object.defineProperty(populate, i, {
-      value: '*',
-      enumerable: true
-    })
-  })
+  ['createdBy', 'updatedBy'].map( attribute => ({ populate : '*' }) )
   
   return populate
 };
