@@ -19,6 +19,7 @@ const catchError = async (fn, ...args) => {
     await fn(...args);
     return { success: true };
   } catch (err) {
+    strapi.log.error(err);
     return { success: false, error: err.message, args };
   }
 };
