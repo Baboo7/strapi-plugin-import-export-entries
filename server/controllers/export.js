@@ -10,7 +10,7 @@ const exportData = async (ctx) => {
     return ctx.forbidden();
   }
 
-  let { slug, search, applySearch, exportFormat, relationsAsId, applyPopulate } =
+  let { slug, search, applySearch, exportFormat, relationsAsId } =
     ctx.request.body;
 
   const schema = strapi.getModel(slug).__schema__;

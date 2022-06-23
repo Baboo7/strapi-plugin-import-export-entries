@@ -7,12 +7,11 @@ const getByContentType = async ({
   search,
   applySearch,
   exportFormat,
-  relationsAsId,
-  applyPopulate,
+  relationsAsId
 }) => {
   const data = await request(`/${pluginId}/export/contentTypes`, {
     method: "POST",
-    body: { slug, search, applySearch, exportFormat, relationsAsId, applyPopulate },
+    body: { slug, search, applySearch, exportFormat, relationsAsId },
   });
   return data;
 };
