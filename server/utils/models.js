@@ -2,7 +2,7 @@
 
 /**
  * AttributeType.
- * @typedef {("boolean"|"datetime"|"increments"|"number"|"relation"|"string"|"text")} AttributeType
+ * @typedef {("boolean"|"component"|"datetime"|"dynamiczone"|"increments"|"number"|"relation"|"string"|"text")} AttributeType
  */
 
 /**

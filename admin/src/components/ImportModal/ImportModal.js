@@ -14,6 +14,7 @@ import { Typography } from "@strapi/design-system/Typography";
 import CheckCircle from "@strapi/icons/CheckCircle";
 import IconFile from "@strapi/icons/File";
 import React, { useState } from "react";
+
 import "./style.css";
 import ImportProxy from "../../api/importProxy";
 import { useSlug } from "../../hooks/useSlug";
@@ -22,6 +23,7 @@ import { Editor } from "../Editor/Editor";
 import { useAlerts } from "../../hooks/useAlerts";
 import { handleRequestErr } from "../../utils/error";
 import { useI18n } from "../../hooks/useI18n";
+import { ImportEditor } from "./components/ImportEditor";
 
 const ModalState = {
   SUCCESS: "success",
@@ -35,6 +37,7 @@ export const ImportModal = ({ onClose }) => {
   const { notify } = useAlerts();
 
   const [data, setData] = useState("");
+  const [options, setOptions] = useState({});
   const [dataFormat, setDataFormat] = useState(dataFormats.CSV);
   const [labelClassNames, setLabelClassNames] = useState(
     "plugin-ie-import_modal_input-label"
@@ -45,6 +48,10 @@ export const ImportModal = ({ onClose }) => {
 
   const onDataChanged = (data) => {
     setData(data);
+  };
+
+  const onOptionsChanged = (options) => {
+    setOptions(options);
   };
 
   const onReadFile = (e) => {
@@ -80,6 +87,7 @@ export const ImportModal = ({ onClose }) => {
         slug,
         data,
         format: dataFormat,
+        ...options,
       });
 
       const { failures } = res;
@@ -220,10 +228,12 @@ export const ImportModal = ({ onClose }) => {
             </>
           )}
           {showEditor && (
-            <Editor
-              content={data}
-              language={dataFormat}
-              onChange={onDataChanged}
+            <ImportEditor
+              data={data}
+              dataFormat={dataFormat}
+              slug={slug}
+              onDataChanged={onDataChanged}
+              onOptionsChanged={onOptionsChanged}
             />
           )}
           {showSuccess && (

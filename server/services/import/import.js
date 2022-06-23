@@ -20,15 +20,16 @@ const { parseInputData } = require("./utils/parsers");
  * @param {string} options.slug - Slug of the model to import.
  * @param {("csv" | "json")} options.format - Format of the imported data.
  * @param {Object} options.user - User importing the data.
+ * @param {Object} options.idField - Field used as unique identifier.
  * @returns {Promise<ImportDataRes>}
  */
-const importData = async (dataRaw, { slug, format, user }) => {
+const importData = async (dataRaw, { slug, format, user, idField }) => {
   const data = await parseInputData(format, dataRaw, { slug });
 
   const processed = [];
   for (let datum of data) {
     const res = await catchError(
-      (datum) => updateOrCreate(user, slug, datum),
+      (datum) => updateOrCreate(user, slug, datum, idField),
       datum
     );
     processed.push(res);
@@ -45,12 +46,13 @@ const importData = async (dataRaw, { slug, format, user }) => {
 
 /**
  * Update or create entries for a given model.
- * @param {*} user - User importing the data.
- * @param {*} slug - Slug of the model.
- * @param {*} data - Data to update/create entries from.
+ * @param {Object} user - User importing the data.
+ * @param {string} slug - Slug of the model.
+ * @param {Object} data - Data to update/create entries from.
+ * @param {string} idField - Field used as unique identifier.
  * @returns Updated/created entry.
  */
-const updateOrCreate = async (user, slug, data) => {
+const updateOrCreate = async (user, slug, data, idField = "id") => {
   const relations = getModelAttributes(slug, "relation");
   const processingRelations = relations.map(async (rel) => {
     data[rel.name] = await updateOrCreateRelation(user, rel, data[rel.name]);
@@ -58,13 +60,18 @@ const updateOrCreate = async (user, slug, data) => {
   await Promise.all(processingRelations);
 
   const whereBuilder = new ObjectBuilder();
-  if (data.id) {
-    whereBuilder.extend({ id: data.id });
+  if (data[idField]) {
+    whereBuilder.extend({ [idField]: data[idField] });
   }
   const where = whereBuilder.get();
 
+  // Prevent strapi from throwing a unique constraint error on id field.
+  if (idField !== "id") {
+    delete data.id;
+  }
+
   let entry;
-  if (!where.id) {
+  if (!where[idField]) {
     entry = await strapi.db.query(slug).create({ data });
   } else {
     entry = await strapi.db.query(slug).update({ where, data });
