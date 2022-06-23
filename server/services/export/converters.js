@@ -1,5 +1,9 @@
+const { getModelAttributes } = require("../../utils/models");
+
 const convertToCsv = (entries, options) => {
-  const columnTitles = getAttributeNames(options.slug);
+  const columnTitles = getModelAttributes(options.slug).map(
+    (attr) => attr.name
+  );
   const content = [convertStrArrayToCsv(columnTitles)]
     .concat(
       entries
@@ -43,7 +47,9 @@ const withBeforeConvert = (convertFn) => (entries, options) => {
 
 const beforeConvert = (entries, options) => {
   if (options.relationsAsId) {
-    const relationKeys = getAttributeNames(options.slug, "relation");
+    const relationKeys = getModelAttributes(options.slug, "relation").map(
+      (attr) => attr.name
+    );
     entries = entries.map((entry) => {
       relationKeys.forEach((key) => {
         if (!entry[key]) {
@@ -63,17 +69,6 @@ const beforeConvert = (entries, options) => {
     });
   }
   return entries;
-};
-
-const getAttributeNames = (slug, filterType) => {
-  const attributes = strapi.db.metadata.get(slug).attributes;
-  const names = Object.keys(attributes);
-
-  if (filterType) {
-    return names.filter((key) => attributes[key].type === filterType);
-  }
-
-  return names;
 };
 
 module.exports = {

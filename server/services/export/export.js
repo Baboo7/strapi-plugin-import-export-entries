@@ -1,4 +1,4 @@
-const { convertToCsv, convertToJson } = require("./utils");
+const { convertToCsv, convertToJson } = require("./converters");
 
 const dataFormats = {
   CSV: "csv",
@@ -23,7 +23,7 @@ const dataConverterConfigs = {
  * @param {boolean} options.relationsAsId
  * @returns
  */
-const convertEntries = (entries, options) => {
+const exportData = (entries, options) => {
   const converter = getConverter(options.dataFormat);
 
   const convertedData = converter.convertEntries(entries, options);
@@ -43,5 +43,5 @@ const getConverter = (dataFormat) => {
 
 module.exports = ({ strapi }) => ({
   formats: dataFormats,
-  convertEntries,
+  exportData,
 });

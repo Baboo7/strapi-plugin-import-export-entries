@@ -1,9 +1,9 @@
 "use strict";
 
-const dataConverterService = require("./data-converter");
+const exportService = require("./export");
 const importService = require("./import");
 
 module.exports = {
-  "data-converter": dataConverterService,
+  export: exportService,
   import: importService,
 };

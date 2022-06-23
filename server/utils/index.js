@@ -2,7 +2,7 @@ const pluginId = require("./pluginId");
 
 /**
  * ServiceName.
- * @typedef {("data-converter"|"import")} ServiceName
+ * @typedef {("export"|"import")} ServiceName
  */
 
 /**

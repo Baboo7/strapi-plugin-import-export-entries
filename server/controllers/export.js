@@ -22,7 +22,7 @@ const exportData = async (ctx) => {
 
   const entries = await strapi.entityService.findMany(slug, query);
 
-  const data = getService("data-converter").convertEntries(entries, {
+  const data = getService("export").exportData(entries, {
     slug,
     dataFormat: exportFormat,
     relationsAsId,
