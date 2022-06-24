@@ -2,23 +2,21 @@
 
 const qs = require("qs");
 
-const { ObjectBuilder } = require("../../libs/objects");
-const { getService, Services } = require("../utils");
-const {  getModel } = require("../utils/models");
+const { ObjectBuilder } = require('../../libs/objects');
+const { getService } = require('../utils');
+const { getModel } = require('../utils/models');
 
 const exportData = async (ctx) => {
   if (!hasPermissions(ctx)) {
     return ctx.forbidden();
   }
 
-  let { slug, search, applySearch, exportFormat, relationsAsId } =
-    ctx.request.body;
+  let { slug, search, applySearch, exportFormat, relationsAsId } = ctx.request.body;
 
   const schema = getModel(slug);
   const populate = getPopulateFromSchema(schema);
 
   const queryBuilder = new ObjectBuilder();
-
   queryBuilder.extend({ populate: populate });
   if (applySearch) {
     queryBuilder.extend(buildFilterQuery(search));
