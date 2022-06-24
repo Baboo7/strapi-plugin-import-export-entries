@@ -1,12 +1,8 @@
+const { getModelAttributes } = require('../../utils/models');
+
 const convertToCsv = (entries, options) => {
-  const columnTitles = getAttributeNames(options.slug);
-  const content = [convertStrArrayToCsv(columnTitles)]
-    .concat(
-      entries
-        .map((entry) => convertEntryToStrArray(entry, columnTitles))
-        .map(convertStrArrayToCsv)
-    )
-    .join("\r\n");
+  const columnTitles = getModelAttributes(options.slug).map((attr) => attr.name);
+  const content = [convertStrArrayToCsv(columnTitles)].concat(entries.map((entry) => convertEntryToStrArray(entry, columnTitles)).map(convertStrArrayToCsv)).join('\r\n');
   return content;
 };
 
@@ -15,11 +11,11 @@ const convertStrArrayToCsv = (entry) => {
     .map(stringifyEntry)
     .map((v) => v.replace(/"/g, '""'))
     .map((v) => `"${v}"`)
-    .join(",");
+    .join(',');
 };
 
 const stringifyEntry = (entry) => {
-  if (typeof entry === "object") {
+  if (typeof entry === 'object') {
     return JSON.stringify(entry);
   }
 
@@ -31,7 +27,7 @@ const convertEntryToStrArray = (entry, keys) => {
 };
 
 const convertToJson = (entries, options) => {
-  entries = JSON.stringify(entries, null, "\t");
+  entries = JSON.stringify(entries, null, '\t');
   return entries;
 };
 
@@ -43,19 +39,19 @@ const withBeforeConvert = (convertFn) => (entries, options) => {
 
 const beforeConvert = (entries, options) => {
   if (options.relationsAsId) {
-    const relationKeys = getAttributeNames(options.slug, "relation");
+    const relationKeys = getModelAttributes(options.slug, 'relation').map((attr) => attr.name);
     entries = entries.map((entry) => {
       relationKeys.forEach((key) => {
         if (!entry[key]) {
           entry[key] = null;
         } else if (Array.isArray(entry[key])) {
           entry[key] = entry[key].map((rel) => {
-            if (typeof rel === "object") {
+            if (typeof rel === 'object') {
               return rel.id;
             }
             return rel;
           });
-        } else if (typeof entry[key] === "object") {
+        } else if (typeof entry[key] === 'object') {
           entry[key] = entry[key].id;
         }
       });
@@ -63,17 +59,6 @@ const beforeConvert = (entries, options) => {
     });
   }
   return entries;
-};
-
-const getAttributeNames = (slug, filterType) => {
-  const attributes = strapi.db.metadata.get(slug).attributes;
-  const names = Object.keys(attributes);
-
-  if (filterType) {
-    return names.filter((key) => attributes[key].type === filterType);
-  }
-
-  return names;
 };
 
 module.exports = {

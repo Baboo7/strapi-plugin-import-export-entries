@@ -1,0 +1,10 @@
+**/*.svg
+**/*.png
+**/*.snap
+**/*.txt
+**/*.otf
+**/*.ttf
+**/*.css
+build
+coverage
+node_modules

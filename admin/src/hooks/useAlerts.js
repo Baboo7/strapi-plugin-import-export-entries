@@ -1,5 +1,5 @@
-import { useState, useRef } from "react";
-import { singletonHook } from "react-singleton-hook";
+import { useState, useRef } from 'react';
+import { singletonHook } from 'react-singleton-hook';
 
 const init = { loading: true };
 
@@ -9,7 +9,7 @@ const useAlertsImpl = () => {
   const alertsRef = useRef(alerts);
   alertsRef.current = alerts;
 
-  const notify = (title, message, variant = "default") => {
+  const notify = (title, message, variant = 'default') => {
     const alert = {
       id: idCount,
       timeout: setTimeout(() => removeAlert(idCount), 8000),

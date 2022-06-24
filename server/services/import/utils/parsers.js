@@ -1,13 +1,13 @@
-"use strict";
+'use strict';
 
-const csvtojson = require("csvtojson");
+const csvtojson = require('csvtojson');
 
-const { getModelAttributes } = require("../../../utils/models");
+const { getModelAttributes } = require('../../../utils/models');
 
 const parseCsv = async (dataRaw, { slug }) => {
   let data = await csvtojson().fromString(dataRaw);
 
-  const relationNames = getModelAttributes(slug, "relation").map((a) => a.name);
+  const relationNames = getModelAttributes(slug, 'relation').map((a) => a.name);
   data = data.map((datum) => {
     for (let name of relationNames) {
       try {

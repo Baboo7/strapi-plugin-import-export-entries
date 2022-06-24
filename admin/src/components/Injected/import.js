@@ -1,10 +1,10 @@
-import { Button } from "@strapi/design-system/Button";
-import Upload from "@strapi/icons/Upload";
-import React, { useState } from "react";
-import { useIntl } from "react-intl";
+import { Button } from '@strapi/design-system/Button';
+import Upload from '@strapi/icons/Upload';
+import React, { useState } from 'react';
+import { useIntl } from 'react-intl';
 
-import getTrad from "../../utils/getTrad";
-import { ImportModal } from "../ImportModal";
+import getTrad from '../../utils/getTrad';
+import { ImportModal } from '../ImportModal';
 
 export const Import = () => {
   const { formatMessage } = useIntl();
@@ -22,7 +22,7 @@ export const Import = () => {
   return (
     <>
       <Button startIcon={<Upload />} onClick={openImportModal}>
-        {formatMessage({ id: getTrad("plugin.cta.import") })}
+        {formatMessage({ id: getTrad('plugin.cta.import') })}
       </Button>
 
       {importVisible && <ImportModal onClose={closeImportModal} />}

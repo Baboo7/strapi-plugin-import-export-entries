@@ -1,15 +1,9 @@
-import EditorLib from "@monaco-editor/react";
-import React from "react";
+import EditorLib from '@monaco-editor/react';
+import React from 'react';
 
-import "./style.css";
+import './style.css';
 
-export const Editor = ({
-  content = "",
-  language = "csv",
-  readOnly = false,
-  onChange,
-  style,
-}) => {
+export const Editor = ({ content = '', language = 'csv', readOnly = false, onChange, style }) => {
   return (
     <EditorLib
       className="plugin-ie-editor"

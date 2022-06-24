@@ -1,6 +1,6 @@
-"use strict";
+'use strict';
 
-const qs = require("qs");
+const qs = require('qs');
 
 const { ObjectBuilder } = require('../../libs/objects');
 const { getService } = require('../utils');
@@ -25,7 +25,7 @@ const exportData = async (ctx) => {
 
   const entries = await strapi.entityService.findMany(slug, query);
 
-  const data = getService("data-converter").convertEntries(entries, {
+  const data = getService('export').exportData(entries, {
     slug,
     dataFormat: exportFormat,
     relationsAsId,
@@ -40,10 +40,7 @@ const hasPermissions = (ctx) => {
   let { slug } = ctx.request.body;
   const { userAbility } = ctx.state;
 
-  const permissionChecker = strapi
-    .plugin("content-manager")
-    .service("permission-checker")
-    .create({ userAbility, model: slug });
+  const permissionChecker = strapi.plugin('content-manager').service('permission-checker').create({ userAbility, model: slug });
 
   return permissionChecker.can.read();
 };
@@ -51,7 +48,7 @@ const hasPermissions = (ctx) => {
 const buildFilterQuery = (search) => {
   let { filters, sort: sortRaw } = qs.parse(search);
 
-  const [attr, value] = sortRaw?.split(":").map((v) => v.toLowerCase());
+  const [attr, value] = (sortRaw?.split(':') || []).map((v) => v.toLowerCase());
   let sort = {};
   if (attr && value) {
     sort[attr] = value;
