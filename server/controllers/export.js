@@ -67,8 +67,8 @@ const buildFilterQuery = (search) => {
 
 const populateAttribute = ({ components }) => {
   if (components) {
-    const populate = components.reduce((populate, attributeName) => {
-      return { ...populate, [attributeName.split(".").pop()]: { populate: "*" } };
+    const populate = components.reduce((populate, componentPath) => {
+      return { ...populate, [componentPath.split(".").pop()]: { populate: "*" } };
     }, {});
     return { populate };
   }
