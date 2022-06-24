@@ -90,11 +90,14 @@ const  getPopulateFromSchema = (schema) => {
       };
     }
 
+    if (["createdBy", "updatedBy"].includes(attributeName)) {
+      return { ...populate, [attributeName]: { populate: '*' } };
+    }
+
     return populate;
+
   }, {});
 
-  ['createdBy', 'updatedBy'].map( attribute => ({ populate : '*' }) )
-  
   return populate
 };
 
