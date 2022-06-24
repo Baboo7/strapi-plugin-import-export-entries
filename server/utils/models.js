@@ -1,4 +1,4 @@
-"use strict";
+'use strict';
 
 /**
  * AttributeType.
@@ -30,10 +30,7 @@ const getModel = (slug) => {
  */
 const getModelAttributes = (slug, filterType) => {
   const attributesObj = getModel(slug).attributes;
-  const attributes = Object.keys(attributesObj).reduce(
-    (acc, key) => acc.concat({ ...attributesObj[key], name: key }),
-    []
-  );
+  const attributes = Object.keys(attributesObj).reduce((acc, key) => acc.concat({ ...attributesObj[key], name: key }), []);
 
   if (filterType) {
     return attributes.filter((attr) => attr.type === filterType);

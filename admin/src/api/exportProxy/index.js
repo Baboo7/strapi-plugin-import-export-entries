@@ -1,1 +1,1 @@
-export { default } from "./ExportProxy";
+export { default } from './ExportProxy';

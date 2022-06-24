@@ -1,31 +1,26 @@
-import { Button } from "@strapi/design-system/Button";
-import { Checkbox } from "@strapi/design-system/Checkbox";
-import {
-  ModalLayout,
-  ModalBody,
-  ModalHeader,
-  ModalFooter,
-} from "@strapi/design-system/ModalLayout";
-import { Flex } from "@strapi/design-system/Flex";
-import { Grid, GridItem } from "@strapi/design-system/Grid";
-import { Loader } from "@strapi/design-system/Loader";
-import { Portal } from "@strapi/design-system/Portal";
-import { Select, Option } from "@strapi/design-system/Select";
-import { Typography } from "@strapi/design-system/Typography";
-import { pick } from "lodash";
-import React, { useState } from "react";
-import { useLocation } from "react-router-dom";
-import qs from "qs";
+import { Button } from '@strapi/design-system/Button';
+import { Checkbox } from '@strapi/design-system/Checkbox';
+import { ModalLayout, ModalBody, ModalHeader, ModalFooter } from '@strapi/design-system/ModalLayout';
+import { Flex } from '@strapi/design-system/Flex';
+import { Grid, GridItem } from '@strapi/design-system/Grid';
+import { Loader } from '@strapi/design-system/Loader';
+import { Portal } from '@strapi/design-system/Portal';
+import { Select, Option } from '@strapi/design-system/Select';
+import { Typography } from '@strapi/design-system/Typography';
+import { pick } from 'lodash';
+import React, { useState } from 'react';
+import { useLocation } from 'react-router-dom';
+import qs from 'qs';
 
-import "./style.css";
-import ExportProxy from "../../api/exportProxy";
-import { useDownloadFile } from "../../hooks/useDownloadFile";
-import { useSlug } from "../../hooks/useSlug";
-import { dataFormatConfigs, dataFormats } from "../../utils/dataFormats";
-import { Editor } from "../Editor/Editor";
-import { useAlerts } from "../../hooks/useAlerts";
-import { handleRequestErr } from "../../utils/error";
-import { useI18n } from "../../hooks/useI18n";
+import './style.css';
+import ExportProxy from '../../api/exportProxy';
+import { useDownloadFile } from '../../hooks/useDownloadFile';
+import { useSlug } from '../../hooks/useSlug';
+import { dataFormatConfigs, dataFormats } from '../../utils/dataFormats';
+import { Editor } from '../Editor/Editor';
+import { useAlerts } from '../../hooks/useAlerts';
+import { handleRequestErr } from '../../utils/error';
+import { useI18n } from '../../hooks/useI18n';
 
 export const ExportModal = ({ onClose }) => {
   const { i18n } = useI18n();
@@ -45,7 +40,7 @@ export const ExportModal = ({ onClose }) => {
     try {
       const res = await ExportProxy.getByContentType({
         slug,
-        search: qs.stringify(pick(qs.parse(search), ["filters", "sort"])),
+        search: qs.stringify(pick(qs.parse(search), ['filters', 'sort'])),
         applySearch: optionApplyFilters,
         exportFormat: optionExportFormat,
         relationsAsId: optionRelationsAsId,
@@ -53,18 +48,8 @@ export const ExportModal = ({ onClose }) => {
       setData(res.data);
     } catch (err) {
       handleRequestErr(err, {
-        403: () =>
-          notify(
-            i18n("plugin.message.export.error.forbidden.title"),
-            i18n("plugin.message.export.error.forbidden.message"),
-            "danger"
-          ),
-        default: () =>
-          notify(
-            i18n("plugin.message.export.error.unexpected.title"),
-            i18n("plugin.message.export.error.unexpected.message"),
-            "danger"
-          ),
+        403: () => notify(i18n('plugin.message.export.error.forbidden.title'), i18n('plugin.message.export.error.forbidden.message'), 'danger'),
+        default: () => notify(i18n('plugin.message.export.error.unexpected.title'), i18n('plugin.message.export.error.unexpected.message'), 'danger'),
       });
     } finally {
       setFetchingData(false);
@@ -74,25 +59,17 @@ export const ExportModal = ({ onClose }) => {
   const writeDataToFile = async () => {
     const config = dataFormatConfigs[optionExportFormat];
     if (!config) {
-      throw new Error(
-        `File extension ${optionExportFormat} not supported to export data.`
-      );
+      throw new Error(`File extension ${optionExportFormat} not supported to export data.`);
     }
 
     const { fileExt, fileContentType } = config;
-    const fileName = `export_${slug}.${fileExt}`
-      .replaceAll(":", "-")
-      .replaceAll("--", "-");
-    downloadFile(
-      data,
-      withTimestamp(fileName),
-      `${fileContentType};charset=utf-8;`
-    );
+    const fileName = `export_${slug}.${fileExt}`.replaceAll(':', '-').replaceAll('--', '-');
+    downloadFile(data, withTimestamp(fileName), `${fileContentType};charset=utf-8;`);
   };
 
   const copyToClipboard = () => {
     navigator.clipboard.writeText(data);
-    notify("Copied", "", "success");
+    notify('Copied', '', 'success');
   };
 
   const clearData = () => {
@@ -103,12 +80,7 @@ export const ExportModal = ({ onClose }) => {
     <Portal>
       <ModalLayout onClose={onClose} labelledBy="title">
         <ModalHeader>
-          <Typography
-            fontWeight="bold"
-            textColor="neutral800"
-            as="h2"
-            id="title"
-          >
+          <Typography fontWeight="bold" textColor="neutral800" as="h2" id="title">
             Export
           </Typography>
         </ModalHeader>
@@ -124,20 +96,9 @@ export const ExportModal = ({ onClose }) => {
             <>
               <Grid gap={8}>
                 <GridItem col={12}>
-                  <Select
-                    id="export-format"
-                    label="Export Format"
-                    required
-                    placeholder="Export Format"
-                    value={optionExportFormat}
-                    onChange={setOptionExportFormat}
-                  >
-                    <Option value={dataFormats.CSV}>
-                      {dataFormats.CSV.toUpperCase()}
-                    </Option>
-                    <Option value={dataFormats.JSON}>
-                      {dataFormats.JSON.toUpperCase()}
-                    </Option>
+                  <Select id="export-format" label="Export Format" required placeholder="Export Format" value={optionExportFormat} onChange={setOptionExportFormat}>
+                    <Option value={dataFormats.CSV}>{dataFormats.CSV.toUpperCase()}</Option>
+                    <Option value={dataFormats.JSON}>{dataFormats.JSON.toUpperCase()}</Option>
                   </Select>
                 </GridItem>
               </Grid>
@@ -146,16 +107,10 @@ export const ExportModal = ({ onClose }) => {
                 <Typography fontWeight="bold" textColor="neutral800" as="h2">
                   Options
                 </Typography>
-                <Checkbox
-                  value={optionRelationsAsId}
-                  onValueChange={setOptionRelationsAsId}
-                >
+                <Checkbox value={optionRelationsAsId} onValueChange={setOptionRelationsAsId}>
                   Export relations as id.
                 </Checkbox>
-                <Checkbox
-                  value={optionApplyFilters}
-                  onValueChange={setOptionApplyFilters}
-                >
+                <Checkbox value={optionApplyFilters} onValueChange={setOptionApplyFilters}>
                   Apply filters and sort to exported data.
                 </Checkbox>
               </Flex>
@@ -172,24 +127,20 @@ export const ExportModal = ({ onClose }) => {
             <>
               {!!data && (
                 <Button variant="tertiary" onClick={clearData}>
-                  {i18n("plugin.cta.back-to-options")}
+                  {i18n('plugin.cta.back-to-options')}
                 </Button>
               )}
             </>
           }
           endActions={
             <>
-              {!data && (
-                <Button onClick={getData}>{i18n("plugin.cta.get-data")}</Button>
-              )}
+              {!data && <Button onClick={getData}>{i18n('plugin.cta.get-data')}</Button>}
               {!!data && (
                 <>
                   <Button variant="secondary" onClick={copyToClipboard}>
-                    {i18n("plugin.cta.copy-to-clipboard")}
+                    {i18n('plugin.cta.copy-to-clipboard')}
                   </Button>
-                  <Button onClick={writeDataToFile}>
-                    {i18n("plugin.cta.download-file")}
-                  </Button>
+                  <Button onClick={writeDataToFile}>{i18n('plugin.cta.download-file')}</Button>
                 </>
               )}
             </>

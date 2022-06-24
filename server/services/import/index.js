@@ -1,3 +1,3 @@
-const importService = require("./import");
+const importService = require('./import');
 
 module.exports = importService;

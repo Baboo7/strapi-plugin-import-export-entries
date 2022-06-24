@@ -69,7 +69,7 @@ Add in the file `config/plugins.js`:
 ```js
 module.exports = ({ env }) => ({
   //...
-  "import-export-entries": {
+  'import-export-entries': {
     enabled: true,
   },
   //...
@@ -85,7 +85,7 @@ In the file `config/middlewares.js`, replace:
 ```js
 module.exports = [
   //...
-  "strapi::security",
+  'strapi::security',
   //...
 ];
 ```

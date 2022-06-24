@@ -1,10 +1,10 @@
-import { prefixPluginTranslations } from "@strapi/helper-plugin";
-import pluginPkg from "../../package.json";
-import pluginId from "./pluginId";
-import Initializer from "./components/Initializer";
-import { Export } from "./components/Injected/export";
-import { Import } from "./components/Injected/import";
-import { Alerts } from "./components/Injected/Alerts";
+import { prefixPluginTranslations } from '@strapi/helper-plugin';
+import pluginPkg from '../../package.json';
+import pluginId from './pluginId';
+import Initializer from './components/Initializer';
+import { Export } from './components/Injected/export';
+import { Import } from './components/Injected/import';
+import { Alerts } from './components/Injected/Alerts';
 
 const name = pluginPkg.strapi.name;
 
@@ -19,15 +19,15 @@ export default {
   },
 
   bootstrap(app) {
-    app.injectContentManagerComponent("listView", "actions", {
+    app.injectContentManagerComponent('listView', 'actions', {
       name: `${pluginId}-alerts`,
       Component: Alerts,
     });
-    app.injectContentManagerComponent("listView", "actions", {
+    app.injectContentManagerComponent('listView', 'actions', {
       name: `${pluginId}-import`,
       Component: Import,
     });
-    app.injectContentManagerComponent("listView", "actions", {
+    app.injectContentManagerComponent('listView', 'actions', {
       name: `${pluginId}-export`,
       Component: Export,
     });
@@ -49,7 +49,7 @@ export default {
               locale,
             };
           });
-      })
+      }),
     );
 
     return Promise.resolve(importedTrads);

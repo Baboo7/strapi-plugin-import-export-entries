@@ -1,3 +1,3 @@
-const exportService = require("./export");
+const exportService = require('./export');
 
 module.exports = exportService;

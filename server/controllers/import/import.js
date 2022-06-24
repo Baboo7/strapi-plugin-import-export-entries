@@ -1,7 +1,7 @@
-"use strict";
+'use strict';
 
-const getModelAttributes = require("./get-model-attributes");
-const importData = require("./import-data");
+const getModelAttributes = require('./get-model-attributes');
+const importData = require('./import-data');
 
 module.exports = ({ strapi }) => ({
   getModelAttributes: getModelAttributes({ strapi }),

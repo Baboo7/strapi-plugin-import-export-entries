@@ -1,8 +1,8 @@
-const { convertToCsv, convertToJson } = require("./converters");
+const { convertToCsv, convertToJson } = require('./converters');
 
 const dataFormats = {
-  CSV: "csv",
-  JSON: "json",
+  CSV: 'csv',
+  JSON: 'json',
 };
 
 const dataConverterConfigs = {

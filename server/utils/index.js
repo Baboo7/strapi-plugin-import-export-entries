@@ -1,4 +1,4 @@
-const pluginId = require("./pluginId");
+const pluginId = require('./pluginId');
 
 /**
  * ServiceName.

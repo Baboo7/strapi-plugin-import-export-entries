@@ -1,7 +1,7 @@
-const { ObjectBuilder } = require("../../../libs/objects");
-const { catchError } = require("../../utils");
-const { getModelAttributes } = require("../../utils/models");
-const { parseInputData } = require("./utils/parsers");
+const { ObjectBuilder } = require('../../../libs/objects');
+const { catchError } = require('../../utils');
+const { getModelAttributes } = require('../../utils/models');
+const { parseInputData } = require('./utils/parsers');
 
 /**
  * @typedef {Object} ImportDataRes
@@ -28,16 +28,11 @@ const importData = async (dataRaw, { slug, format, user, idField }) => {
 
   const processed = [];
   for (let datum of data) {
-    const res = await catchError(
-      (datum) => updateOrCreate(user, slug, datum, idField),
-      datum
-    );
+    const res = await catchError((datum) => updateOrCreate(user, slug, datum, idField), datum);
     processed.push(res);
   }
 
-  const failures = processed
-    .filter((p) => !p.success)
-    .map((f) => ({ error: f.error, data: f.args[0] }));
+  const failures = processed.filter((p) => !p.success).map((f) => ({ error: f.error, data: f.args[0] }));
 
   return {
     failures,
@@ -52,8 +47,8 @@ const importData = async (dataRaw, { slug, format, user, idField }) => {
  * @param {string} idField - Field used as unique identifier.
  * @returns Updated/created entry.
  */
-const updateOrCreate = async (user, slug, data, idField = "id") => {
-  const relations = getModelAttributes(slug, "relation");
+const updateOrCreate = async (user, slug, data, idField = 'id') => {
+  const relations = getModelAttributes(slug, 'relation');
   const processingRelations = relations.map(async (rel) => {
     data[rel.name] = await updateOrCreateRelation(user, rel, data[rel.name]);
   });
@@ -66,7 +61,7 @@ const updateOrCreate = async (user, slug, data, idField = "id") => {
   const where = whereBuilder.get();
 
   // Prevent strapi from throwing a unique constraint error on id field.
-  if (idField !== "id") {
+  if (idField !== 'id') {
     delete data.id;
   }
 
@@ -92,18 +87,16 @@ const updateOrCreate = async (user, slug, data, idField = "id") => {
  */
 const updateOrCreateRelation = async (user, rel, relData) => {
   const relName = rel.name;
-  if (["createdBy", "updatedBy"].includes(relName)) {
+  if (['createdBy', 'updatedBy'].includes(relName)) {
     return user.id;
   }
   // relData has to be checked since typeof null === "object".
   else if (relData && Array.isArray(relData)) {
-    const entries = await Promise.all(
-      relData.map((relDatum) => updateOrCreate(user, rel.target, relDatum))
-    );
+    const entries = await Promise.all(relData.map((relDatum) => updateOrCreate(user, rel.target, relDatum)));
     return entries.map((entry) => entry.id);
   }
   // relData has to be checked since typeof null === "object".
-  else if (relData && typeof relData === "object") {
+  else if (relData && typeof relData === 'object') {
     const entry = await updateOrCreate(user, rel.target, relData);
     return entry?.id || null;
   }

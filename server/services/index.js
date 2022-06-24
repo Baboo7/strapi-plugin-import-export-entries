@@ -1,7 +1,7 @@
-"use strict";
+'use strict';
 
-const exportService = require("./export");
-const importService = require("./import");
+const exportService = require('./export');
+const importService = require('./import');
 
 module.exports = {
   export: exportService,
