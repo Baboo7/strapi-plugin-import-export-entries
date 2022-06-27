@@ -63,37 +63,36 @@ const buildFilterQuery = (search) => {
 const populateAttribute = ({ components }) => {
   if (components) {
     const populate = components.reduce((populate, componentPath) => {
-      return { ...populate, [componentPath.split(".").pop()]: { populate: "*" } };
+      return { ...populate, [componentPath.split('.').pop()]: { populate: '*' } };
     }, {});
     return { populate };
   }
-  return { populate: "*" };
-}
+  return { populate: '*' };
+};
 
-const  getPopulateFromSchema = (schema) => {
+const getPopulateFromSchema = (schema) => {
   let populate = Object.keys(schema.attributes).reduce((populate, attributeName) => {
     const attribute = schema.attributes[attributeName];
 
-    if(attribute.type === 'relation') {
+    if (attribute.type === 'relation') {
       return { ...populate, [attributeName]: { populate: '*' } };
     }
 
-    if (["dynamiczone", "component"].includes(attribute.type)) {
+    if (['dynamiczone', 'component'].includes(attribute.type)) {
       return {
         ...populate,
         [attributeName]: populateAttribute(attribute),
       };
     }
 
-    if (["createdBy", "updatedBy"].includes(attributeName)) {
+    if (['createdBy', 'updatedBy'].includes(attributeName)) {
       return { ...populate, [attributeName]: { populate: '*' } };
     }
 
     return populate;
-
   }, {});
 
-  return populate
+  return populate;
 };
 
 module.exports = ({ strapi }) => ({
