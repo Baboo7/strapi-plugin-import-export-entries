@@ -11,6 +11,7 @@
  * @property {AttributeType} type
  * @property {string} name - Name of the attribute.
  * @property {string} [target] - Slug of the target model (if type is 'relation').
+ * @property {string} [components] - Component names of the dynamic zone.
  */
 
 /**
@@ -39,7 +40,17 @@ const getModelAttributes = (slug, filterType) => {
   return attributes;
 };
 
+/**
+ * Indicate whether an attribute is a dynamic zone.
+ * @param {Attribute} attribute
+ * @returns {boolean}
+ */
+const isAttributeDynamicZone = (attribute) => {
+  return attribute.components && Array.isArray(attribute.components);
+};
+
 module.exports = {
   getModel,
   getModelAttributes,
+  isAttributeDynamicZone,
 };

@@ -1,6 +1,6 @@
 const { ObjectBuilder } = require('../../../libs/objects');
 const { catchError } = require('../../utils');
-const { getModelAttributes } = require('../../utils/models');
+const { getModelAttributes, isAttributeDynamicZone } = require('../../utils/models');
 const { parseInputData } = require('./utils/parsers');
 
 /**
@@ -86,9 +86,13 @@ const updateOrCreate = async (user, slug, data, idField = 'id') => {
  * @param {number | Object | Array<Object>} relData
  */
 const updateOrCreateRelation = async (user, rel, relData) => {
-  const relName = rel.name;
-  if (['createdBy', 'updatedBy'].includes(relName)) {
+  if (['createdBy', 'updatedBy'].includes(rel.name)) {
     return user.id;
+  } else if (isAttributeDynamicZone(rel)) {
+    const processingComponents = (relData || []).map((componentDatum) => updateOrCreate(user, componentDatum.__component, componentDatum));
+    let components = await Promise.all(processingComponents);
+    components = components.map((component, i) => ({ ...component, __component: relData[i].__component }));
+    return components;
   }
   // relData has to be checked since typeof null === "object".
   else if (relData && Array.isArray(relData)) {
