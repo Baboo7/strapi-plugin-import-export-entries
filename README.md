@@ -152,7 +152,7 @@ const service = strapi.plugin("import-export-entries").service("import");
  */
 await service.importData(
   /** See Example 1 for the shape of the objects. */
-  dataRaw: object[],
+  dataRaw: object[] | string,
   options: {
     /** Slug of the model to import to. */
     slug: string;
