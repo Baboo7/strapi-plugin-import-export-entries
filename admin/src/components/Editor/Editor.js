@@ -1,7 +1,10 @@
-import EditorLib from '@monaco-editor/react';
+import * as monaco from 'monaco-editor/esm/vs/editor/editor.api';
+import EditorLib, { loader } from '@monaco-editor/react';
 import React from 'react';
 
 import './style.css';
+
+loader.config({ monaco });
 
 export const Editor = ({ content = '', language = 'csv', readOnly = false, onChange, style }) => {
   return (

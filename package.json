@@ -17,6 +17,8 @@
   "dependencies": {
     "@monaco-editor/react": "4.4.5",
     "csvtojson": "2.0.10",
+    "monaco-editor": "0.33.0",
+    "monaco-editor-webpack-plugin": "7.0.1",
     "react-singleton-hook": "3.3.0"
   },
   "devDependencies": {
