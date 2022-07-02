@@ -12,7 +12,7 @@ Import/Export data from and to your database in just few clicks.
 
 - Import data directly from the Content Manager
 - Import data from CSV and JSON file or from typing raw text according to user permissions
-- Import contents to collection type (NOT single type yet)
+- Import contents to collection type
 
 ### Export
 
@@ -76,21 +76,27 @@ module.exports = ({ env }) => ({
 });
 ```
 
-3. Update the config of the `security` middleware:
+3. Update the webpack config:
 
-The `security` middleware needs to be configured to enable the use of the great **Monaco** code editor.
-
-In the file `config/middlewares.js`, replace:
+Create the file `src/admin/webpack.config.js`:
 
 ```js
-module.exports = [
-  //...
-  'strapi::security',
-  //...
-];
+'use strict';
+
+const MonacoWebpackPlugin = require('monaco-editor-webpack-plugin');
+
+module.exports = (config) => {
+  config.plugins.push(new MonacoWebpackPlugin());
+
+  return config;
+};
 ```
 
-with
+4. (If you used version <= `1.6.2`) Rollback the config of the `security` middleware:
+
+The `security` middleware does not need to be configured anymore to use of the **Monaco** code editor.
+
+In the file `config/middlewares.js`, replace:
 
 ```js
 module.exports = ({ env }) => ({
@@ -112,6 +118,18 @@ module.exports = ({ env }) => ({
   //...
 });
 ```
+
+with
+
+```js
+module.exports = [
+  //...
+  'strapi::security',
+  //...
+];
+```
+
+The important part here is to remove `cdn.jsdelivr.net` from the `script-src` section as it is a security vulnerability.
 
 ## Rebuild The Admin Panel
 
