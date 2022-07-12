@@ -2,7 +2,7 @@
 
 /**
  * AttributeType.
- * @typedef {("boolean"|"component"|"datetime"|"dynamiczone"|"increments"|"number"|"relation"|"string"|"text")} AttributeType
+ * @typedef {("boolean"|"component"|"datetime"|"dynamiczone"|"increments"|"media"|"number"|"relation"|"string"|"text")} AttributeType
  */
 
 /**
@@ -11,30 +11,24 @@
  * @property {AttributeType} type
  * @property {string} name - Name of the attribute.
  * @property {string} [target] - Slug of the target model (if type is 'relation').
+ * @property {boolean} [repeatable] - Whether the component is repeatable.
  * @property {string} [components] - Component names of the dynamic zone.
  */
 
 /**
- * Get a model.
- * @param {string} slug
- * @return {{attributes: {[k:string]: Attribute}}}
- */
-const getModel = (slug) => {
-  return strapi.db.metadata.get(slug);
-};
-
-/**
  * Get the attributes of a model.
  * @param {string} slug - Slug of the model.
- * @param {AttributeType} [filterType] - Only attributes matching the type will be kept.
+ * @param {AttributeType | Array<AttributeType>} [filterType] - Only attributes matching the type(s) will be kept.
  * @returns {Array<Attribute>}
  */
 const getModelAttributes = (slug, filterType) => {
-  const attributesObj = getModel(slug).attributes;
+  const typesToKeep = filterType ? (Array.isArray(filterType) ? filterType : [filterType]) : [];
+
+  const attributesObj = strapi.getModel(slug).attributes;
   const attributes = Object.keys(attributesObj).reduce((acc, key) => acc.concat({ ...attributesObj[key], name: key }), []);
 
-  if (filterType) {
-    return attributes.filter((attr) => attr.type === filterType);
+  if (typesToKeep.length) {
+    return attributes.filter((attr) => typesToKeep.includes(attr.type));
   }
 
   return attributes;
@@ -50,7 +44,6 @@ const isAttributeDynamicZone = (attribute) => {
 };
 
 module.exports = {
-  getModel,
   getModelAttributes,
   isAttributeDynamicZone,
 };

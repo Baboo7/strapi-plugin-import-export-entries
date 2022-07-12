@@ -39,7 +39,7 @@ const withBeforeConvert = (convertFn) => (entries, options) => {
 
 const beforeConvert = (entries, options) => {
   if (options.relationsAsId) {
-    const relationKeys = getModelAttributes(options.slug, 'relation').map((attr) => attr.name);
+    const relationKeys = getModelAttributes(options.slug, ['component', 'dynamiczone', 'media', 'relation']).map((attr) => attr.name);
     entries = entries.map((entry) => {
       relationKeys.forEach((key) => {
         if (!entry[key]) {

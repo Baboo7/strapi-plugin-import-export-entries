@@ -1,6 +1,6 @@
 const { ObjectBuilder } = require('../../../libs/objects');
 const { catchError } = require('../../utils');
-const { getModelAttributes, isAttributeDynamicZone } = require('../../utils/models');
+const { getModelAttributes } = require('../../utils/models');
 const { parseInputData } = require('./utils/parsers');
 
 /**
@@ -48,7 +48,7 @@ const importData = async (dataRaw, { slug, format, user, idField }) => {
  * @returns Updated/created entry.
  */
 const updateOrCreate = async (user, slug, data, idField = 'id') => {
-  const relations = getModelAttributes(slug, 'relation');
+  const relations = getModelAttributes(slug, ['component', 'dynamiczone', 'media', 'relation']);
   const processingRelations = relations.map(async (rel) => {
     data[rel.name] = await updateOrCreateRelation(user, rel, data[rel.name]);
   });
@@ -88,11 +88,21 @@ const updateOrCreate = async (user, slug, data, idField = 'id') => {
 const updateOrCreateRelation = async (user, rel, relData) => {
   if (['createdBy', 'updatedBy'].includes(rel.name)) {
     return user.id;
-  } else if (isAttributeDynamicZone(rel)) {
+  } else if (rel.type === 'dynamiczone') {
     const processingComponents = (relData || []).map((componentDatum) => updateOrCreate(user, componentDatum.__component, componentDatum));
     let components = await Promise.all(processingComponents);
     components = components.map((component, i) => ({ ...component, __component: relData[i].__component }));
     return components;
+  } else if (rel.type === 'component') {
+    if (relData == null) {
+      return;
+    }
+
+    relData = Array.isArray(relData) ? relData : [relData];
+    relData = rel.repeatable ? relData : relData.slice(0, 1);
+
+    const entries = await Promise.all(relData.map((relDatum) => updateOrCreate(user, rel.component, relDatum)));
+    return rel.repeatable ? entries.map((entry) => entry.id) : entries?.[0]?.id || null;
   }
   // relData has to be checked since typeof null === "object".
   else if (relData && Array.isArray(relData)) {
