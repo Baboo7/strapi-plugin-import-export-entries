@@ -41,7 +41,44 @@ const getConverter = (dataFormat) => {
   return converter;
 };
 
+const getPopulateFromSchema = (slug) => {
+  const schema = strapi.getModel(slug);
+  let populate = Object.keys(schema.attributes).reduce((populate, attributeName) => {
+    const attribute = schema.attributes[attributeName];
+
+    if (['media', 'relation'].includes(attribute.type)) {
+      return { ...populate, [attributeName]: { populate: '*' } };
+    }
+
+    if (['component', 'dynamiczone'].includes(attribute.type)) {
+      return {
+        ...populate,
+        [attributeName]: populateComponentsAttributes(attribute),
+      };
+    }
+
+    if (['createdBy', 'updatedBy'].includes(attributeName)) {
+      return { ...populate, [attributeName]: { populate: '*' } };
+    }
+
+    return populate;
+  }, {});
+
+  return populate;
+};
+
+const populateComponentsAttributes = ({ components }) => {
+  if (components) {
+    const populate = components.reduce((populate, componentPath) => {
+      return { ...populate, [componentPath.split('.').pop()]: { populate: '*' } };
+    }, {});
+    return { populate };
+  }
+  return { populate: '*' };
+};
+
 module.exports = ({ strapi }) => ({
   formats: dataFormats,
   exportData,
+  getPopulateFromSchema,
 });
