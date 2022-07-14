@@ -39,6 +39,7 @@ Import/Export data from and to your database in just few clicks.
 - [Installation](#installation)
 - [Rebuild The Admin Panel](#rebuild-the-admin-panel)
 - [Usage](#usage)
+  - [Config](#config)
   - [Services](#services)
   - [Examples](#examples)
 - [Author](#author)
@@ -152,6 +153,29 @@ Once the plugin is installed and setup, the functionnalities are accessible on t
 <p align="center">
   <img src="./doc/scr-usage.png" alt="UI" width="500"/>
 </p>
+
+### Config
+
+In `config/plugins.js`:
+
+```js
+module.exports = ({ env }) => ({
+  //...
+  'import-export-entries': {
+    enabled: true,
+    config: {
+      /**
+       * Public hostname of the server.
+       *
+       * If you use the local provider to persist medias,
+       * `serverPublicHostname` should be set to properly export media urls.
+       */
+      serverPublicHostname: 'https://yoga.com', // default: "".
+    },
+  },
+  //...
+});
+```
 
 ### Services
 
