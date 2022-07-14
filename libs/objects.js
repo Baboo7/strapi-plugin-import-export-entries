@@ -10,6 +10,15 @@ class ObjectBuilder {
   }
 }
 
+/**
+ * Check if value is an object.
+ * @param {*} val
+ * @returns {boolean}
+ */
+const isObjectSafe = (val) => {
+  return val && !Array.isArray(val) && typeof val === 'object';
+};
+
 const isObjectEmpty = (obj) => {
   for (let i in obj) {
     return false;
@@ -19,5 +28,6 @@ const isObjectEmpty = (obj) => {
 
 module.exports = {
   ObjectBuilder,
+  isObjectSafe,
   isObjectEmpty,
 };
