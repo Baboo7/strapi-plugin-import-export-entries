@@ -11,8 +11,11 @@
  * @property {AttributeType} type
  * @property {string} name - Name of the attribute.
  * @property {string} [target] - Slug of the target model (if type is 'relation').
+ * @property {string} [component] - Name of the targetted component.
  * @property {boolean} [repeatable] - Whether the component is repeatable.
  * @property {string} [components] - Component names of the dynamic zone.
+ * @property {("audios"|"files"|"images"|"videos")} [allowedTypes] - Allowed file types.
+ * @property {boolean} [multiple] - Whether there are multiple files.
  */
 
 /**

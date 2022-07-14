@@ -1,6 +1,8 @@
-const { ObjectBuilder } = require('../../../libs/objects');
+const { isArraySafe, toArray } = require('../../../libs/arrays');
+const { ObjectBuilder, isObjectSafe } = require('../../../libs/objects');
 const { catchError } = require('../../utils');
 const { getModelAttributes } = require('../../utils/models');
+const { findOrImportFile } = require('./utils/file');
 const { parseInputData } = require('./utils/parsers');
 
 /**
@@ -48,11 +50,10 @@ const importData = async (dataRaw, { slug, format, user, idField }) => {
  * @returns Updated/created entry.
  */
 const updateOrCreate = async (user, slug, data, idField = 'id') => {
-  const relations = getModelAttributes(slug, ['component', 'dynamiczone', 'media', 'relation']);
-  const processingRelations = relations.map(async (rel) => {
-    data[rel.name] = await updateOrCreateRelation(user, rel, data[rel.name]);
-  });
-  await Promise.all(processingRelations);
+  const relationAttributes = getModelAttributes(slug, ['component', 'dynamiczone', 'media', 'relation']);
+  for (let attribute of relationAttributes) {
+    data[attribute.name] = await updateOrCreateRelation(user, attribute, data[attribute.name]);
+  }
 
   const whereBuilder = new ObjectBuilder();
   if (data[idField]) {
@@ -86,6 +87,10 @@ const updateOrCreate = async (user, slug, data, idField = 'id') => {
  * @param {number | Object | Array<Object>} relData
  */
 const updateOrCreateRelation = async (user, rel, relData) => {
+  if (relData == null) {
+    return null;
+  }
+
   if (['createdBy', 'updatedBy'].includes(rel.name)) {
     return user.id;
   } else if (rel.type === 'dynamiczone') {
@@ -94,26 +99,35 @@ const updateOrCreateRelation = async (user, rel, relData) => {
     components = components.map((component, i) => ({ ...component, __component: relData[i].__component }));
     return components;
   } else if (rel.type === 'component') {
-    if (relData == null) {
-      return;
-    }
-
-    relData = Array.isArray(relData) ? relData : [relData];
+    relData = toArray(relData);
     relData = rel.repeatable ? relData : relData.slice(0, 1);
-
     const entries = await Promise.all(relData.map((relDatum) => updateOrCreate(user, rel.component, relDatum)));
     return rel.repeatable ? entries.map((entry) => entry.id) : entries?.[0]?.id || null;
+  } else if (rel.type === 'media') {
+    relData = toArray(relData);
+    relData = rel.multiple ? relData : relData.slice(0, 1);
+    const entryIds = [];
+    for (const relDatum of relData) {
+      const media = await findOrImportFile(relDatum, user, { allowedFileTypes: rel.allowedTypes });
+      if (media?.id) {
+        entryIds.push(media.id);
+      }
+    }
+    return rel.multiple ? entryIds : entryIds?.[0] || null;
+  } else if (rel.type === 'relation') {
+    const isMultiple = isArraySafe(relData);
+    relData = toArray(relData);
+    const entryIds = [];
+    for (const relDatum of relData) {
+      const entry = await updateOrCreate(user, rel.target, relDatum);
+      if (entry?.id) {
+        entryIds.push(entry.id);
+      }
+    }
+    return isMultiple ? entryIds : entryIds?.[0] || null;
   }
-  // relData has to be checked since typeof null === "object".
-  else if (relData && Array.isArray(relData)) {
-    const entries = await Promise.all(relData.map((relDatum) => updateOrCreate(user, rel.target, relDatum)));
-    return entries.map((entry) => entry.id);
-  }
-  // relData has to be checked since typeof null === "object".
-  else if (relData && typeof relData === 'object') {
-    const entry = await updateOrCreate(user, rel.target, relData);
-    return entry?.id || null;
-  }
+
+  throw new Error(`Could not update or create relation of type ${rel.type}.`);
 };
 
 module.exports = {
