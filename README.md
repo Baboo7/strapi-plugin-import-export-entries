@@ -41,6 +41,7 @@ Import/Export data from and to your database in just few clicks.
 - [Usage](#usage)
   - [Config](#config)
   - [Services](#services)
+  - [Importing Data](#importing-data)
   - [Examples](#examples)
 - [Author](#author)
 - [Acknowledgments](#acknowledgments)
@@ -212,6 +213,23 @@ await service.importData(
   }[]
 }>;
 ```
+
+### Importing Data
+
+The expected import data structure:
+
+- Relation: `object` | `number`
+  - `object`: the relation is searched in db. If an entry is found, it is updated with the provided data. Otherwise, it is created.
+  - `number`: the relation is treated as an id.
+- Media: `object` | `string` | `number`
+  - `object`: the media must have a `url` property which must be publicly accessible. The name of the file is deduced from the `url` and is used to find the media in db. If found by name, the media in db is used. Otherwise, the media is uploaded to the db.
+    - Eg: `{ url: "https://www.thetimes.co.uk/imageserver/image/%2Fmethode%2Fsundaytimes%2Fprod%2Fweb%2Fbin%2F4dbff19c-17a0-11ec-a4b1-45d6202ceafe.jpg" }`
+    - File name is `4dbff19c-17a0-11ec-a4b1-45d6202ceafe.jpg`
+  - `string`: Same as above, except the media provided is a url.
+    - Eg: `"https://www.thetimes.co.uk/imageserver/image/%2Fmethode%2Fsundaytimes%2Fprod%2Fweb%2Fbin%2F4dbff19c-17a0-11ec-a4b1-45d6202ceafe.jpg"`
+    - File name is `4dbff19c-17a0-11ec-a4b1-45d6202ceafe.jpg`
+  - `number`: the media is treated as an id.
+    - Eg: `7`
 
 ### Examples
 
