@@ -4,6 +4,8 @@ const path = require('path');
 const request = require('request');
 const { Readable } = require('stream');
 
+const { isObjectSafe } = require('../../../../libs/objects');
+
 /**
  * Find or import a file.
  * @param {*} fileData - Strapi file data.
@@ -13,24 +15,58 @@ const { Readable } = require('stream');
  * @returns
  */
 const findOrImportFile = async (fileData, user, { allowedFileTypes }) => {
-  if (!isValidFileUrl(fileData.url, allowedFileTypes)) {
-    return null;
+  if (typeof fileData === 'number') {
+    let file = await importById(fileData, allowedFileTypes);
+    return file;
+  } else if (typeof fileData === 'string') {
+    const file = await importByUrl(fileData, allowedFileTypes, user);
+    return file;
+  } else if (isObjectSafe(fileData)) {
+    const file = await importByUrl(fileData.url, allowedFileTypes, user);
+    return file;
   }
+};
 
-  let file = await findFile(fileData.name);
+const importById = async (id, allowedFileTypes) => {
+  let file = await findFile({ id });
 
-  if (!file) {
-    file = await importFile(fileData, user);
+  if (file && !isExtensionAllowed(file.ext.substring(1), allowedFileTypes)) {
+    file = null;
   }
 
   return file;
 };
 
-const findFile = async (name) => {
-  const [file] = await strapi.entityService.findMany('plugin::upload.file', {
-    filters: { name },
-    limit: 1,
-  });
+const importByUrl = async (url, allowedFileTypes, user) => {
+  const checkResult = isValidFileUrl(url, allowedFileTypes);
+  if (!checkResult.isValid) {
+    return null;
+  }
+
+  let file = await findFile({ name: checkResult.fileData.fileName });
+  if (!file) {
+    file = await importFile({ url: checkResult.fileData.rawUrl }, user);
+  }
+
+  return file;
+};
+
+/**
+ * Find a file.
+ * @param {Object} filters
+ * @param {number} [filters.id] - File id.
+ * @param {string} [filters.name] - File name.
+ * @returns
+ */
+const findFile = async ({ id, name }) => {
+  let file = null;
+
+  if (id) {
+    file = await strapi.entityService.findOne('plugin::upload.file', id, { populate: '*' });
+  } else if (name) {
+    [file] = await strapi.entityService.findMany('plugin::upload.file', { filters: { name }, limit: 1 });
+  }
+
   return file;
 };
 
@@ -76,14 +112,12 @@ const fetchFile = (url) => {
       const type = res.headers['content-type'].split(';').shift();
       const size = parseInt(res.headers['content-length']) | 0;
 
-      const parsed = new URL(decodeURIComponent(url));
-      const filename = parsed.pathname.split('/').pop().toLowerCase();
-      const name = filename.replace(/\.[a-zA-Z]*$/, '');
+      const fileData = getFileDataFromRawUrl(url);
 
       resolve({
-        filename,
-        name,
-        hash: name,
+        filename: fileData.fileName,
+        name: fileData.name,
+        hash: fileData.name,
         type,
         size,
         tmpWorkingDirectory,
@@ -95,12 +129,24 @@ const fetchFile = (url) => {
 
 const isValidFileUrl = (url, allowedFileTypes) => {
   try {
-    const parsed = new URL(url);
-    const extension = parsed.pathname.split('.').pop().toLowerCase();
-    return isExtensionAllowed(extension, allowedFileTypes);
+    const fileData = getFileDataFromRawUrl(url);
+
+    return {
+      isValid: isExtensionAllowed(fileData.extension, allowedFileTypes),
+      fileData: {
+        fileName: fileData.fileName,
+        rawUrl: url,
+      },
+    };
   } catch (err) {
     strapi.log.error(err);
-    return false;
+    return {
+      isValid: false,
+      fileData: {
+        fileName: '',
+        rawUrl: '',
+      },
+    };
   }
 };
 
@@ -127,6 +173,18 @@ const getFileTypeChecker = (type) => {
     throw new Error(`Strapi file type ${type} not handled.`);
   }
   return checker;
+};
+
+const getFileDataFromRawUrl = (rawUrl) => {
+  const parsedUrl = new URL(decodeURIComponent(rawUrl));
+
+  const fileName = parsedUrl.pathname.split('/').pop().toLowerCase();
+
+  return {
+    fileName: fileName,
+    name: fileName.replace(/\.[a-zA-Z]*$/, ''),
+    extension: parsedUrl.pathname.split('.').pop().toLowerCase(),
+  };
 };
 
 module.exports = {

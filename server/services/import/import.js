@@ -119,9 +119,13 @@ const updateOrCreateRelation = async (user, rel, relData) => {
     relData = toArray(relData);
     const entryIds = [];
     for (const relDatum of relData) {
-      const entry = await updateOrCreate(user, rel.target, relDatum);
-      if (entry?.id) {
-        entryIds.push(entry.id);
+      if (typeof relDatum === 'number') {
+        entryIds.push(relDatum);
+      } else if (isObjectSafe(relDatum)) {
+        const entry = await updateOrCreate(user, rel.target, relDatum);
+        if (entry?.id) {
+          entryIds.push(entry.id);
+        }
       }
     }
     return isMultiple ? entryIds : entryIds?.[0] || null;
