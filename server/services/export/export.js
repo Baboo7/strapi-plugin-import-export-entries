@@ -1,3 +1,4 @@
+const { getModelAttributes } = require('../../utils/models');
 const { convertToCsv, convertToJson } = require('./converters');
 
 const dataFormats = {
@@ -46,14 +47,10 @@ const getPopulateFromSchema = (slug) => {
   let populate = Object.keys(schema.attributes).reduce((populate, attributeName) => {
     const attribute = schema.attributes[attributeName];
 
-    if (['media', 'relation'].includes(attribute.type)) {
-      return { ...populate, [attributeName]: { populate: '*' } };
-    }
-
-    if (['component', 'dynamiczone'].includes(attribute.type)) {
+    if (['component', 'dynamiczone', 'media', 'relation'].includes(attribute.type)) {
       return {
         ...populate,
-        [attributeName]: populateComponentsAttributes(attribute),
+        [attributeName]: populateRelationAttributes(attribute),
       };
     }
 
@@ -67,8 +64,19 @@ const getPopulateFromSchema = (slug) => {
   return populate;
 };
 
-const populateComponentsAttributes = ({ components }) => {
-  if (components) {
+const populateRelationAttributes = (relation) => {
+  if (relation.type === 'component') {
+    // Sub populate SEO component.
+    const SHOULD_SUB_POPULATE = ['shared.seo'];
+    const attributes = getModelAttributes(relation.component, ['component', 'dynamiczone', 'media', 'relation']);
+    const populate = attributes.reduce((populate, attribute) => {
+      return {
+        ...populate,
+        [attribute.name]: SHOULD_SUB_POPULATE.includes(attribute.component) ? populateRelationAttributes(attribute) : { populate: '*' },
+      };
+    }, {});
+    return { populate };
+  } else if (relation.type === 'dynamiczone') {
     const populate = components.reduce((populate, componentPath) => {
       return { ...populate, [componentPath.split('.').pop()]: { populate: '*' } };
     }, {});
