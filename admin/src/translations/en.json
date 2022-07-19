@@ -17,6 +17,8 @@
   "plugin.message.export.error.unexpected.message": "An unexpected error occured while exporting your data.",
   "plugin.message.import.error.forbidden.title": "Forbidden",
   "plugin.message.import.error.forbidden.message": "You don't have permission to write this data type.",
+  "plugin.message.import.error.payload-too-large.title": "Payload Too Large",
+  "plugin.message.import.error.payload-too-large.message": "The data size exceeds the file size limit of the server. Checkout the documentation to increase the file size limit.",
   "plugin.message.import.error.unexpected.title": "Import failed",
   "plugin.message.import.error.unexpected.message": "An unexpected error occured while importing your data."
 }

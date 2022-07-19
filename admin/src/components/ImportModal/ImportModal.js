@@ -95,6 +95,7 @@ export const ImportModal = ({ onClose }) => {
     } catch (err) {
       handleRequestErr(err, {
         403: () => notify(i18n('plugin.message.import.error.forbidden.title'), i18n('plugin.message.import.error.forbidden.message'), 'danger'),
+        413: () => notify(i18n('plugin.message.import.error.payload-too-large.title'), i18n('plugin.message.import.error.payload-too-large.message'), 'danger'),
         default: () => notify(i18n('plugin.message.import.error.unexpected.title'), i18n('plugin.message.import.error.unexpected.message'), 'danger'),
       });
     } finally {
