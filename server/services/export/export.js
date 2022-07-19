@@ -77,7 +77,7 @@ const populateRelationAttributes = (relation) => {
     }, {});
     return { populate };
   } else if (relation.type === 'dynamiczone') {
-    const populate = components.reduce((populate, componentPath) => {
+    const populate = relation.components.reduce((populate, componentPath) => {
       return { ...populate, [componentPath.split('.').pop()]: { populate: '*' } };
     }, {});
     return { populate };
