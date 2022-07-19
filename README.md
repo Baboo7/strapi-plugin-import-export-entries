@@ -178,6 +178,23 @@ module.exports = ({ env }) => ({
 });
 ```
 
+When importing data, imported file size may exceed the file size limit of the server. To lift up the limit, configure the [Strapi middleware `body`](https://docs.strapi.io/developer-docs/latest/setup-deployment-guides/configurations/required/middlewares.html#body):
+
+```js
+// ./config/middlewares.js
+
+module.exports = {
+  // ...
+  {
+    name: 'strapi::body',
+    config: {
+      jsonLimit: '10mb',
+    },
+  },
+  // ...
+}
+```
+
 ### Services
 
 ```ts
