@@ -42,6 +42,8 @@ Import/Export data from and to your database in just few clicks.
   - [Config](#config)
   - [Services](#services)
   - [Importing Data](#importing-data)
+    - [Data Structure](#data-structure)
+    - [Webhook](#webhook)
   - [Examples](#examples)
 - [Author](#author)
 - [Acknowledgments](#acknowledgments)
@@ -94,7 +96,9 @@ module.exports = (config) => {
 };
 ```
 
-4. (If you used version <= `1.6.2`) Rollback the config of the `security` middleware:
+4. Rollback the config of the `security` middleware:
+
+> ⚠️ This step is only for users that used version <= `1.6.2`.
 
 The `security` middleware does not need to be configured anymore to use of the **Monaco** code editor.
 
@@ -233,6 +237,8 @@ await service.importData(
 
 ### Importing Data
 
+#### Data Structure
+
 The expected import data structure:
 
 - Relation: `object` | `number`
@@ -249,6 +255,10 @@ The expected import data structure:
     - File name is `4dbff19c-17a0-11ec-a4b1-45d6202ceafe.jpg`
   - `number`: the media is treated as an id.
     - Eg: `7`
+
+#### Webhook
+
+At the moment, the webhook is triggered only for media creation, update and deletion. It is not triggered for other data.
 
 ### Examples
 
