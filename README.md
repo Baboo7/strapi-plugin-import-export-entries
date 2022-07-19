@@ -239,11 +239,13 @@ The expected import data structure:
   - `object`: the relation is searched in db. If an entry is found, it is updated with the provided data. Otherwise, it is created.
   - `number`: the relation is treated as an id.
 - Media: `object` | `string` | `number`
-  - `object`: the media must have a `url` property which must be publicly accessible. The name of the file is deduced from the `url` and is used to find the media in db. If found by name, the media in db is used. Otherwise, the media is uploaded to the db.
+  - `object`: the media must have a `url` property. The name of the file is deduced from the `url` and is used to find the media in db. If found by name, the media in db is used. Otherwise, the media is uploaded to the db. ⚠️ Check that the server can access the url.
     - Eg: `{ url: "https://www.thetimes.co.uk/imageserver/image/%2Fmethode%2Fsundaytimes%2Fprod%2Fweb%2Fbin%2F4dbff19c-17a0-11ec-a4b1-45d6202ceafe.jpg" }`
+    - Eg: `{ url: "http://localhost:1337/4dbff19c-17a0-11ec-a4b1-45d6202ceafe.jpg" }`
     - File name is `4dbff19c-17a0-11ec-a4b1-45d6202ceafe.jpg`
   - `string`: Same as above, except the media provided is a url.
     - Eg: `"https://www.thetimes.co.uk/imageserver/image/%2Fmethode%2Fsundaytimes%2Fprod%2Fweb%2Fbin%2F4dbff19c-17a0-11ec-a4b1-45d6202ceafe.jpg"`
+    - Eg: `"http://localhost:1337/4dbff19c-17a0-11ec-a4b1-45d6202ceafe.jpg"`
     - File name is `4dbff19c-17a0-11ec-a4b1-45d6202ceafe.jpg`
   - `number`: the media is treated as an id.
     - Eg: `7`
