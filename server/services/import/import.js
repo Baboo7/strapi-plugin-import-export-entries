@@ -94,15 +94,28 @@ const updateOrCreateRelation = async (user, rel, relData) => {
   if (['createdBy', 'updatedBy'].includes(rel.name)) {
     return user.id;
   } else if (rel.type === 'dynamiczone') {
-    const processingComponents = (relData || []).map((componentDatum) => updateOrCreate(user, componentDatum.__component, componentDatum));
-    let components = await Promise.all(processingComponents);
-    components = components.map((component, i) => ({ ...component, __component: relData[i].__component }));
+    const components = [];
+    for (const componentDatum of relData || []) {
+      let component = await updateOrCreate(user, componentDatum.__component, componentDatum);
+      component = { ...component, __component: componentDatum.__component };
+      components.push(component);
+    }
     return components;
   } else if (rel.type === 'component') {
     relData = toArray(relData);
     relData = rel.repeatable ? relData : relData.slice(0, 1);
-    const entries = await Promise.all(relData.map((relDatum) => updateOrCreate(user, rel.component, relDatum)));
-    return rel.repeatable ? entries.map((entry) => entry.id) : entries?.[0]?.id || null;
+    const entryIds = [];
+    for (const relDatum of relData) {
+      if (typeof relDatum === 'number') {
+        entryIds.push(relDatum);
+      } else if (isObjectSafe(relDatum)) {
+        const entry = await updateOrCreate(user, rel.component, relDatum);
+        if (entry?.id) {
+          entryIds.push(entry.id);
+        }
+      }
+    }
+    return rel.repeatable ? entryIds : entryIds?.[0] || null;
   } else if (rel.type === 'media') {
     relData = toArray(relData);
     relData = rel.multiple ? relData : relData.slice(0, 1);
