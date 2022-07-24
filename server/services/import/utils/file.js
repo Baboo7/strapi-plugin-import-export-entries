@@ -178,7 +178,7 @@ const getFileTypeChecker = (type) => {
 const getFileDataFromRawUrl = (rawUrl) => {
   const parsedUrl = new URL(decodeURIComponent(rawUrl));
 
-  const fileName = parsedUrl.pathname.split('/').pop().toLowerCase();
+  const fileName = parsedUrl.pathname.toLowerCase().replaceAll('/', '-');
 
   return {
     fileName: fileName,
