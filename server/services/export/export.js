@@ -1,4 +1,5 @@
-const { getModelAttributes } = require('../../utils/models');
+const { isEmpty, merge } = require('lodash/fp');
+
 const { convertToCsv, convertToJson } = require('./converters');
 
 const dataFormats = {
@@ -42,47 +43,50 @@ const getConverter = (dataFormat) => {
   return converter;
 };
 
-const getPopulateFromSchema = (slug) => {
-  const schema = strapi.getModel(slug);
-  let populate = Object.keys(schema.attributes).reduce((populate, attributeName) => {
-    const attribute = schema.attributes[attributeName];
+const getPopulateFromSchema = (slug, deepness = 5) => {
+  if (deepness <= 1) {
+    return true;
+  }
 
-    if (['component', 'dynamiczone', 'media', 'relation'].includes(attribute.type)) {
-      return {
-        ...populate,
-        [attributeName]: populateRelationAttributes(attribute),
-      };
+  if (slug === 'admin::user') {
+    return undefined;
+  }
+
+  const populate = {};
+  const model = strapi.getModel(slug);
+  for (const [attributeName, attribute] of Object.entries(getModelPopulationAttributes(model))) {
+    if (!attribute) {
+      continue;
     }
 
-    if (['createdBy', 'updatedBy'].includes(attributeName)) {
-      return { ...populate, [attributeName]: { populate: '*' } };
+    if (attribute.type === 'component') {
+      populate[attributeName] = getPopulateFromSchema(attribute.component, deepness - 1);
+    } else if (attribute.type === 'dynamiczone') {
+      const dynamicPopulate = attribute.components.reduce((zonePopulate, component) => {
+        const compPopulate = getPopulateFromSchema(component, deepness - 1);
+        return compPopulate === true ? zonePopulate : merge(zonePopulate, compPopulate);
+      }, {});
+      populate[attributeName] = isEmpty(dynamicPopulate) ? true : dynamicPopulate;
+    } else if (attribute.type === 'relation') {
+      const relationPopulate = getPopulateFromSchema(attribute.target, deepness - 1);
+      if (relationPopulate) {
+        populate[attributeName] = relationPopulate;
+      }
+    } else if (attribute.type === 'media') {
+      populate[attributeName] = true;
     }
+  }
 
-    return populate;
-  }, {});
-
-  return populate;
+  return isEmpty(populate) ? true : { populate };
 };
 
-const populateRelationAttributes = (relation) => {
-  if (relation.type === 'component') {
-    // Sub populate SEO component.
-    const SHOULD_SUB_POPULATE = ['shared.seo'];
-    const attributes = getModelAttributes(relation.component, ['component', 'dynamiczone', 'media', 'relation']);
-    const populate = attributes.reduce((populate, attribute) => {
-      return {
-        ...populate,
-        [attribute.name]: SHOULD_SUB_POPULATE.includes(attribute.component) ? populateRelationAttributes(attribute) : { populate: '*' },
-      };
-    }, {});
-    return { populate };
-  } else if (relation.type === 'dynamiczone') {
-    const populate = relation.components.reduce((populate, componentPath) => {
-      return { ...populate, [componentPath.split('.').pop()]: { populate: '*' } };
-    }, {});
-    return { populate };
+const getModelPopulationAttributes = (model) => {
+  if (model.uid === 'plugin::upload.file') {
+    const { related, ...attributes } = model.attributes;
+    return attributes;
   }
-  return { populate: '*' };
+
+  return model.attributes;
 };
 
 module.exports = ({ strapi }) => ({

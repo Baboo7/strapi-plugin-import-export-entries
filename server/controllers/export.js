@@ -13,9 +13,7 @@ const exportData = async (ctx) => {
   let { slug, search, applySearch, exportFormat, relationsAsId } = ctx.request.body;
 
   const queryBuilder = new ObjectBuilder();
-  queryBuilder.extend({
-    populate: getService('export').getPopulateFromSchema(slug),
-  });
+  queryBuilder.extend(getService('export').getPopulateFromSchema(slug));
   if (applySearch) {
     queryBuilder.extend(buildFilterQuery(search));
   }
