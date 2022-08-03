@@ -1,10 +1,10 @@
 module.exports = {
-  type: 'admin',
+  type: 'content-api',
   routes: [
     {
       method: 'POST',
-      path: '/export/contentTypes',
-      handler: 'export.exportData',
+      path: '/content/import',
+      handler: 'import.importData',
       config: {
         policies: [],
       },

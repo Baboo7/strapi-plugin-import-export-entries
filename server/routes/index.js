@@ -1,7 +1,11 @@
-const exportRoutes = require('./export');
-const importRoutes = require('./import');
+const exportAdminRoutes = require('./export-admin');
+const importAdminRoutes = require('./import-admin');
+const exportContentApiRoutes = require('./export-content-api');
+const importContentApiRoutes = require('./import-content-api');
 
 module.exports = {
-  export: exportRoutes,
-  import: importRoutes,
+  exportAdminRoutes,
+  importAdminRoutes,
+  export: exportContentApiRoutes,
+  import: importContentApiRoutes,
 };

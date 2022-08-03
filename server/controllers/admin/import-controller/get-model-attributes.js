@@ -1,6 +1,6 @@
 'use strict';
 
-const { getModelAttributes } = require('../../utils/models');
+const { getModelAttributes } = require('../../../utils/models');
 
 const getModelAttributesEndpoint = async (ctx) => {
   const { slug } = ctx.params;

@@ -1,16 +1,22 @@
 'use strict';
 
+const Joi = require('joi');
 const qs = require('qs');
 
-const { ObjectBuilder } = require('../../libs/objects');
-const { getService } = require('../utils');
+const { ObjectBuilder } = require('../../../../libs/objects');
+const { getService } = require('../../../utils');
+const { checkParams, handleAsyncError } = require('../utils');
+
+const bodySchema = Joi.object({
+  slug: Joi.string().required(),
+  exportFormat: Joi.string().valid('csv', 'json').required(),
+  search: Joi.string().default(''),
+  applySearch: Joi.boolean().default(false),
+  relationsAsId: Joi.boolean().default(false),
+});
 
 const exportData = async (ctx) => {
-  if (!hasPermissions(ctx)) {
-    return ctx.forbidden();
-  }
-
-  let { slug, search, applySearch, exportFormat, relationsAsId } = ctx.request.body;
+  let { slug, search, applySearch, exportFormat, relationsAsId } = checkParams(bodySchema, ctx.request.body);
 
   const queryBuilder = new ObjectBuilder();
   queryBuilder.extend(getService('export').getPopulateFromSchema(slug));
@@ -32,15 +38,6 @@ const exportData = async (ctx) => {
   };
 };
 
-const hasPermissions = (ctx) => {
-  let { slug } = ctx.request.body;
-  const { userAbility } = ctx.state;
-
-  const permissionChecker = strapi.plugin('content-manager').service('permission-checker').create({ userAbility, model: slug });
-
-  return permissionChecker.can.read();
-};
-
 const buildFilterQuery = (search) => {
   let { filters, sort: sortRaw } = qs.parse(search);
 
@@ -57,5 +54,5 @@ const buildFilterQuery = (search) => {
 };
 
 module.exports = ({ strapi }) => ({
-  exportData,
+  exportData: handleAsyncError(exportData),
 });

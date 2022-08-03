@@ -12,7 +12,7 @@ Import/Export data from and to your database in just few clicks.
 
 - Import data directly from the Content Manager
 - Import data from CSV and JSON file or from typing raw text according to user permissions
-- Import contents to collection type
+- Import contents to collection type/single type
 
 ### Export
 
@@ -41,6 +41,7 @@ Import/Export data from and to your database in just few clicks.
 - [Usage](#usage)
   - [Config](#config)
   - [Services](#services)
+  - [Content API](#content-api)
   - [Importing Data](#importing-data)
     - [Data Structure](#data-structure)
     - [Webhook](#webhook)
@@ -233,6 +234,69 @@ await service.importData(
     data: object;
   }[]
 }>;
+```
+
+### Content API
+
+Data can be imported/exported through the content api. Endpoints have to be enabled in _Settings > Users & Permissions plugin > Roles_.
+
+```ts
+/*****************************
+ * Import data
+ *
+ * POST /api/import-export-entries/content/import
+ ****************************/
+
+type RouteParams = {
+  /** Slug of the model to export. */
+  slug: string;
+  /**
+   * Data to import.
+   * if `format` is "csv", data must be a string.
+   * if `format` is "json", data must be an object or an array of objects.
+   * */
+  data: string | Object | Object[];
+  /** Format of the passed data to import. */
+  format: 'csv' | 'json';
+  /** Name of the field to use as a unique identifier for entries. Default: "id" */
+  idField?: string;
+};
+
+type RouteReturn = {
+  /** Array of failed imports. */
+  failures: {
+    /** Error raised during import. */
+    error: string;
+    /** Data for which the import failed. */
+    data: Object;
+  }[];
+};
+```
+
+```ts
+/*****************************
+ * Export data
+ *
+ * POST /api/import-export-entries/content/export/contentTypes
+ ****************************/
+
+type RouteParams = {
+  /** Slug of the model to export. */
+  slug: string;
+  /** Format to use to export the data. */
+  exportFormat: 'csv' | 'json';
+  /** Search query used to select the entries to export. The package `qs` is used to parse the query. Default: "" */
+  search?: string;
+  /** Whether to apply the search query. Default: false */
+  applySearch?: boolean;
+  /** Whether to export relations as id instead of plain objects. Default: false */
+  relationsAsId?: boolean;
+};
+
+type RouteReturn = {
+  /** Exported data. */
+  data: string;
+};
 ```
 
 ### Importing Data
