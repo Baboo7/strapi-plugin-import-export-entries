@@ -2,9 +2,9 @@ import { prefixPluginTranslations } from '@strapi/helper-plugin';
 import pluginPkg from '../../package.json';
 import pluginId from './pluginId';
 import Initializer from './components/Initializer';
-import { Export } from './components/Injected/export';
-import { Import } from './components/Injected/import';
 import { Alerts } from './components/Injected/Alerts';
+import { InjectedImportButton } from './components/InjectedImportButton';
+import { InjectedExportButton } from './components/InjectedExportButton';
 
 const name = pluginPkg.strapi.name;
 
@@ -25,10 +25,11 @@ export default {
     });
     app.injectContentManagerComponent('listView', 'actions', {
       name: `${pluginId}-import`,
-      Component: Import,
+      Component: InjectedImportButton,
     });
     app.injectContentManagerComponent('listView', 'actions', {
       name: `${pluginId}-export`,
+      Component: InjectedExportButton,
       Component: Export,
     });
   },
