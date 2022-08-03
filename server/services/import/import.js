@@ -1,7 +1,7 @@
 const { isArraySafe, toArray } = require('../../../libs/arrays');
 const { ObjectBuilder, isObjectSafe } = require('../../../libs/objects');
 const { catchError } = require('../../utils');
-const { getModelAttributes } = require('../../utils/models');
+const { getModelAttributes, getModel } = require('../../utils/models');
 const { findOrImportFile } = require('./utils/file');
 const { parseInputData } = require('./utils/parsers');
 
@@ -26,7 +26,8 @@ const { parseInputData } = require('./utils/parsers');
  * @returns {Promise<ImportDataRes>}
  */
 const importData = async (dataRaw, { slug, format, user, idField }) => {
-  const data = await parseInputData(format, dataRaw, { slug });
+  let data = await parseInputData(format, dataRaw, { slug });
+  data = toArray(data);
 
   const processed = [];
   for (let datum of data) {
@@ -55,6 +56,17 @@ const updateOrCreate = async (user, slug, data, idField = 'id') => {
     data[attribute.name] = await updateOrCreateRelation(user, attribute, data[attribute.name]);
   }
 
+  let entry;
+  const model = getModel(slug);
+  if (model.kind === 'singleType') {
+    entry = await updateOrCreateSingleType(user, slug, data, idField);
+  } else {
+    entry = await updateOrCreateCollectionType(user, slug, data, idField);
+  }
+  return entry;
+};
+
+const updateOrCreateCollectionType = async (user, slug, data, idField) => {
   const whereBuilder = new ObjectBuilder();
   if (data[idField]) {
     whereBuilder.extend({ [idField]: data[idField] });
@@ -75,6 +87,19 @@ const updateOrCreate = async (user, slug, data, idField = 'id') => {
     if (!entry) {
       entry = await strapi.db.query(slug).create({ data });
     }
+  }
+
+  return entry;
+};
+
+const updateOrCreateSingleType = async (user, slug, data, idField) => {
+  delete data.id;
+
+  let [entry] = await strapi.db.query(slug).findMany();
+  if (!entry) {
+    entry = await strapi.db.query(slug).create({ data });
+  } else {
+    entry = await strapi.db.query(slug).update({ where: { id: entry.id }, data });
   }
 
   return entry;
