@@ -1,9 +1,10 @@
 const { isArraySafe, toArray } = require('../../../libs/arrays');
 const { isObjectSafe } = require('../../../libs/objects');
 const { getConfig } = require('../../utils/getConfig');
-const { getModelAttributes } = require('../../utils/models');
+const { getModelAttributes, getModel } = require('../../utils/models');
 
 const convertToCsv = (entries, options) => {
+  entries = toArray(entries);
   const columnTitles = ['id'].concat(getModelAttributes(options.slug).map((attr) => attr.name));
   const content = [convertStrArrayToCsv(columnTitles)].concat(entries.map((entry) => convertEntryToStrArray(entry, columnTitles)).map(convertStrArrayToCsv)).join('\r\n');
   return content;
@@ -41,9 +42,15 @@ const withBeforeConvert = (convertFn) => (entries, options) => {
 };
 
 const beforeConvert = (entries, options) => {
+  entries = toArray(entries);
+
   entries = exportMedia(entries, options);
   if (options.relationsAsId) {
     entries = exportRelationsAsId(entries, options);
+  }
+
+  if (getModel(options.slug).kind === 'singleType') {
+    return entries?.[0];
   }
   return entries;
 };

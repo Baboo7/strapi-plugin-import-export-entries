@@ -1,6 +1,18 @@
 'use strict';
 
 /**
+ * ModelKind.
+ * @typedef {("collectionType"|"singleType")} ModelKind
+ */
+
+/**
+ * A model.
+ * @typedef {Object} Model
+ * @property {ModelKind} kind
+ * @property {{[k: string]: Attribute}} attributes - Name of the attribute.
+ */
+
+/**
  * AttributeType.
  * @typedef {("boolean"|"component"|"datetime"|"dynamiczone"|"increments"|"media"|"number"|"relation"|"string"|"text")} AttributeType
  */
@@ -19,6 +31,15 @@
  */
 
 /**
+ * Get a model.
+ * @param {string} slug - Slug of the model.
+ * @returns {Model}
+ */
+const getModel = (slug) => {
+  return strapi.getModel(slug);
+};
+
+/**
  * Get the attributes of a model.
  * @param {string} slug - Slug of the model.
  * @param {AttributeType | Array<AttributeType>} [filterType] - Only attributes matching the type(s) will be kept.
@@ -28,7 +49,9 @@ const getModelAttributes = (slug, filterType) => {
   const typesToKeep = filterType ? (Array.isArray(filterType) ? filterType : [filterType]) : [];
 
   const attributesObj = strapi.getModel(slug).attributes;
-  const attributes = Object.keys(attributesObj).reduce((acc, key) => acc.concat({ ...attributesObj[key], name: key }), []);
+  const attributes = Object.keys(attributesObj)
+    .reduce((acc, key) => acc.concat({ ...attributesObj[key], name: key }), [])
+    .filter((attr) => attr.target !== 'admin::user');
 
   if (typesToKeep.length) {
     return attributes.filter((attr) => typesToKeep.includes(attr.type));
@@ -47,6 +70,7 @@ const isAttributeDynamicZone = (attribute) => {
 };
 
 module.exports = {
+  getModel,
   getModelAttributes,
   isAttributeDynamicZone,
 };
