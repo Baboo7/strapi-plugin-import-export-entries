@@ -1,6 +1,6 @@
 'use strict';
 
-const { getService } = require('../../utils');
+const { getService } = require('../../../utils');
 
 const importData = async (ctx) => {
   if (!hasPermissions(ctx)) {

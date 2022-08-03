@@ -4,7 +4,7 @@ module.exports = {
     {
       method: 'GET',
       path: '/import/model-attributes/:slug',
-      handler: 'import.getModelAttributes',
+      handler: 'importAdmin.getModelAttributes',
       config: {
         policies: [],
       },
@@ -12,7 +12,7 @@ module.exports = {
     {
       method: 'POST',
       path: '/import',
-      handler: 'import.importData',
+      handler: 'importAdmin.importData',
       config: {
         policies: [],
       },
