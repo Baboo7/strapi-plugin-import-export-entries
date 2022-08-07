@@ -13,13 +13,14 @@ const bodySchema = Joi.object({
   search: Joi.string().default(''),
   applySearch: Joi.boolean().default(false),
   relationsAsId: Joi.boolean().default(false),
+  deepness: Joi.number().integer().min(1).default(5),
 });
 
 const exportData = async (ctx) => {
-  let { slug, search, applySearch, exportFormat, relationsAsId } = checkParams(bodySchema, ctx.request.body);
+  let { slug, search, applySearch, exportFormat, relationsAsId, deepness } = checkParams(bodySchema, ctx.request.body);
 
   const queryBuilder = new ObjectBuilder();
-  queryBuilder.extend(getService('export').getPopulateFromSchema(slug));
+  queryBuilder.extend(getService('export').getPopulateFromSchema(slug, deepness));
   if (applySearch) {
     queryBuilder.extend(buildFilterQuery(search));
   }

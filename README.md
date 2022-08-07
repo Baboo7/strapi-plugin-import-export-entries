@@ -291,6 +291,8 @@ type RouteParams = {
   applySearch?: boolean;
   /** Whether to export relations as id instead of plain objects. Default: false */
   relationsAsId?: boolean;
+  /** Deepness of the exported data. Default: 5 */
+  deepness?: number;
 };
 
 type RouteReturn = {
