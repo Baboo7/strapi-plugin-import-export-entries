@@ -10,10 +10,10 @@ const exportData = async (ctx) => {
     return ctx.forbidden();
   }
 
-  let { slug, search, applySearch, exportFormat, relationsAsId } = ctx.request.body;
+  let { slug, search, applySearch, exportFormat, relationsAsId, deepness = 5 } = ctx.request.body;
 
   const queryBuilder = new ObjectBuilder();
-  queryBuilder.extend(getService('export').getPopulateFromSchema(slug));
+  queryBuilder.extend(getService('export').getPopulateFromSchema(slug, deepness));
   if (applySearch) {
     queryBuilder.extend(buildFilterQuery(search));
   }

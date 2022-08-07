@@ -7,7 +7,8 @@ import { Loader } from '@strapi/design-system/Loader';
 import { Portal } from '@strapi/design-system/Portal';
 import { Select, Option } from '@strapi/design-system/Select';
 import { Typography } from '@strapi/design-system/Typography';
-import { pick } from 'lodash';
+import pick from 'lodash/pick';
+import range from 'lodash/range';
 import React, { useState } from 'react';
 import { useLocation } from 'react-router-dom';
 import qs from 'qs';
@@ -32,6 +33,7 @@ export const ExportModal = ({ onClose }) => {
   const [optionExportFormat, setOptionExportFormat] = useState(dataFormats.CSV);
   const [optionApplyFilters, setOptionApplyFilters] = useState(false);
   const [optionRelationsAsId, setOptionRelationsAsId] = useState(false);
+  const [optionDeepness, setOptionDeepness] = useState(5);
   const [data, setData] = useState(null);
   const [fetchingData, setFetchingData] = useState(false);
 
@@ -44,6 +46,7 @@ export const ExportModal = ({ onClose }) => {
         applySearch: optionApplyFilters,
         exportFormat: optionExportFormat,
         relationsAsId: optionRelationsAsId,
+        deepness: optionDeepness,
       });
       setData(res.data);
     } catch (err) {
@@ -113,6 +116,13 @@ export const ExportModal = ({ onClose }) => {
                 <Checkbox value={optionApplyFilters} onValueChange={setOptionApplyFilters}>
                   Apply filters and sort to exported data.
                 </Checkbox>
+                <Select label="Deepness" placeholder="Deepness" value={optionDeepness} onChange={setOptionDeepness}>
+                  {range(1, 21).map((deepness) => (
+                    <Option key={deepness} value={deepness}>
+                      {deepness}
+                    </Option>
+                  ))}
+                </Select>
               </Flex>
             </>
           )}
