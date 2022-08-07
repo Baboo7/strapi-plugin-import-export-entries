@@ -1,8 +1,9 @@
+const fs = require('fs');
 const fse = require('fs-extra');
+const trim = require('lodash/trim');
 const os = require('os');
 const path = require('path');
 const request = require('request');
-const { Readable } = require('stream');
 
 const { isObjectSafe } = require('../../../../libs/objects');
 
@@ -22,13 +23,32 @@ const findOrImportFile = async (fileData, user, { allowedFileTypes }) => {
     const file = await importByUrl(fileData, allowedFileTypes, user);
     return file;
   } else if (isObjectSafe(fileData)) {
-    const file = await importByUrl(fileData.url, allowedFileTypes, user);
+    let file = null;
+    if (!file && fileData.id) {
+      file = await importById(fileData.id, allowedFileTypes);
+    }
+    if (!file && fileData.name) {
+      file = await importByName(fileData.name, allowedFileTypes);
+    }
+    if (!file && fileData.url) {
+      file = await importByUrl(fileData.url, allowedFileTypes, user);
+    }
     return file;
   }
 };
 
 const importById = async (id, allowedFileTypes) => {
   let file = await findFile({ id });
+
+  if (file && !isExtensionAllowed(file.ext.substring(1), allowedFileTypes)) {
+    file = null;
+  }
+
+  return file;
+};
+
+const importByName = async (name, allowedFileTypes) => {
+  let file = await findFile({ name });
 
   if (file && !isExtensionAllowed(file.ext.substring(1), allowedFileTypes)) {
     file = null;
@@ -71,32 +91,39 @@ const findFile = async ({ id, name }) => {
 };
 
 const importFile = async ({ url }, user) => {
+  let file;
   try {
-    let file = await fetchFile(url);
+    file = await fetchFile(url);
 
-    if (isOptimizable(file.filename)) {
-      file = await strapi.plugin('upload').service('image-manipulation').optimize(file);
-    }
+    const [uploadedFile] = await strapi
+      .plugin('upload')
+      .service('upload')
+      .upload(
+        {
+          files: {
+            name: file.name,
+            type: file.type,
+            size: file.size,
+            path: file.path,
+          },
+          data: {
+            fileInfo: {
+              name: file.name,
+              alternativeText: file.name,
+              caption: file.name,
+            },
+          },
+        },
+        { user },
+      );
 
-    const uploadService = strapi.plugin('upload').service('upload');
-    const formattedFileInfo = uploadService.formatFileInfo(file, { name: file.filename, alternativeText: file.filename, caption: file.filename });
-
-    const uploadedFile = await uploadService.uploadFileAndPersist({ ...file, ...formattedFileInfo }, { user });
-
-    if (!uploadedFile?.id) {
-      return null;
-    }
     return uploadedFile;
   } catch (err) {
     strapi.log.error(err);
-    return null;
+    throw err;
+  } finally {
+    deleteFileIfExists(file?.path);
   }
-};
-
-const FORMATS_TO_PROCESS = ['jpeg', 'png', 'webp', 'tiff'];
-const isOptimizable = (fileName) => {
-  const ext = fileName.split('.')[-1];
-  return FORMATS_TO_PROCESS.includes(ext);
 };
 
 const fetchFile = (url) => {
@@ -107,24 +134,43 @@ const fetchFile = (url) => {
         return;
       }
 
-      const tmpWorkingDirectory = await fse.mkdtemp(path.join(os.tmpdir(), 'strapi-upload-'));
+      if (res.statusCode < 200 || 300 <= res.statusCode) {
+        throw new Error(`Tried to fetch file from url ${url} but failed with status code ${res.statusCode}`);
+      }
 
       const type = res.headers['content-type'].split(';').shift();
       const size = parseInt(res.headers['content-length']) | 0;
 
       const fileData = getFileDataFromRawUrl(url);
+      const filePath = await writeFile(fileData.name, body);
 
       resolve({
-        filename: fileData.fileName,
         name: fileData.name,
-        hash: fileData.name,
         type,
         size,
-        tmpWorkingDirectory,
-        getStream: () => Readable.from(body),
+        path: filePath,
       });
     });
   });
+};
+
+const writeFile = async (name, content) => {
+  const tmpWorkingDirectory = await fse.mkdtemp(path.join(os.tmpdir(), 'strapi-upload-'));
+
+  const filePath = path.join(tmpWorkingDirectory, name);
+  try {
+    fs.writeFileSync(filePath, content);
+    return filePath;
+  } catch (err) {
+    strapi.log.error(err);
+    throw err;
+  }
+};
+
+const deleteFileIfExists = (filePath) => {
+  if (filePath && fs.existsSync(filePath)) {
+    fs.rmSync(filePath);
+  }
 };
 
 const isValidFileUrl = (url, allowedFileTypes) => {
@@ -134,7 +180,7 @@ const isValidFileUrl = (url, allowedFileTypes) => {
     return {
       isValid: isExtensionAllowed(fileData.extension, allowedFileTypes),
       fileData: {
-        fileName: fileData.fileName,
+        fileName: fileData.name,
         rawUrl: url,
       },
     };
@@ -178,12 +224,10 @@ const getFileTypeChecker = (type) => {
 const getFileDataFromRawUrl = (rawUrl) => {
   const parsedUrl = new URL(decodeURIComponent(rawUrl));
 
-  const fileName = parsedUrl.pathname.toLowerCase().replace(/\//g, '-');
+  const name = trim(parsedUrl.pathname.toLowerCase(), '/').replace(/\//g, '-');
 
   return {
-    fileName: fileName,
-    name: fileName.replace(/\.[a-zA-Z]*$/, ''),
-    extension: parsedUrl.pathname.split('.').pop().toLowerCase(),
+    name,
   };
 };
 
