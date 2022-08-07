@@ -309,14 +309,15 @@ The expected import data structure:
   - `object`: the relation is searched in db. If an entry is found, it is updated with the provided data. Otherwise, it is created.
   - `number`: the relation is treated as an id.
 - Media: `object` | `string` | `number`
-  - `object`: the media must have a `url` property. The name of the file is deduced from the `url` and is used to find the media in db. If found by name, the media in db is used. Otherwise, the media is uploaded to the db. ⚠️ Check that the server can access the url.
-    - Eg: `{ url: "https://www.thetimes.co.uk/imageserver/image/%2Fmethode%2Fsundaytimes%2Fprod%2Fweb%2Fbin%2F4dbff19c-17a0-11ec-a4b1-45d6202ceafe.jpg" }`
-    - Eg: `{ url: "http://localhost:1337/4dbff19c-17a0-11ec-a4b1-45d6202ceafe.jpg" }`
-    - File name is `4dbff19c-17a0-11ec-a4b1-45d6202ceafe.jpg`
+  - `object`: the media must have an `id`, `name` or `url` property. First the media is searched by `id`, then by `name` and finally imported from `url` if not found previously. When imported by url, the name of the file is deduced from the `url` and is used to find the media in db. If found by name, the media in db is used. Otherwise, the media is uploaded to the db. ⚠️ Check that the server can access the url.
+    - Eg: `{ id: 1 }`
+    - Eg: `{ name: "alpaga.jpg" }`
+    - Eg: `{ url: "https://www.thetimes.co.uk/imageserver/image/alpaga.jpg" }` ((File name is `imageserver-image-alpaga.jpg`))
+    - Eg: `{ url: "http://localhost:1337/alpaga.jpg" }` (File name is `alpaga.jpg`)
+    -
   - `string`: Same as above, except the media provided is a url.
-    - Eg: `"https://www.thetimes.co.uk/imageserver/image/%2Fmethode%2Fsundaytimes%2Fprod%2Fweb%2Fbin%2F4dbff19c-17a0-11ec-a4b1-45d6202ceafe.jpg"`
-    - Eg: `"http://localhost:1337/4dbff19c-17a0-11ec-a4b1-45d6202ceafe.jpg"`
-    - File name is `4dbff19c-17a0-11ec-a4b1-45d6202ceafe.jpg`
+    - Eg: `"https://www.thetimes.co.uk/imageserver/image/alpaga.jpg"` ((File name is `imageserver-image-alpaga.jpg`))
+    - Eg: `"http://localhost:1337/alpaga.jpg"` (File name is `alpaga.jpg`)
   - `number`: the media is treated as an id.
     - Eg: `7`
 
