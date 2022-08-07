@@ -1,6 +1,5 @@
 const { isArraySafe, toArray } = require('../../../libs/arrays');
 const { ObjectBuilder, isObjectSafe } = require('../../../libs/objects');
-const { catchError } = require('../../utils');
 const { getModelAttributes, getModel } = require('../../utils/models');
 const { findOrImportFile } = require('./utils/file');
 const { parseInputData } = require('./utils/parsers');
@@ -31,7 +30,14 @@ const importData = async (dataRaw, { slug, format, user, idField }) => {
 
   const processed = [];
   for (let datum of data) {
-    const res = await catchError((datum) => updateOrCreate(user, slug, datum, idField), datum);
+    let res;
+    try {
+      await updateOrCreate(user, slug, datum, idField);
+      res = { success: true };
+    } catch (err) {
+      strapi.log.error(err);
+      res = { success: false, error: err.message, args: [datum] };
+    }
     processed.push(res);
   }
 
