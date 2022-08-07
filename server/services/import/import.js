@@ -51,7 +51,7 @@ const importData = async (dataRaw, { slug, format, user, idField }) => {
  * @returns Updated/created entry.
  */
 const updateOrCreate = async (user, slug, data, idField = 'id') => {
-  const relationAttributes = getModelAttributes(slug, ['component', 'dynamiczone', 'media', 'relation']);
+  const relationAttributes = getModelAttributes(slug, { filterType: ['component', 'dynamiczone', 'media', 'relation'] });
   for (let attribute of relationAttributes) {
     data[attribute.name] = await updateOrCreateRelation(user, attribute, data[attribute.name]);
   }

@@ -5,7 +5,7 @@ const { getModelAttributes, getModel } = require('../../utils/models');
 
 const convertToCsv = (entries, options) => {
   entries = toArray(entries);
-  const columnTitles = ['id'].concat(getModelAttributes(options.slug).map((attr) => attr.name));
+  const columnTitles = ['id'].concat(getModelAttributes(options.slug, { filterOutTarget: ['admin::user'] }).map((attr) => attr.name));
   const content = [convertStrArrayToCsv(columnTitles)].concat(entries.map((entry) => convertEntryToStrArray(entry, columnTitles)).map(convertStrArrayToCsv)).join('\r\n');
   return content;
 };
@@ -56,8 +56,8 @@ const beforeConvert = (entries, options) => {
 };
 
 const exportMedia = (entries, options) => {
-  const mediaKeys = getModelAttributes(options.slug, ['media']).map((attr) => attr.name);
-  const relationsAttr = getModelAttributes(options.slug, ['component', 'dynamiczone', 'relation']);
+  const mediaKeys = getModelAttributes(options.slug, { filterOutTarget: ['admin::user'], filterType: ['media'] }).map((attr) => attr.name);
+  const relationsAttr = getModelAttributes(options.slug, { filterOutTarget: ['admin::user'], filterType: ['component', 'dynamiczone', 'relation'] });
 
   const hostname = getConfig('serverPublicHostname');
   entries = entries.map((entry) => {
@@ -101,7 +101,9 @@ const exportMedia = (entries, options) => {
 };
 
 const exportRelationsAsId = (entries, options) => {
-  const relationKeys = getModelAttributes(options.slug, ['component', 'dynamiczone', 'media', 'relation']).map((attr) => attr.name);
+  const relationKeys = getModelAttributes(options.slug, { filterOutTarget: ['admin::user'], filterType: ['component', 'dynamiczone', 'media', 'relation'] }).map(
+    (attr) => attr.name,
+  );
 
   return entries.map((entry) => {
     relationKeys.forEach((key) => {

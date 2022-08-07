@@ -1,5 +1,7 @@
 'use strict';
 
+const { toArray } = require('../../libs/arrays');
+
 /**
  * ModelKind.
  * @typedef {("collectionType"|"singleType")} ModelKind
@@ -15,6 +17,11 @@
 /**
  * AttributeType.
  * @typedef {("boolean"|"component"|"datetime"|"dynamiczone"|"increments"|"media"|"number"|"relation"|"string"|"text")} AttributeType
+ */
+
+/**
+ * AttributeTarget.
+ * @typedef {("admin::user")} AttributeTarget
  */
 
 /**
@@ -42,16 +49,19 @@ const getModel = (slug) => {
 /**
  * Get the attributes of a model.
  * @param {string} slug - Slug of the model.
- * @param {AttributeType | Array<AttributeType>} [filterType] - Only attributes matching the type(s) will be kept.
+ * @param {Object} options
+ * @param {AttributeType | Array<AttributeType>} [options.filterType] - Only attributes matching the type(s) will be kept.
+ * @param {AttributeTarget | Array<AttributeTarget>} [options.filterOutTarget] - Remove attributes matching the specified target(s).
  * @returns {Array<Attribute>}
  */
-const getModelAttributes = (slug, filterType) => {
-  const typesToKeep = filterType ? (Array.isArray(filterType) ? filterType : [filterType]) : [];
+const getModelAttributes = (slug, options = {}) => {
+  const typesToKeep = options.filterType ? (Array.isArray(options.filterType) ? options.filterType : [options.filterType]) : [];
+  const filterOutTarget = toArray(options.filterOutTarget || []);
 
   const attributesObj = strapi.getModel(slug).attributes;
   const attributes = Object.keys(attributesObj)
     .reduce((acc, key) => acc.concat({ ...attributesObj[key], name: key }), [])
-    .filter((attr) => attr.target !== 'admin::user');
+    .filter((attr) => !filterOutTarget.includes(attr.target));
 
   if (typesToKeep.length) {
     return attributes.filter((attr) => typesToKeep.includes(attr.type));

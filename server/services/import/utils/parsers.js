@@ -7,7 +7,7 @@ const { getModelAttributes } = require('../../../utils/models');
 const parseCsv = async (dataRaw, { slug }) => {
   let data = await csvtojson().fromString(dataRaw);
 
-  const relationNames = getModelAttributes(slug, ['component', 'dynamiczone', 'media', 'relation']).map((a) => a.name);
+  const relationNames = getModelAttributes(slug, { filterType: ['component', 'dynamiczone', 'media', 'relation'] }).map((a) => a.name);
   data = data.map((datum) => {
     for (let name of relationNames) {
       try {
