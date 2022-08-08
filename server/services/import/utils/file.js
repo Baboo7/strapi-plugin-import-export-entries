@@ -228,6 +228,7 @@ const getFileDataFromRawUrl = (rawUrl) => {
 
   return {
     name,
+    extension: parsedUrl.pathname.split('.').pop().toLowerCase(),
   };
 };
 
