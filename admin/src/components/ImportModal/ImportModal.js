@@ -53,7 +53,7 @@ export const ImportModal = ({ onClose }) => {
   };
 
   const readFile = (file) => {
-    if (file.type === 'text/csv') {
+    if (file.type === 'text/csv' || /\.csv$/i.test(file.name)) {
       setDataFormat(dataFormats.CSV);
     } else if (file.type === 'application/json') {
       setDataFormat(dataFormats.JSON);
