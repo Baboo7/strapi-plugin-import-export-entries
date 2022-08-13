@@ -145,7 +145,7 @@ export const ImportModal = ({ onClose }) => {
       <ModalLayout onClose={onClose} labelledBy="title">
         <ModalHeader>
           <Typography fontWeight="bold" textColor="neutral800" as="h2" id="title">
-            Import
+            {i18n('plugin.cta.import')}
           </Typography>
         </ModalHeader>
         <ModalBody className="plugin-ie-import_modal_body">
@@ -156,7 +156,7 @@ export const ImportModal = ({ onClose }) => {
                   <IconFile />
                 </span>
                 <Typography style={{ fontSize: '1rem', fontWeight: 500 }} textColor="neutral600" as="p">
-                  Drag &amp; drop your file into this area or browse for a file to upload
+                  {i18n('plugin.import.drag-drop-file')}
                 </Typography>
                 <input type="file" accept=".csv,.json" hidden="" onChange={onReadFile} />
               </label>
@@ -165,7 +165,7 @@ export const ImportModal = ({ onClose }) => {
           {showLoader && (
             <>
               <Flex justifyContent="center">
-                <Loader>Importing data...</Loader>
+                <Loader>{i18n('plugin.import.importing-data')}</Loader>
               </Flex>
             </>
           )}
@@ -174,7 +174,7 @@ export const ImportModal = ({ onClose }) => {
             <>
               <EmptyStateLayout
                 icon={<Icon width="6rem" height="6rem" color="success500" as={CheckCircle} />}
-                content={'Your data has been imported successfully.'}
+                content={i18n('plugin.message.import.success.imported-successfully')}
                 action={
                   <Button onClick={onClose} variant="tertiary">
                     {i18n('plugin.cta.close')}
@@ -186,10 +186,10 @@ export const ImportModal = ({ onClose }) => {
           {showPartialSuccess && (
             <>
               <Typography textColor="neutral800" fontWeight="bold" as="h2">
-                Import Partially Failed
+                {i18n('plugin.import.partially-failed')}
               </Typography>
               <Typography textColor="neutral800" as="p">
-                Detailed Information:
+                {i18n('plugin.import.detailed-information')}
               </Typography>
               <Editor content={importFailuresContent} language={'json'} readOnly />
             </>
