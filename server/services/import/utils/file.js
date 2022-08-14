@@ -20,7 +20,7 @@ const findOrImportFile = async (fileData, user, { allowedFileTypes }) => {
     let file = await importById(fileData, allowedFileTypes);
     return file;
   } else if (typeof fileData === 'string') {
-    const file = await importByUrl(fileData, allowedFileTypes, user);
+    const file = await importByUrl({ url: fileData }, allowedFileTypes, user);
     return file;
   } else if (isObjectSafe(fileData)) {
     let file = null;
@@ -31,7 +31,7 @@ const findOrImportFile = async (fileData, user, { allowedFileTypes }) => {
       file = await importByName(fileData.name, allowedFileTypes);
     }
     if (!file && fileData.url) {
-      file = await importByUrl(fileData.url, allowedFileTypes, user);
+      file = await importByUrl(fileData, allowedFileTypes, user);
     }
     return file;
   }
@@ -57,7 +57,7 @@ const importByName = async (name, allowedFileTypes) => {
   return file;
 };
 
-const importByUrl = async (url, allowedFileTypes, user) => {
+const importByUrl = async ({ url, alternativeText, caption }, allowedFileTypes, user) => {
   const checkResult = isValidFileUrl(url, allowedFileTypes);
   if (!checkResult.isValid) {
     return null;
@@ -65,7 +65,7 @@ const importByUrl = async (url, allowedFileTypes, user) => {
 
   let file = await findFile({ name: checkResult.fileData.fileName });
   if (!file) {
-    file = await importFile({ url: checkResult.fileData.rawUrl }, user);
+    file = await importFile({ url: checkResult.fileData.rawUrl, alternativeText, caption }, user);
   }
 
   return file;
@@ -90,7 +90,7 @@ const findFile = async ({ id, name }) => {
   return file;
 };
 
-const importFile = async ({ url }, user) => {
+const importFile = async ({ url, alternativeText, caption }, user) => {
   let file;
   try {
     file = await fetchFile(url);
@@ -109,8 +109,8 @@ const importFile = async ({ url }, user) => {
           data: {
             fileInfo: {
               name: file.name,
-              alternativeText: file.name,
-              caption: file.name,
+              alternativeText: alternativeText || file.name,
+              caption,
             },
           },
         },
