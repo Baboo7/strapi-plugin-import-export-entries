@@ -308,7 +308,7 @@ type RouteReturn = {
 The expected import data structure:
 
 - Relation: `object` | `number`
-  - `object`: the relation is searched in db. If an entry is found, it is updated with the provided data. Otherwise, it is created.
+  - `object`: the relation is searched in db by `id`. If an entry is found, it is updated with the provided data. Otherwise, it is created.
   - `number`: the relation is treated as an id.
 - Media: `object` | `string` | `number`
   - `object`: the media must have an `id`, `name` or `url` property. First the media is searched by `id`, then by `name` and finally imported from `url` if not found previously. When imported by url, the name of the file is deduced from the `url` and is used to find the media in db. If found by name, the media in db is used. Otherwise, the media is uploaded to the db. ⚠️ Check that the server can access the url.
