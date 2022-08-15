@@ -332,8 +332,8 @@ When imported by `url`, the `hash` and `name` of the file are deduced from the `
 When imported by `url`, extra data can be provided to enhance the created file:
 
 - `name` (_defaults to the `name` deduced from the url_)
-- `caption` (_defaults to the `name` deduced from the url_)
-- `alternativeText` (_defaults to the `name` deduced from the url_)
+- `caption` (_defaults to `""`_)
+- `alternativeText` (_defaults to `""`_)
 
 #### Examples
 
