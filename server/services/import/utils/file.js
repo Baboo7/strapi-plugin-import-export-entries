@@ -1,5 +1,6 @@
 const fs = require('fs');
 const fse = require('fs-extra');
+const last = require('lodash/last');
 const trim = require('lodash/trim');
 const os = require('os');
 const path = require('path');
@@ -16,56 +17,21 @@ const { isObjectSafe } = require('../../../../libs/objects');
  * @returns
  */
 const findOrImportFile = async (fileData, user, { allowedFileTypes }) => {
+  let obj = {};
   if (typeof fileData === 'number') {
-    let file = await importById(fileData, allowedFileTypes);
-    return file;
+    obj.id = fileData;
   } else if (typeof fileData === 'string') {
-    const file = await importByUrl(fileData, allowedFileTypes, user);
-    return file;
+    obj.url = fileData;
   } else if (isObjectSafe(fileData)) {
-    let file = null;
-    if (!file && fileData.id) {
-      file = await importById(fileData.id, allowedFileTypes);
-    }
-    if (!file && fileData.name) {
-      file = await importByName(fileData.name, allowedFileTypes);
-    }
-    if (!file && fileData.url) {
-      file = await importByUrl(fileData.url, allowedFileTypes, user);
-    }
-    return file;
+    obj = fileData;
+  } else {
+    throw new Error(`Invalid data format '${typeof fileData}' to import media. Only 'string', 'number', 'object' are accepted.`);
   }
-};
 
-const importById = async (id, allowedFileTypes) => {
-  let file = await findFile({ id });
+  let file = await findFile(obj, user, allowedFileTypes);
 
   if (file && !isExtensionAllowed(file.ext.substring(1), allowedFileTypes)) {
     file = null;
-  }
-
-  return file;
-};
-
-const importByName = async (name, allowedFileTypes) => {
-  let file = await findFile({ name });
-
-  if (file && !isExtensionAllowed(file.ext.substring(1), allowedFileTypes)) {
-    file = null;
-  }
-
-  return file;
-};
-
-const importByUrl = async (url, allowedFileTypes, user) => {
-  const checkResult = isValidFileUrl(url, allowedFileTypes);
-  if (!checkResult.isValid) {
-    return null;
-  }
-
-  let file = await findFile({ name: checkResult.fileData.fileName });
-  if (!file) {
-    file = await importFile({ url: checkResult.fileData.rawUrl }, user);
   }
 
   return file;
@@ -75,22 +41,41 @@ const importByUrl = async (url, allowedFileTypes, user) => {
  * Find a file.
  * @param {Object} filters
  * @param {number} [filters.id] - File id.
+ * @param {string} [filters.hash] - File hash.
  * @param {string} [filters.name] - File name.
+ * @param {string} [filters.url]
+ * @param {string} [filters.alternativeText]
+ * @param {string} [filters.caption]
+ * @param {Object} user
  * @returns
  */
-const findFile = async ({ id, name }) => {
+const findFile = async ({ id, hash, name, url, alternativeText, caption }, user, allowedFileTypes) => {
   let file = null;
 
-  if (id) {
-    file = await strapi.entityService.findOne('plugin::upload.file', id, { populate: '*' });
-  } else if (name) {
+  if (!file && id) {
+    file = await strapi.entityService.findOne('plugin::upload.file', id);
+  }
+  if (!file && hash) {
+    [file] = await strapi.entityService.findMany('plugin::upload.file', { filters: { hash }, limit: 1 });
+  }
+  if (!file && name) {
     [file] = await strapi.entityService.findMany('plugin::upload.file', { filters: { name }, limit: 1 });
+  }
+  if (!file && url) {
+    const checkResult = isValidFileUrl(url, allowedFileTypes);
+    if (checkResult.isValid) {
+      file = await findFile({ hash: checkResult.fileData.hash, name: checkResult.fileData.fileName }, user, allowedFileTypes);
+
+      if (!file) {
+        file = await importFile({ url: checkResult.fileData.rawUrl, name, alternativeText, caption }, user);
+      }
+    }
   }
 
   return file;
 };
 
-const importFile = async ({ url }, user) => {
+const importFile = async ({ url, name, alternativeText, caption }, user) => {
   let file;
   try {
     file = await fetchFile(url);
@@ -108,9 +93,9 @@ const importFile = async ({ url }, user) => {
           },
           data: {
             fileInfo: {
-              name: file.name,
-              alternativeText: file.name,
-              caption: file.name,
+              name: name || file.name,
+              alternativeText: alternativeText || file.name,
+              caption: caption || file.name,
             },
           },
         },
@@ -180,6 +165,7 @@ const isValidFileUrl = (url, allowedFileTypes) => {
     return {
       isValid: isExtensionAllowed(fileData.extension, allowedFileTypes),
       fileData: {
+        hash: fileData.hash,
         fileName: fileData.name,
         rawUrl: url,
       },
@@ -189,6 +175,7 @@ const isValidFileUrl = (url, allowedFileTypes) => {
     return {
       isValid: false,
       fileData: {
+        hash: '',
         fileName: '',
         rawUrl: '',
       },
@@ -224,11 +211,14 @@ const getFileTypeChecker = (type) => {
 const getFileDataFromRawUrl = (rawUrl) => {
   const parsedUrl = new URL(decodeURIComponent(rawUrl));
 
-  const name = trim(parsedUrl.pathname.toLowerCase(), '/').replace(/\//g, '-');
+  const name = trim(parsedUrl.pathname, '/').replace(/\//g, '-');
+  const extension = parsedUrl.pathname.split('.').pop().toLowerCase();
+  const hash = last(parsedUrl.pathname.split('/')).slice(0, -(extension.length + 1));
 
   return {
+    hash,
     name,
-    extension: parsedUrl.pathname.split('.').pop().toLowerCase(),
+    extension,
   };
 };
 
