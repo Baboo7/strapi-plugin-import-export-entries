@@ -94,8 +94,8 @@ const importFile = async ({ url, name, alternativeText, caption }, user) => {
           data: {
             fileInfo: {
               name: name || file.name,
-              alternativeText: alternativeText || file.name,
-              caption: caption || file.name,
+              alternativeText: alternativeText || '',
+              caption: caption || '',
             },
           },
         },
