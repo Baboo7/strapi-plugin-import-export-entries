@@ -9,6 +9,7 @@ import { Typography } from '@strapi/design-system/Typography';
 import CheckCircle from '@strapi/icons/CheckCircle';
 import IconFile from '@strapi/icons/File';
 import React, { useState } from 'react';
+import { useHistory } from 'react-router-dom';
 
 import './style.css';
 import ImportProxy from '../../api/importProxy';
@@ -30,6 +31,7 @@ export const ImportModal = ({ onClose }) => {
   const { i18n } = useI18n();
   const { slug } = useSlug();
   const { notify } = useAlerts();
+  const history = useHistory();
 
   const [data, setData] = useState('');
   const [options, setOptions] = useState({});
@@ -87,6 +89,7 @@ export const ImportModal = ({ onClose }) => {
       if (!failures.length) {
         setUploadSuccessful(ModalState.SUCCESS);
         notify('Import successful', 'Your data has been imported successfully. Refresh your page to see the latest updates.', 'success');
+        refreshView();
       } else {
         setUploadSuccessful(ModalState.PARTIAL);
         setImportFailuresContent(JSON.stringify(failures, null, '\t'));
@@ -101,6 +104,11 @@ export const ImportModal = ({ onClose }) => {
     } finally {
       setUploadingData(false);
     }
+  };
+
+  const refreshView = () => {
+    history.push('/tmp');
+    history.goBack();
   };
 
   const handleDragOver = (e) => {
