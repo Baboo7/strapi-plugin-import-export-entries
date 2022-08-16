@@ -1,5 +1,6 @@
 const { isArraySafe, toArray } = require('../../../libs/arrays');
 const { ObjectBuilder, isObjectSafe } = require('../../../libs/objects');
+const { getConfig } = require('../../utils/getConfig');
 const { getModelAttributes, getModel } = require('../../utils/models');
 const { findOrImportFile } = require('./utils/file');
 const { parseInputData } = require('./utils/parsers');
@@ -56,7 +57,7 @@ const importData = async (dataRaw, { slug, format, user, idField }) => {
  * @param {string} idField - Field used as unique identifier.
  * @returns Updated/created entry.
  */
-const updateOrCreate = async (user, slug, data, idField = 'id') => {
+const updateOrCreate = async (user, slug, data, idField = getConfig('importUniqueIdentifierField')) => {
   const relationAttributes = getModelAttributes(slug, { filterType: ['component', 'dynamiczone', 'media', 'relation'] });
   for (let attribute of relationAttributes) {
     data[attribute.name] = await updateOrCreateRelation(user, attribute, data[attribute.name]);
