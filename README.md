@@ -42,9 +42,9 @@ Import/Export data from and to your database in just few clicks.
   - [Config](#config)
   - [Services](#services)
   - [Content API](#content-api)
-  - [Importing Data](#importing-data)
-    - [Data Structure](#data-structure)
-    - [Webhook](#webhook)
+  - [Webhook](#webhook)
+- [Importing Data](#importing-data)
+  - [Data Structure](#data-structure)
   - [Examples](#examples)
 - [Author](#author)
 - [Acknowledgments](#acknowledgments)
@@ -152,7 +152,7 @@ or
 npm run build --clean
 ```
 
-## Usage
+# Usage
 
 Once the plugin is installed and setup, the functionnalities are accessible on the content management page of a collection.
 
@@ -160,7 +160,7 @@ Once the plugin is installed and setup, the functionnalities are accessible on t
   <img src="./doc/scr-usage.png" alt="UI" width="500"/>
 </p>
 
-### Config
+## Config
 
 In `config/plugins.js`:
 
@@ -200,7 +200,7 @@ module.exports = {
 }
 ```
 
-### Services
+## Services
 
 ```ts
 /*****************************
@@ -236,7 +236,7 @@ await service.importData(
 }>;
 ```
 
-### Content API
+## Content API
 
 Data can be imported/exported through the content api. Endpoints have to be enabled in _Settings > Users & Permissions plugin > Roles_.
 
@@ -301,35 +301,65 @@ type RouteReturn = {
 };
 ```
 
-### Importing Data
-
-#### Data Structure
-
-The expected import data structure:
-
-- Relation: `object` | `number`
-  - `object`: the relation is searched in db. If an entry is found, it is updated with the provided data. Otherwise, it is created.
-  - `number`: the relation is treated as an id.
-- Media: `object` | `string` | `number`
-  - `object`: the media must have an `id`, `name` or `url` property. First the media is searched by `id`, then by `name` and finally imported from `url` if not found previously. When imported by url, the name of the file is deduced from the `url` and is used to find the media in db. If found by name, the media in db is used. Otherwise, the media is uploaded to the db. ⚠️ Check that the server can access the url.
-    - Eg: `{ id: 1 }`
-    - Eg: `{ name: "alpaga.jpg" }`
-    - Eg: `{ url: "https://www.thetimes.co.uk/imageserver/image/alpaga.jpg" }` ((File name is `imageserver-image-alpaga.jpg`))
-    - Eg: `{ url: "http://localhost:1337/alpaga.jpg" }` (File name is `alpaga.jpg`)
-    -
-  - `string`: Same as above, except the media provided is a url.
-    - Eg: `"https://www.thetimes.co.uk/imageserver/image/alpaga.jpg"` ((File name is `imageserver-image-alpaga.jpg`))
-    - Eg: `"http://localhost:1337/alpaga.jpg"` (File name is `alpaga.jpg`)
-  - `number`: the media is treated as an id.
-    - Eg: `7`
-
-#### Webhook
+## Webhook
 
 At the moment, the webhook is triggered only for media creation, update and deletion. It is not triggered for other data.
 
-### Examples
+# Importing Data
 
-#### Example 1: Import Through Content Manager
+The expected import data structure:
+
+## Relation:
+
+### `object`
+
+the relation is searched in db by `id`. If an entry is found, it is updated with the provided data. Otherwise, it is created.
+
+### `number`
+
+The relation is treated as an id.
+
+## Media:
+
+### `object`
+
+the media must have an `id`, `hash`, `name` or `url` property. First the media is searched by `id`, then by `hash`, then by `name` and finally imported from `url` if not found previously.
+
+When imported by `url`, the `hash` and `name` of the file are deduced from the `url` (the `hash` is also deduced because Strapi exports files with their `hash` in the `url` instead of the `name`). The `hash` and `name` are used to find the media in db. First the media is searched by `hash`, then by `name` and used if found. Otherwise, the media is uploaded to the db by downloading the file from the `url`.
+
+> ⚠️ Check the server has access to the `url`.
+
+When imported by `url`, extra data can be provided to enhance the created file:
+
+- `name` (_defaults to the `name` deduced from the url_)
+- `caption` (_defaults to `""`_)
+- `alternativeText` (_defaults to `""`_)
+
+#### Examples
+
+- `{ id: 1 }`
+- `{ hash: "alpaga.jpg" }`
+- `{ name: "alpaga.jpg" }`
+- `{ url: "https://www.thetimes.co.uk/imageserver/image/alpaga.jpg" }` (Deduced file `hash` is `alpaga` and deduced `name` is `imageserver-image-alpaga.jpg`)
+- `{ url: "http://localhost:1337/alpaga.jpg" }` (Deduced file `hash` is `alpaga` and deduced `name` is `alpaga.jpg`)
+- `{ url: "http://localhost:1337/alpaga.jpg", name: "Alpacool", caption: "Alpacool In Da Hood", alternativeText: "Alpacool in da hood" }`
+
+### `string`
+
+Same as above, except the media provided is treated as a `url`.
+
+- `"https://www.thetimes.co.uk/imageserver/image/alpaga.jpg"` (Deduced file `hash` is `alpaga` and deduced `name` is `imageserver-image-alpaga.jpg`)
+- `"http://localhost:1337/alpaga.jpg"` (Deduced file `hash` is `alpaga` and deduced `name` is `alpaga.jpg`)
+
+### `number`
+
+The media is treated as an id.
+
+- `7`
+
+## Examples
+
+### Example 1: Import Through Content Manager
 
 Let's consider some data that represents yoga courses. We have a `course` table where each `course` refers to a `beautiful_place` (stored in the `beautiful_place` table).
 
