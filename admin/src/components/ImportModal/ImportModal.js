@@ -88,12 +88,12 @@ export const ImportModal = ({ onClose }) => {
       const { failures } = res;
       if (!failures.length) {
         setUploadSuccessful(ModalState.SUCCESS);
-        notify('Import successful', 'Your data has been imported successfully. Refresh your page to see the latest updates.', 'success');
+        notify(i18n('plugin.message.import.success.imported.title'), i18n('plugin.message.import.success.imported.message'), 'success');
         refreshView();
       } else {
         setUploadSuccessful(ModalState.PARTIAL);
         setImportFailuresContent(JSON.stringify(failures, null, '\t'));
-        notify('Import partially failed', 'Some data failed to be imported. See below for detailed information.', 'danger');
+        notify(i18n('plugin.message.import.error.imported-partial.title'), i18n('plugin.message.import.error.imported-partial.message'), 'danger');
       }
     } catch (err) {
       handleRequestErr(err, {
