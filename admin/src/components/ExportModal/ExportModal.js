@@ -72,7 +72,7 @@ export const ExportModal = ({ onClose }) => {
 
   const copyToClipboard = () => {
     navigator.clipboard.writeText(data);
-    notify('Copied', '', 'success');
+    notify(i18n('plugin.export.copied'), '', 'success');
   };
 
   const clearData = () => {
@@ -84,14 +84,14 @@ export const ExportModal = ({ onClose }) => {
       <ModalLayout onClose={onClose} labelledBy="title">
         <ModalHeader>
           <Typography fontWeight="bold" textColor="neutral800" as="h2" id="title">
-            Export
+            {i18n('plugin.cta.export')}
           </Typography>
         </ModalHeader>
         <ModalBody className="plugin-ie-export_modal_body">
           {fetchingData && (
             <>
               <Flex justifyContent="center">
-                <Loader>Fetching data...</Loader>
+                <Loader>{i18n('plugin.export.fetching-data')}</Loader>
               </Flex>
             </>
           )}
@@ -99,7 +99,14 @@ export const ExportModal = ({ onClose }) => {
             <>
               <Grid gap={8}>
                 <GridItem col={12}>
-                  <Select id="export-format" label="Export Format" required placeholder="Export Format" value={optionExportFormat} onChange={setOptionExportFormat}>
+                  <Select
+                    id="export-format"
+                    label={i18n('plugin.export.export-format')}
+                    required
+                    placeholder={i18n('plugin.export.export-format')}
+                    value={optionExportFormat}
+                    onChange={setOptionExportFormat}
+                  >
                     <Option value={dataFormats.CSV}>{dataFormats.CSV.toUpperCase()}</Option>
                     <Option value={dataFormats.JSON}>{dataFormats.JSON.toUpperCase()}</Option>
                   </Select>
@@ -108,15 +115,15 @@ export const ExportModal = ({ onClose }) => {
 
               <Flex direction="column" alignItems="start" gap="16px">
                 <Typography fontWeight="bold" textColor="neutral800" as="h2">
-                  Options
+                  {i18n('plugin.export.options')}
                 </Typography>
                 <Checkbox value={optionRelationsAsId} onValueChange={setOptionRelationsAsId}>
-                  Export relations as id.
+                  {i18n('plugin.export.relations-as-id')}
                 </Checkbox>
                 <Checkbox value={optionApplyFilters} onValueChange={setOptionApplyFilters}>
-                  Apply filters and sort to exported data.
+                  {i18n('plugin.export.apply-filters-and-sort')}
                 </Checkbox>
-                <Select label="Deepness" placeholder="Deepness" value={optionDeepness} onChange={setOptionDeepness}>
+                <Select label={i18n('plugin.export.deepness')} placeholder={i18n('plugin.export.deepness')} value={optionDeepness} onChange={setOptionDeepness}>
                   {range(1, 21).map((deepness) => (
                     <Option key={deepness} value={deepness}>
                       {deepness}

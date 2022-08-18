@@ -55,9 +55,9 @@ export const ImportModal = ({ onClose }) => {
   };
 
   const readFile = (file) => {
-    if (file.type === 'text/csv') {
+    if (file.type === 'text/csv' || /\.csv$/i.test(file.name)) {
       setDataFormat(dataFormats.CSV);
-    } else if (file.type === 'application/json') {
+    } else if (file.type === 'application/json' || /\.json$/i.test(file.name)) {
       setDataFormat(dataFormats.JSON);
     } else {
       throw new Error(`File type ${file.type} not supported.`);
@@ -88,12 +88,12 @@ export const ImportModal = ({ onClose }) => {
       const { failures } = res;
       if (!failures.length) {
         setUploadSuccessful(ModalState.SUCCESS);
-        notify('Import successful', 'Your data has been imported successfully. Refresh your page to see the latest updates.', 'success');
+        notify(i18n('plugin.message.import.success.imported.title'), i18n('plugin.message.import.success.imported.message'), 'success');
         refreshView();
       } else {
         setUploadSuccessful(ModalState.PARTIAL);
         setImportFailuresContent(JSON.stringify(failures, null, '\t'));
-        notify('Import partially failed', 'Some data failed to be imported. See below for detailed information.', 'danger');
+        notify(i18n('plugin.message.import.error.imported-partial.title'), i18n('plugin.message.import.error.imported-partial.message'), 'danger');
       }
     } catch (err) {
       handleRequestErr(err, {
@@ -153,7 +153,7 @@ export const ImportModal = ({ onClose }) => {
       <ModalLayout onClose={onClose} labelledBy="title">
         <ModalHeader>
           <Typography fontWeight="bold" textColor="neutral800" as="h2" id="title">
-            Import
+            {i18n('plugin.cta.import')}
           </Typography>
         </ModalHeader>
         <ModalBody className="plugin-ie-import_modal_body">
@@ -164,7 +164,7 @@ export const ImportModal = ({ onClose }) => {
                   <IconFile />
                 </span>
                 <Typography style={{ fontSize: '1rem', fontWeight: 500 }} textColor="neutral600" as="p">
-                  Drag &amp; drop your file into this area or browse for a file to upload
+                  {i18n('plugin.import.drag-drop-file')}
                 </Typography>
                 <input type="file" accept=".csv,.json" hidden="" onChange={onReadFile} />
               </label>
@@ -173,7 +173,7 @@ export const ImportModal = ({ onClose }) => {
           {showLoader && (
             <>
               <Flex justifyContent="center">
-                <Loader>Importing data...</Loader>
+                <Loader>{i18n('plugin.import.importing-data')}</Loader>
               </Flex>
             </>
           )}
@@ -182,7 +182,7 @@ export const ImportModal = ({ onClose }) => {
             <>
               <EmptyStateLayout
                 icon={<Icon width="6rem" height="6rem" color="success500" as={CheckCircle} />}
-                content={'Your data has been imported successfully.'}
+                content={i18n('plugin.message.import.success.imported-successfully')}
                 action={
                   <Button onClick={onClose} variant="tertiary">
                     {i18n('plugin.cta.close')}
@@ -194,10 +194,10 @@ export const ImportModal = ({ onClose }) => {
           {showPartialSuccess && (
             <>
               <Typography textColor="neutral800" fontWeight="bold" as="h2">
-                Import Partially Failed
+                {i18n('plugin.import.partially-failed')}
               </Typography>
               <Typography textColor="neutral800" as="p">
-                Detailed Information:
+                {i18n('plugin.import.detailed-information')}
               </Typography>
               <Editor content={importFailuresContent} language={'json'} readOnly />
             </>
