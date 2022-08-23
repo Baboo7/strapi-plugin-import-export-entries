@@ -67,7 +67,7 @@ const findFile = async ({ id, hash, name, url, alternativeText, caption }, user,
       file = await findFile({ hash: checkResult.fileData.hash, name: checkResult.fileData.fileName }, user, allowedFileTypes);
 
       if (!file) {
-        file = await importFile({ url: checkResult.fileData.rawUrl, name, alternativeText, caption }, user);
+        file = await importFile({ id, url: checkResult.fileData.rawUrl, name, alternativeText, caption }, user);
       }
     }
   }
@@ -75,12 +75,12 @@ const findFile = async ({ id, hash, name, url, alternativeText, caption }, user,
   return file;
 };
 
-const importFile = async ({ url, name, alternativeText, caption }, user) => {
+const importFile = async ({ id, url, name, alternativeText, caption }, user) => {
   let file;
   try {
     file = await fetchFile(url);
 
-    const [uploadedFile] = await strapi
+    let [uploadedFile] = await strapi
       .plugin('upload')
       .service('upload')
       .upload(
@@ -101,6 +101,13 @@ const importFile = async ({ url, name, alternativeText, caption }, user) => {
         },
         { user },
       );
+
+    if (id) {
+      uploadedFile = await strapi.db.query('plugin::upload.file').update({
+        where: { id: uploadedFile.id },
+        data: { id },
+      });
+    }
 
     return uploadedFile;
   } catch (err) {

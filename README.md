@@ -331,6 +331,7 @@ When imported by `url`, the `hash` and `name` of the file are deduced from the `
 
 When imported by `url`, extra data can be provided to enhance the created file:
 
+- `id` (_defaults to an auto generated `id`_)
 - `name` (_defaults to the `name` deduced from the url_)
 - `caption` (_defaults to `""`_)
 - `alternativeText` (_defaults to `""`_)
@@ -342,7 +343,7 @@ When imported by `url`, extra data can be provided to enhance the created file:
 - `{ name: "alpaga.jpg" }`
 - `{ url: "https://www.thetimes.co.uk/imageserver/image/alpaga.jpg" }` (Deduced file `hash` is `alpaga` and deduced `name` is `imageserver-image-alpaga.jpg`)
 - `{ url: "http://localhost:1337/alpaga.jpg" }` (Deduced file `hash` is `alpaga` and deduced `name` is `alpaga.jpg`)
-- `{ url: "http://localhost:1337/alpaga.jpg", name: "Alpacool", caption: "Alpacool In Da Hood", alternativeText: "Alpacool in da hood" }`
+- `{ id: 734, url: "http://localhost:1337/alpaga.jpg", name: "Alpacool", caption: "Alpacool In Da Hood", alternativeText: "Alpacool in da hood" }`
 
 ### `string`
 
