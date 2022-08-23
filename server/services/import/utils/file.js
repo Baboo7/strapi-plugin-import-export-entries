@@ -113,7 +113,7 @@ const importFile = async ({ url, name, alternativeText, caption }, user) => {
 
 const fetchFile = (url) => {
   return new Promise((resolve, reject) => {
-    request({ url, method: 'GET', encoding: null }, async (err, res, body) => {
+    request({ url: encodeURI(url), method: 'GET', encoding: null }, async (err, res, body) => {
       if (err) {
         reject(err);
         return;
