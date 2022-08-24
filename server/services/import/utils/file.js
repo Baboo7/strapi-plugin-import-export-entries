@@ -201,6 +201,7 @@ const ALLOWED_VIDEOS = ['mp4', 'avi'];
 
 /** See Strapi file allowedTypes for object keys. */
 const fileTypeCheckers = {
+  any: (ext) => true,
   audios: (ext) => ALLOWED_AUDIOS.includes(ext),
   files: (ext) => true,
   images: (ext) => ALLOWED_IMAGES.includes(ext),

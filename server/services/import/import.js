@@ -4,6 +4,8 @@ const { getModelAttributes, getModel } = require('../../utils/models');
 const { findOrImportFile } = require('./utils/file');
 const { parseInputData } = require('./utils/parsers');
 
+const CUSTOM_MEDIA_SLUG = 'media';
+
 /**
  * @typedef {Object} ImportDataRes
  * @property {Array<ImportDataFailures>} failures
@@ -28,6 +30,38 @@ const importData = async (dataRaw, { slug, format, user, idField }) => {
   let data = await parseInputData(format, dataRaw, { slug });
   data = toArray(data);
 
+  let res;
+  if (slug === CUSTOM_MEDIA_SLUG) {
+    res = await importMedia(data, { user });
+  } else {
+    res = await importOtherSlug(data, { slug, user, idField });
+  }
+
+  return res;
+};
+
+const importMedia = async (fileData, { user }) => {
+  const processed = [];
+  for (let fileDatum of fileData) {
+    let res;
+    try {
+      await findOrImportFile(fileDatum, user, { allowedFileTypes: ['any'] });
+      res = { success: true };
+    } catch (err) {
+      strapi.log.error(err);
+      res = { success: false, error: err.message, args: [fileDatum] };
+    }
+    processed.push(res);
+  }
+
+  const failures = processed.filter((p) => !p.success).map((f) => ({ error: f.error, data: f.args[0] }));
+
+  return {
+    failures,
+  };
+};
+
+const importOtherSlug = async (data, { slug, user, idField }) => {
   const processed = [];
   for (let datum of data) {
     let res;
