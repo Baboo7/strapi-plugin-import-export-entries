@@ -127,7 +127,7 @@ const fetchFile = (url) => {
       }
 
       if (res.statusCode < 200 || 300 <= res.statusCode) {
-        throw new Error(`Tried to fetch file from url ${url} but failed with status code ${res.statusCode}`);
+        reject(new Error(`Tried to fetch file from url ${url} but failed with status code ${res.statusCode}`));
       }
 
       const type = res.headers['content-type'].split(';').shift();
