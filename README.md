@@ -40,6 +40,7 @@ Import/Export data from and to your database in just few clicks.
 - [Rebuild The Admin Panel](#rebuild-the-admin-panel)
 - [Usage](#usage)
   - [Config](#config)
+  - [Filtering & Sorting](#filtering-&-sorting)
   - [Services](#services)
   - [Content API](#content-api)
   - [Webhook](#webhook)
@@ -199,6 +200,26 @@ module.exports = {
   // ...
 }
 ```
+
+## Filtering & Sorting
+
+The filtering and sorting mechanism relies on Strapi filtering and sorting feature:
+
+1. Connect to the content manager page of the model you want to export, and filter and sort the data as you want it to be exported.
+
+<p align="center">
+  <img src="./doc/scr-add-filter-and-sort.png" alt="UI" width="500"/>
+</p>
+
+2. Open the export modal and check the option _Apply filters and sort to exported data_.
+
+<p align="center">
+  <img src="./doc/scr-check-apply-filters-sort-option.png" alt="UI" width="500"/>
+</p>
+
+3. Click on _Fetch Data_.
+
+The exported data is filtered and sorted as expected.
 
 ## Services
 
