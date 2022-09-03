@@ -2,7 +2,7 @@ const CustomSlugs = {
   MEDIA: 'media',
 };
 
-CustomSlugToSlug = {
+const CustomSlugToSlug = {
   [CustomSlugs.MEDIA]: 'plugin::upload.file',
 };
 
