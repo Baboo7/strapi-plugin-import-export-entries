@@ -1,10 +1,9 @@
 const { isArraySafe, toArray } = require('../../../libs/arrays');
 const { ObjectBuilder, isObjectSafe } = require('../../../libs/objects');
+const { CustomSlugs } = require('../../config/constants');
 const { getModelAttributes, getModel } = require('../../utils/models');
 const { findOrImportFile } = require('./utils/file');
 const { parseInputData } = require('./utils/parsers');
-
-const CUSTOM_MEDIA_SLUG = 'media';
 
 /**
  * @typedef {Object} ImportDataRes
@@ -31,7 +30,7 @@ const importData = async (dataRaw, { slug, format, user, idField }) => {
   data = toArray(data);
 
   let res;
-  if (slug === CUSTOM_MEDIA_SLUG) {
+  if (slug === CustomSlugs.MEDIA) {
     res = await importMedia(data, { user });
   } else {
     res = await importOtherSlug(data, { slug, user, idField });

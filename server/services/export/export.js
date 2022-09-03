@@ -1,5 +1,8 @@
 const { isEmpty, merge } = require('lodash/fp');
+const qs = require('qs');
 
+const { ObjectBuilder } = require('../../../libs/objects');
+const { CustomSlugToSlug } = require('../../config/constants');
 const { convertToCsv, convertToJson } = require('./converters');
 
 const dataFormats = {
@@ -17,6 +20,53 @@ const dataConverterConfigs = {
 };
 
 /**
+ * Export data.
+ * @param {Object} options
+ * @param {string} options.slug
+ * @param {("csv"|"json")} options.exportFormat
+ * @param {string} options.search
+ * @param {boolean} options.applySearch
+ * @param {boolean} options.relationsAsId
+ * @param {number} options.deepness
+ * @returns {string}
+ */
+const exportData = async ({ slug, search, applySearch, exportFormat, relationsAsId, deepness = 5 }) => {
+  const slugToProcess = CustomSlugToSlug[slug] || slug;
+
+  const queryBuilder = new ObjectBuilder();
+  queryBuilder.extend(getPopulateFromSchema(slugToProcess, deepness));
+  if (applySearch) {
+    queryBuilder.extend(buildFilterQuery(search));
+  }
+  const query = queryBuilder.get();
+
+  const entries = await strapi.entityService.findMany(slugToProcess, query);
+
+  const data = convertData(entries, {
+    slug: slugToProcess,
+    dataFormat: exportFormat,
+    relationsAsId,
+  });
+
+  return data;
+};
+
+const buildFilterQuery = (search) => {
+  let { filters, sort: sortRaw } = qs.parse(search);
+
+  const [attr, value] = sortRaw?.split(':') || [];
+  let sort = {};
+  if (attr && value) {
+    sort[attr] = value.toLowerCase();
+  }
+
+  return {
+    filters,
+    sort,
+  };
+};
+
+/**
  *
  * @param {Array<Object>} entries
  * @param {Object} options
@@ -25,7 +75,7 @@ const dataConverterConfigs = {
  * @param {boolean} options.relationsAsId
  * @returns
  */
-const exportData = (entries, options) => {
+const convertData = (entries, options) => {
   const converter = getConverter(options.dataFormat);
 
   const convertedData = converter.convertEntries(entries, options);

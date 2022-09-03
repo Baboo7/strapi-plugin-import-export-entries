@@ -250,6 +250,44 @@ await service.importData(
 }>;
 ```
 
+```ts
+/*****************************
+ * Service "export".
+ ****************************/
+
+/**
+ * Get the service.
+ */
+const service = strapi.plugin("import-export-entries").service("export");
+
+/**
+ * Method exportData.
+ */
+await service.exportData(
+  options: {
+    /**
+     * Slug of the model to export.
+     * - "media" is a custom slug to specifically export media.
+     */
+    slug: "media" | string;
+    /**
+     * Export format.
+     * - csv
+     * - json: javascript object notation
+     */
+    exportFormat: "csv" | "json";
+    /** Search query used to select the entries to export. The package `qs` is used to parse the query. */
+    search?: string;
+    /** Whether to apply the search query. */
+    applySearch?: boolean;
+    /** Whether to export relations as id instead of plain objects. */
+    relationsAsId?: boolean;
+    /** Deepness of the exported data. */
+    deepness?: number;
+  }
+) : Promise<string>;
+```
+
 ## Content API
 
 Data can be imported/exported through the content api. Endpoints have to be enabled in _Settings > Users & Permissions plugin > Roles_.

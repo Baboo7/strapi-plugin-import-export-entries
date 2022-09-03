@@ -1,9 +1,7 @@
 'use strict';
 
-const qs = require('qs');
-
-const { ObjectBuilder } = require('../../../../libs/objects');
 const { getService } = require('../../../utils');
+const { handleAsyncError } = require('../../content-api/utils');
 
 const exportData = async (ctx) => {
   if (!hasPermissions(ctx)) {
@@ -12,20 +10,7 @@ const exportData = async (ctx) => {
 
   let { slug, search, applySearch, exportFormat, relationsAsId, deepness = 5 } = ctx.request.body;
 
-  const queryBuilder = new ObjectBuilder();
-  queryBuilder.extend(getService('export').getPopulateFromSchema(slug, deepness));
-  if (applySearch) {
-    queryBuilder.extend(buildFilterQuery(search));
-  }
-  const query = queryBuilder.get();
-
-  const entries = await strapi.entityService.findMany(slug, query);
-
-  const data = getService('export').exportData(entries, {
-    slug,
-    dataFormat: exportFormat,
-    relationsAsId,
-  });
+  const data = await getService('export').exportData({ slug, search, applySearch, exportFormat, relationsAsId, deepness });
 
   ctx.body = {
     data,
@@ -41,21 +26,6 @@ const hasPermissions = (ctx) => {
   return permissionChecker.can.read();
 };
 
-const buildFilterQuery = (search) => {
-  let { filters, sort: sortRaw } = qs.parse(search);
-
-  const [attr, value] = (sortRaw?.split(':') || []).map((v) => v.toLowerCase());
-  let sort = {};
-  if (attr && value) {
-    sort[attr] = value;
-  }
-
-  return {
-    filters,
-    sort,
-  };
-};
-
 module.exports = ({ strapi }) => ({
-  exportData,
+  exportData: handleAsyncError(exportData),
 });

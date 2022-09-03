@@ -1,5 +1,6 @@
 const { isArraySafe, toArray } = require('../../../libs/arrays');
 const { isObjectSafe } = require('../../../libs/objects');
+const { CustomSlugToSlug, CustomSlugs } = require('../../config/constants');
 const { getConfig } = require('../../utils/getConfig');
 const { getModelAttributes, getModel } = require('../../utils/models');
 
@@ -56,21 +57,31 @@ const beforeConvert = (entries, options) => {
 };
 
 const exportMedia = (entries, options) => {
+  if (options.slug === CustomSlugToSlug[CustomSlugs.MEDIA]) {
+    entries = entries.map((entry) => {
+      if (isObjectSafe(entry) && entry.url.startsWith('/')) {
+        entry.url = computeUrl(entry.url);
+      }
+      return entry;
+    });
+
+    return entries;
+  }
+
   const mediaKeys = getModelAttributes(options.slug, { filterOutTarget: ['admin::user'], filterType: ['media'] }).map((attr) => attr.name);
   const relationsAttr = getModelAttributes(options.slug, { filterOutTarget: ['admin::user'], filterType: ['component', 'dynamiczone', 'relation'] });
 
-  const hostname = getConfig('serverPublicHostname');
   entries = entries.map((entry) => {
     mediaKeys.forEach((key) => {
       if (isArraySafe(entry[key])) {
         entry[key] = entry[key].map((entryItem) => {
           if (isObjectSafe(entryItem) && entryItem.url.startsWith('/')) {
-            entryItem.url = hostname + entryItem.url;
+            entryItem.url = computeUrl(entryItem.url);
           }
           return entryItem;
         });
       } else if (isObjectSafe(entry[key]) && entry[key].url.startsWith('/')) {
-        entry[key].url = hostname + entry[key].url;
+        entry[key].url = computeUrl(entry[key].url);
       }
     });
 
@@ -98,6 +109,10 @@ const exportMedia = (entries, options) => {
   });
 
   return entries;
+};
+
+const computeUrl = (relativeUrl) => {
+  return getConfig('serverPublicHostname') + relativeUrl;
 };
 
 const exportRelationsAsId = (entries, options) => {
