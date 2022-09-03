@@ -10,6 +10,7 @@
     "sourceType": "module"
   },
   "extends": ["eslint:recommended", "plugin:react/recommended"],
+  "plugins": ["jest"],
   "env": {
     "commonjs": true,
     "es6": true,
