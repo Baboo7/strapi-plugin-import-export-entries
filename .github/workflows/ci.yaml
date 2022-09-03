@@ -12,6 +12,6 @@ jobs:
       - name: Install modules
         run: yarn install
       - name: Run lint
-        run: yarn run lint
+        run: yarn run lint:check
       - name: Run prettier
         run: yarn run prettier:check

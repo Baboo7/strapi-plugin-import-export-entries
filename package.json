@@ -9,8 +9,8 @@
     "displayName": "Import Export Entries"
   },
   "scripts": {
-    "lint": "eslint .",
-    "lint:fix": "eslint . --fix",
+    "lint:check": "eslint .",
+    "lint:write": "eslint . --fix",
     "prettier:check": "yarn prettier --check .",
     "prettier:write": "yarn prettier --write .",
     "test": "jest --forceExit --detectOpenHandles --runInBand",
