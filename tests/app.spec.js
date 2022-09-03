@@ -8,6 +8,12 @@ afterAll(async () => {
   await cleanupStrapi();
 });
 
+beforeEach(async () => {
+  await strapi.db.query('api::single-type.single-type').create({
+    data: { title: 'my title', description: 'my description' },
+  });
+});
+
 afterEach(async () => {
   cleanupDatabase();
 });
@@ -15,3 +21,5 @@ afterEach(async () => {
 it('strapi should be defined', () => {
   expect(strapi).toBeDefined();
 });
+
+require('./export');
