@@ -40,7 +40,7 @@ Import/Export data from and to your database in just few clicks.
 - [Rebuild The Admin Panel](#rebuild-the-admin-panel)
 - [Usage](#usage)
   - [Config](#config)
-  - [Filtering & Sorting](#filtering-&-sorting)
+  - [Filtering & Sorting](#filtering-and-sorting)
   - [Services](#services)
   - [Content API](#content-api)
   - [Webhook](#webhook)
@@ -201,7 +201,7 @@ module.exports = {
 }
 ```
 
-## Filtering & Sorting
+## Filtering and Sorting
 
 The filtering and sorting mechanism relies on Strapi filtering and sorting feature:
 
