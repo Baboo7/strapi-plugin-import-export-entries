@@ -6,6 +6,10 @@ module.exports = {
      * Public hostname of the server.
      */
     serverPublicHostname: '',
+    /**
+     * Ignore extension check (trust imported JSON/CSV) or not.
+     */
+    ignoreExtensionCheck: false,
   },
   validator: ({ serverPublicHostname } = {}) => {
     if (typeof serverPublicHostname !== 'string') {

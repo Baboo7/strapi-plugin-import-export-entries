@@ -7,6 +7,7 @@ const path = require('path');
 const request = require('request');
 
 const { isObjectSafe } = require('../../../../libs/objects');
+const { getConfig } = require('../../../utils/getConfig');
 
 /**
  * Find or import a file.
@@ -191,6 +192,7 @@ const isValidFileUrl = (url, allowedFileTypes) => {
 };
 
 const isExtensionAllowed = (ext, allowedFileTypes) => {
+  if (getConfig('ignoreExtensionCheck')) return true;
   const checkers = allowedFileTypes.map(getFileTypeChecker);
   return checkers.some((checker) => checker(ext));
 };
