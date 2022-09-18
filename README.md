@@ -36,6 +36,7 @@ Import/Export data from and to your database in just few clicks.
 ## Table Of Content
 
 - [Requirements](#requirements)
+- [Contribute](#contribute)
 - [Installation](#installation)
 - [Rebuild The Admin Panel](#rebuild-the-admin-panel)
 - [Usage](#usage)
@@ -53,6 +54,10 @@ Import/Export data from and to your database in just few clicks.
 ## Requirements
 
 Strapi v4 is required.
+
+## Contribute
+
+See the repo [Strapi Contribute](https://github.com/Baboo7/strapi-contribute#readme).
 
 ## Installation
 
