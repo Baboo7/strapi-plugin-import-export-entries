@@ -36,6 +36,7 @@ Import/Export data from and to your database in just few clicks.
 ## Table Of Content
 
 - [Requirements](#requirements)
+- [Feedback](#feedback)
 - [Contribute](#contribute)
 - [Installation](#installation)
 - [Rebuild The Admin Panel](#rebuild-the-admin-panel)
@@ -48,12 +49,21 @@ Import/Export data from and to your database in just few clicks.
 - [Importing Data](#importing-data)
   - [Relation](#relation)
   - [Media](#media)
+- [Related Plugins](#related-plugins)
 - [Author](#author)
 - [Acknowledgments](#acknowledgments)
 
 ## Requirements
 
 Strapi v4 is required.
+
+## Feedback
+
+<p align="center">
+  <img src="./doc/discord-logo.png" alt="UI" width="100"/>
+</p>
+
+Join the [Discord Community](https://discord.gg/cGRJh7M7) to give your feedback.
 
 ## Contribute
 
@@ -435,6 +445,10 @@ Same as above, except the media provided is treated as a `url`.
 The media is treated as an id.
 
 - `7`
+
+## Related Plugins
+
+- [Strapi Plugin Request Id](https://github.com/Baboo7/strapi-plugin-request-id): Add a unique id to each request made to your server and track your users' activity in the logs
 
 ## Author
 
