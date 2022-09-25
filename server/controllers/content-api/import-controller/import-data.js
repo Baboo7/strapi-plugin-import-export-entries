@@ -17,12 +17,23 @@ const importData = async (ctx) => {
 
   const { slug, data: dataRaw, format, idField } = checkParams(bodySchema, ctx.request.body);
 
-  const res = await getService('import').importData(dataRaw, {
-    slug,
-    format,
-    user,
-    idField,
-  });
+  const fileContent = await getService('import').parseInputData(format, dataRaw, { slug });
+
+  let res;
+  if (fileContent?.version === 2) {
+    res = await getService('import').importDataV2(fileContent, {
+      slug,
+      user,
+      idField,
+    });
+  } else {
+    res = await getService('import').importData(dataRaw, {
+      slug,
+      format,
+      user,
+      idField,
+    });
+  }
 
   ctx.body = {
     failures: res.failures,

@@ -11,6 +11,10 @@
   "plugin.cta.import": "Import",
   "plugin.cta.remove-file": "Remove File",
 
+  "plugin.data-format.csv": "CSV",
+  "plugin.data-format.json": "JSON",
+  "plugin.data-format.json-v2": "JSON (v2)",
+
   "plugin.message.export.error.forbidden.title": "Forbidden",
   "plugin.message.export.error.forbidden.message": "You don't have permission to read this data type.",
   "plugin.message.export.error.unexpected.title": "Export failed",

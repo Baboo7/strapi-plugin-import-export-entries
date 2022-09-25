@@ -8,6 +8,7 @@ const { convertToCsv, convertToJson } = require('./converters');
 const dataFormats = {
   CSV: 'csv',
   JSON: 'json',
+  JSON_V2: 'json-v2',
 };
 
 const dataConverterConfigs = {
@@ -139,8 +140,8 @@ const getModelPopulationAttributes = (model) => {
   return model.attributes;
 };
 
-module.exports = ({ strapi }) => ({
+module.exports = {
   formats: dataFormats,
   exportData,
   getPopulateFromSchema,
-});
+};

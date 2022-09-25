@@ -3,7 +3,7 @@ const { ObjectBuilder, isObjectSafe } = require('../../../libs/objects');
 const { CustomSlugs } = require('../../config/constants');
 const { getModelAttributes, getModel } = require('../../utils/models');
 const { findOrImportFile } = require('./utils/file');
-const { parseInputData } = require('./utils/parsers');
+const { parseInputData } = require('./parsers');
 
 /**
  * @typedef {Object} ImportDataRes

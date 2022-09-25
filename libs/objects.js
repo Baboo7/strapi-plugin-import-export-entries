@@ -26,8 +26,11 @@ const isObjectEmpty = (obj) => {
   return true;
 };
 
+const logObj = (obj) => JSON.stringify(obj, null, '  ');
+
 module.exports = {
   ObjectBuilder,
+  logObj,
   isObjectSafe,
   isObjectEmpty,
 };

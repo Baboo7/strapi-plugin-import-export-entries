@@ -18,7 +18,7 @@ import ExportProxy from '../../api/exportProxy';
 import { useDownloadFile } from '../../hooks/useDownloadFile';
 import { useSlug } from '../../hooks/useSlug';
 import { dataFormatConfigs, dataFormats } from '../../utils/dataFormats';
-import { Editor } from '../Editor/Editor';
+import { Editor } from '../Editor';
 import { useAlerts } from '../../hooks/useAlerts';
 import { handleRequestErr } from '../../utils/error';
 import { useI18n } from '../../hooks/useI18n';
@@ -107,8 +107,9 @@ export const ExportModal = ({ onClose }) => {
                     value={optionExportFormat}
                     onChange={setOptionExportFormat}
                   >
-                    <Option value={dataFormats.CSV}>{dataFormats.CSV.toUpperCase()}</Option>
-                    <Option value={dataFormats.JSON}>{dataFormats.JSON.toUpperCase()}</Option>
+                    <Option value={dataFormats.CSV}>{i18n(`plugin.data-format.${dataFormats.CSV}`)}</Option>
+                    <Option value={dataFormats.JSON}>{i18n(`plugin.data-format.${dataFormats.JSON}`)}</Option>
+                    <Option value={dataFormats.JSON_V2}>{i18n(`plugin.data-format.${dataFormats.JSON_V2}`)}</Option>
                   </Select>
                 </GridItem>
               </Grid>
@@ -135,7 +136,7 @@ export const ExportModal = ({ onClose }) => {
           )}
           {data && !fetchingData && (
             <>
-              <Editor content={data} language={optionExportFormat} />
+              <Editor content={data} language={dataFormatConfigs[optionExportFormat].language} />
             </>
           )}
         </ModalBody>

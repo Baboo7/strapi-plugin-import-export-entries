@@ -2,9 +2,9 @@
 
 const csvtojson = require('csvtojson');
 
-const { isArraySafe } = require('../../../../libs/arrays');
-const { isObjectSafe } = require('../../../../libs/objects');
-const { getModelAttributes } = require('../../../utils/models');
+const { isArraySafe } = require('../../../libs/arrays');
+const { isObjectSafe } = require('../../../libs/objects');
+const { getModelAttributes } = require('../../utils/models');
 
 const parseCsv = async (dataRaw, { slug }) => {
   let data = await csvtojson().fromString(dataRaw);
@@ -24,12 +24,12 @@ const parseCsv = async (dataRaw, { slug }) => {
   return data;
 };
 
-const parseJson = async (dataRaw, { slug }) => {
+const parseJson = async (dataRaw) => {
   let data = JSON.parse(dataRaw);
   return data;
 };
 
-const parseJso = async (dataRaw, { slug }) => {
+const parseJso = async (dataRaw) => {
   if (!isObjectSafe(dataRaw) && !isArraySafe(dataRaw)) {
     throw new Error(`To import JSO, data must be an array or an object`);
   }

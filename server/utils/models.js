@@ -32,7 +32,7 @@ const { toArray } = require('../../libs/arrays');
  * @property {string} [target] - Slug of the target model (if type is 'relation').
  * @property {string} [component] - Name of the targetted component.
  * @property {boolean} [repeatable] - Whether the component is repeatable.
- * @property {string} [components] - Component names of the dynamic zone.
+ * @property {Array<string>} [components] - Component names of the dynamic zone.
  * @property {("audios"|"files"|"images"|"videos")} [allowedTypes] - Allowed file types.
  * @property {boolean} [multiple] - Whether there are multiple files.
  */
