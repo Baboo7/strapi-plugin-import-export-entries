@@ -8,12 +8,6 @@ afterAll(async () => {
   await cleanupStrapi();
 });
 
-beforeEach(async () => {
-  await strapi.db.query('api::single-type.single-type').create({
-    data: { title: 'my title', description: 'my description' },
-  });
-});
-
 afterEach(async () => {
   cleanupDatabase();
 });
