@@ -7,7 +7,7 @@ const { checkParams, handleAsyncError } = require('../utils');
 
 const bodySchema = Joi.object({
   slug: Joi.string().required(),
-  exportFormat: Joi.string().valid('csv', 'json').required(),
+  exportFormat: Joi.string().valid('csv', 'json', 'json-v2').required(),
   search: Joi.string().default(''),
   applySearch: Joi.boolean().default(false),
   relationsAsId: Joi.boolean().default(false),
@@ -17,7 +17,12 @@ const bodySchema = Joi.object({
 const exportData = async (ctx) => {
   let { slug, search, applySearch, exportFormat, relationsAsId, deepness } = checkParams(bodySchema, ctx.request.body);
 
-  const data = await getService('export').exportData({ slug, search, applySearch, exportFormat, relationsAsId, deepness });
+  let data;
+  if (exportFormat === getService('export').formats.JSON_V2) {
+    data = await getService('export').exportDataV2({ slug, search, applySearch, deepness });
+  } else {
+    data = await getService('export').exportData({ slug, search, applySearch, exportFormat, relationsAsId, deepness });
+  }
 
   ctx.body = {
     data,

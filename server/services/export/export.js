@@ -8,6 +8,7 @@ const { convertToCsv, convertToJson } = require('./converters');
 const dataFormats = {
   CSV: 'csv',
   JSON: 'json',
+  JSON_V2: 'json-v2',
 };
 
 const dataConverterConfigs = {

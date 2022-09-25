@@ -10,7 +10,12 @@ const exportData = async (ctx) => {
 
   let { slug, search, applySearch, exportFormat, relationsAsId, deepness = 5 } = ctx.request.body;
 
-  const data = await getService('export').exportData({ slug, search, applySearch, exportFormat, relationsAsId, deepness });
+  let data;
+  if (exportFormat === getService('export').formats.JSON_V2) {
+    data = await getService('export').exportDataV2({ slug, search, applySearch, deepness });
+  } else {
+    data = await getService('export').exportData({ slug, search, applySearch, exportFormat, relationsAsId, deepness });
+  }
 
   ctx.body = {
     data,
