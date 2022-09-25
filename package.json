@@ -8,6 +8,14 @@
     "kind": "plugin",
     "displayName": "Import Export Entries"
   },
+  "files": [
+    "strapi-admin.js",
+    "strapi-server.js",
+    "admin/",
+    "doc/",
+    "libs/",
+    "server/"
+  ],
   "scripts": {
     "lint:check": "eslint .",
     "lint:write": "eslint . --fix",
