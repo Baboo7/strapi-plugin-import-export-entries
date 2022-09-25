@@ -139,8 +139,8 @@ const getModelPopulationAttributes = (model) => {
   return model.attributes;
 };
 
-module.exports = ({ strapi }) => ({
+module.exports = {
   formats: dataFormats,
   exportData,
   getPopulateFromSchema,
-});
+};
