@@ -33,6 +33,7 @@ export const ImportModal = ({ onClose }) => {
   const { notify } = useAlerts();
   const history = useHistory();
 
+  const [file, setFile] = useState({});
   const [data, setData] = useState('');
   const [options, setOptions] = useState({});
   const [dataFormat, setDataFormat] = useState(dataFormats.CSV);
@@ -52,6 +53,7 @@ export const ImportModal = ({ onClose }) => {
   const onReadFile = (e) => {
     const file = e.target.files[0];
     readFile(file);
+    setFile(file);
   };
 
   const readFile = (file) => {
@@ -177,7 +179,7 @@ export const ImportModal = ({ onClose }) => {
               </Flex>
             </>
           )}
-          {showEditor && <ImportEditor data={data} dataFormat={dataFormat} slug={slug} onDataChanged={onDataChanged} onOptionsChanged={onOptionsChanged} />}
+          {showEditor && <ImportEditor file={file} data={data} dataFormat={dataFormat} slug={slug} onDataChanged={onDataChanged} onOptionsChanged={onOptionsChanged} />}
           {showSuccess && (
             <>
               <EmptyStateLayout
