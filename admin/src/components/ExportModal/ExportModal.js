@@ -30,7 +30,7 @@ export const ExportModal = ({ onClose }) => {
   const { slug } = useSlug();
   const { notify } = useAlerts();
 
-  const [optionExportFormat, setOptionExportFormat] = useState(dataFormats.CSV);
+  const [optionExportFormat, setOptionExportFormat] = useState(dataFormats.JSON_V2);
   const [optionApplyFilters, setOptionApplyFilters] = useState(false);
   const [optionRelationsAsId, setOptionRelationsAsId] = useState(false);
   const [optionDeepness, setOptionDeepness] = useState(5);
@@ -108,8 +108,8 @@ export const ExportModal = ({ onClose }) => {
                     onChange={setOptionExportFormat}
                   >
                     <Option value={dataFormats.CSV}>{i18n(`plugin.data-format.${dataFormats.CSV}`)}</Option>
-                    <Option value={dataFormats.JSON}>{i18n(`plugin.data-format.${dataFormats.JSON}`)}</Option>
                     <Option value={dataFormats.JSON_V2}>{i18n(`plugin.data-format.${dataFormats.JSON_V2}`)}</Option>
+                    <Option value={dataFormats.JSON}>{i18n(`plugin.data-format.${dataFormats.JSON}`)}</Option>
                   </Select>
                 </GridItem>
               </Grid>

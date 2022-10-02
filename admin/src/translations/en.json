@@ -12,7 +12,7 @@
   "plugin.cta.remove-file": "Remove File",
 
   "plugin.data-format.csv": "CSV",
-  "plugin.data-format.json": "JSON",
+  "plugin.data-format.json": "JSON [deprecated]",
   "plugin.data-format.json-v2": "JSON (v2)",
 
   "plugin.message.export.error.forbidden.title": "Forbidden",
