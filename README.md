@@ -63,7 +63,7 @@ Strapi v4 is required.
   <img src="./doc/discord-logo.png" alt="UI" width="100"/>
 </p>
 
-Join the [Discord Community](https://discord.gg/cGRJh7M7) to give your feedback.
+Join the [Discord Community](https://discord.gg/dcqCAFFdP8) to give your feedback.
 
 ## Contribute
 
