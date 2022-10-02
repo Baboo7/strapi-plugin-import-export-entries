@@ -8,7 +8,7 @@ const { isArraySafe, toArray } = require('../../../libs/arrays');
 const { ObjectBuilder, isObjectSafe } = require('../../../libs/objects');
 const { CustomSlugToSlug, CustomSlugs } = require('../../config/constants');
 const { getModelAttributes } = require('../../utils/models');
-const { convertToJson } = require('./convertersV2');
+const { convertToJson } = require('./converters-v2');
 
 const dataFormats = {
   JSON: 'json',

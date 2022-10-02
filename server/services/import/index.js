@@ -1,5 +1,5 @@
 const { importData } = require('./import');
-const { importDataV2 } = require('./importV2');
+const { importDataV2 } = require('./import-v2');
 const { parseInputData } = require('./parsers');
 
 module.exports = {
