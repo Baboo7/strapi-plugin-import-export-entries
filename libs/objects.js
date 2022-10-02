@@ -1,3 +1,5 @@
+const deepmerge = require('deepmerge');
+
 class ObjectBuilder {
   _obj = {};
 
@@ -26,6 +28,19 @@ const isObjectEmpty = (obj) => {
   return true;
 };
 
+const mergeObjects = (x, y) => {
+  return deepmerge(x, y, {
+    arrayMerge: (target, source) => {
+      source.forEach((item) => {
+        if (target.indexOf(item) === -1) {
+          target.push(item);
+        }
+      });
+      return target;
+    },
+  });
+};
+
 const logObj = (obj) => JSON.stringify(obj, null, '  ');
 
 module.exports = {
@@ -33,4 +48,5 @@ module.exports = {
   logObj,
   isObjectSafe,
   isObjectEmpty,
+  mergeObjects,
 };

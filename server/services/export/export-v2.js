@@ -1,11 +1,10 @@
-const deepmerge = require('deepmerge');
 const cloneDeep = require('lodash/cloneDeep');
 const flattenDeep = require('lodash/flattenDeep');
 const { isEmpty, merge } = require('lodash/fp');
 const qs = require('qs');
 const { isArraySafe, toArray } = require('../../../libs/arrays');
 
-const { ObjectBuilder, isObjectSafe } = require('../../../libs/objects');
+const { ObjectBuilder, isObjectSafe, mergeObjects } = require('../../../libs/objects');
 const { CustomSlugToSlug, CustomSlugs } = require('../../config/constants');
 const { getModelAttributes } = require('../../utils/models');
 const { convertToJson } = require('./converters-v2');
@@ -102,7 +101,7 @@ const findEntriesForHierarchy = async (slug, hierarchy, deepness, { search, ids 
     entriesFlatten = entriesFlatten.map((entry) => flattenEntry(entry, slug));
   })();
 
-  storedData = ownMerge({ [slug]: Object.fromEntries(entriesFlatten.map((entry) => [entry.id, entry])) }, storedData);
+  storedData = mergeObjects({ [slug]: Object.fromEntries(entriesFlatten.map((entry) => [entry.id, entry])) }, storedData);
 
   // Skip admin::user slug.
   (() => {
@@ -134,7 +133,7 @@ const findEntriesForHierarchy = async (slug, hierarchy, deepness, { search, ids 
       );
 
       const subStore = await findEntriesForHierarchy(hierarchy[attribute.name].__slug, hierarchy[attribute.name], deepness - 1, { ids });
-      storedData = ownMerge(subStore, storedData);
+      storedData = mergeObjects(subStore, storedData);
     }
   })();
 
@@ -159,7 +158,7 @@ const findEntriesForHierarchy = async (slug, hierarchy, deepness, { search, ids 
         const ids = componentEntries.map((entry) => entry.id);
 
         const subStore = await findEntriesForHierarchy(componentHierarchy.__slug, componentHierarchy, deepness - 1, { ids });
-        storedData = ownMerge(subStore, storedData);
+        storedData = mergeObjects(subStore, storedData);
       }
     }
   })();
@@ -180,7 +179,7 @@ const findEntriesForHierarchy = async (slug, hierarchy, deepness, { search, ids 
       );
 
       const subStore = await findEntriesForHierarchy(hierarchy[attribute.name].__slug, hierarchy[attribute.name], deepness - 1, { ids });
-      storedData = ownMerge(subStore, storedData);
+      storedData = mergeObjects(subStore, storedData);
     }
   })();
 
@@ -200,24 +199,11 @@ const findEntriesForHierarchy = async (slug, hierarchy, deepness, { search, ids 
       );
 
       const subStore = await findEntriesForHierarchy(hierarchy[attribute.name].__slug, hierarchy[attribute.name], deepness - 1, { ids });
-      storedData = ownMerge(subStore, storedData);
+      storedData = mergeObjects(subStore, storedData);
     }
   })();
 
   return storedData;
-};
-
-const ownMerge = (x, y) => {
-  return deepmerge(x, y, {
-    arrayMerge: (target, source) => {
-      source.forEach((item) => {
-        if (target.indexOf(item) === -1) {
-          target.push(item);
-        }
-      });
-      return target;
-    },
-  });
 };
 
 const findEntries = async (slug, deepness, { search, ids }) => {
