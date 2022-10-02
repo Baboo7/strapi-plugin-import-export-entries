@@ -1,5 +1,6 @@
 const cloneDeep = require('lodash/cloneDeep');
 const flattenDeep = require('lodash/flattenDeep');
+const fromPairs = require('lodash/fromPairs');
 const { isEmpty, merge } = require('lodash/fp');
 const qs = require('qs');
 const { isArraySafe, toArray } = require('../../../libs/arrays');
@@ -56,7 +57,28 @@ const findEntriesForHierarchy = async (slug, hierarchy, deepness, { search, ids 
     return storedData;
   }
 
-  let entries = await findEntries(slug, deepness, { search, ids });
+  let entries = await findEntries(slug, deepness, { search, ids }).then((entries) => {
+    const isModelLocalized = !!hierarchy?.localizations;
+
+    // Export locales
+    if (isModelLocalized) {
+      const allEntries = [...entries];
+      const entryIdsToExported = fromPairs(allEntries.map((entry) => [entry.id, true]));
+
+      for (const entry of entries) {
+        entry.localizations.forEach((locale) => {
+          if (!entryIdsToExported[locale.id]) {
+            allEntries.push(locale);
+            entryIdsToExported[locale.id] = true;
+          }
+        });
+      }
+
+      return allEntries;
+    }
+
+    return entries;
+  });
 
   // Transform relations as ids.
   let entriesFlatten = cloneDeep(entries);
