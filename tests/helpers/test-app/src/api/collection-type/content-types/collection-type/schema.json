@@ -1,0 +1,27 @@
+{
+  "kind": "collectionType",
+  "collectionName": "collection_types",
+  "info": {
+    "singularName": "collection-type",
+    "pluralName": "collection-types",
+    "displayName": "CollectionType"
+  },
+  "options": {
+    "draftAndPublish": true
+  },
+  "pluginOptions": {},
+  "attributes": {
+    "title": {
+      "type": "string"
+    },
+    "description": {
+      "type": "richtext"
+    },
+    "startDateTime": {
+      "type": "datetime"
+    },
+    "enabled": {
+      "type": "boolean"
+    }
+  }
+}
