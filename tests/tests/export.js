@@ -1,4 +1,4 @@
-const { getService } = require('./utils');
+const { getService } = require('../utils');
 
 describe('export service', () => {
   beforeEach(async () => {
