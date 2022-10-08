@@ -135,8 +135,6 @@ const updateOrCreateCollectionType = async (user, slug, data, idField) => {
 };
 
 const updateOrCreateSingleType = async (user, slug, data, idField) => {
-  delete data.id;
-
   let [entry] = await strapi.db.query(slug).findMany();
   if (!entry) {
     entry = await strapi.db.query(slug).create({ data });
