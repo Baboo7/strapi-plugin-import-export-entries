@@ -47,8 +47,8 @@ Import/Export data from and to your database in just few clicks.
   - [Content API](#content-api)
   - [Webhook](#webhook)
 - [Importing Data](#importing-data)
-  - [Relation](#relation)
-  - [Media](#media)
+  - [JSON v2](#json-v2)
+  - [JSON v1 (deprecated)](#json-v1-deprecated)
 - [Related Plugins](#related-plugins)
 - [Author](#author)
 - [Acknowledgments](#acknowledgments)
@@ -394,6 +394,69 @@ type RouteReturn = {
 At the moment, the webhook is triggered only for media creation, update and deletion. It is not triggered for other data.
 
 # Importing Data
+
+## JSON v2
+
+JSON v2 introduces a new supported file structure. Data is flattened and dependencies only relies on `id`s (`object`s are not supported in this new version). Collection types, single types, media and components are all treated the same for ease of use.
+
+Here is an example:
+
+```json
+{
+  "version": 2, // required for the import to work properly.
+  "data": {
+    // Each collection has a dedicated key in the `data` property.
+    "api::collection-name.collection-name": {
+      // Sub keys are `id`s of imported entries and values hold the data of the entries to import.
+      "1": {
+        "id": 1
+        //...
+      },
+      "2": {
+        "id": 2
+        //...
+      }
+    },
+    "api::other-collection-name.other-collection-name": {
+      "1": {
+        "id": 1,
+        // Relations are specified by `id`s.
+        "collectionAbove": [1]
+        //...
+      },
+      "2": {
+        "id": 2,
+        "collectionAbove": [1, 2]
+        //...
+      }
+    },
+    // Import medias.
+    "plugin::upload.file": {
+      "1": {
+        "id": 1
+        //...
+      },
+      "2": {
+        "id": 2
+        //...
+      }
+    },
+    // Import components.
+    "my.component": {
+      "1": {
+        "id": 1
+        //...
+      },
+      "2": {
+        "id": 2
+        //...
+      }
+    }
+  }
+}
+```
+
+## JSON v1 (deprecated)
 
 The expected import data structure:
 
