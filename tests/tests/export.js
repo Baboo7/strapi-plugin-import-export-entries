@@ -1,9 +1,4 @@
-const { getService } = require('../utils');
-
-const SLUGS = {
-  COLLECTION_TYPE: 'api::collection-type.collection-type',
-  SINGLE_TYPE: 'api::single-type.single-type',
-};
+const { getService, SLUGS } = require('../utils');
 
 describe('export service', () => {
   const CONFIG = {
