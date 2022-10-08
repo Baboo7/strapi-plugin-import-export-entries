@@ -57,28 +57,30 @@ const findEntriesForHierarchy = async (slug, hierarchy, deepness, { search, ids 
     return storedData;
   }
 
-  let entries = await findEntries(slug, deepness, { search, ids }).then((entries) => {
-    const isModelLocalized = !!hierarchy?.localizations;
+  let entries = await findEntries(slug, deepness, { search, ids })
+    .then((entries) => {
+      const isModelLocalized = !!hierarchy?.localizations;
 
-    // Export locales
-    if (isModelLocalized) {
-      const allEntries = [...entries];
-      const entryIdsToExported = fromPairs(allEntries.map((entry) => [entry.id, true]));
+      // Export locales
+      if (isModelLocalized) {
+        const allEntries = [...entries];
+        const entryIdsToExported = fromPairs(allEntries.map((entry) => [entry.id, true]));
 
-      for (const entry of entries) {
-        entry.localizations.forEach((locale) => {
-          if (!entryIdsToExported[locale.id]) {
-            allEntries.push(locale);
-            entryIdsToExported[locale.id] = true;
-          }
-        });
+        for (const entry of entries) {
+          entry.localizations.forEach((locale) => {
+            if (!entryIdsToExported[locale.id]) {
+              allEntries.push(locale);
+              entryIdsToExported[locale.id] = true;
+            }
+          });
+        }
+
+        return allEntries;
       }
 
-      return allEntries;
-    }
-
-    return entries;
-  });
+      return entries;
+    })
+    .then((entries) => toArray(entries));
 
   // Transform relations as ids.
   let entriesFlatten = cloneDeep(entries);
