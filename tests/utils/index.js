@@ -1,5 +1,10 @@
 const pluginId = require('./pluginId');
 
+const SLUGS = {
+  COLLECTION_TYPE: 'api::collection-type.collection-type',
+  SINGLE_TYPE: 'api::single-type.single-type',
+};
+
 /**
  * ServiceName.
  * @typedef {("export"|"import")} ServiceName
@@ -15,5 +20,6 @@ const getService = (serviceName) => {
 };
 
 module.exports = {
+  SLUGS,
   getService,
 };
