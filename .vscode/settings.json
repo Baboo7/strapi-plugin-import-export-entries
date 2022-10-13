@@ -1,4 +1,12 @@
 {
   "editor.formatOnSave": true,
-  "editor.defaultFormatter": "esbenp.prettier-vscode"
+  "editor.defaultFormatter": "esbenp.prettier-vscode",
+  "sqltools.connections": [
+    {
+      "previewLimit": 50,
+      "driver": "SQLite",
+      "database": "${workspaceFolder:import-export-entries}/tests/helpers/test-app/data/data.sqlite",
+      "name": "Import Export Entries Test"
+    }
+  ]
 }
