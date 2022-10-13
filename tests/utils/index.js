@@ -24,6 +24,14 @@ const generateData = (slug, customData = {}) => {
       ...customData,
     };
   }
+  if (slug === SLUGS.SINGLE_TYPE) {
+    return {
+      id: faker.datatype.number({ min: 1 }),
+      title: faker.commerce.productName(),
+      description: faker.commerce.productDescription(),
+      ...customData,
+    };
+  }
 
   throw new Error(`Data generation is not supported for slug ${slug}`);
 };

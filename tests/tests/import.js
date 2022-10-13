@@ -30,13 +30,6 @@ describe('import service', () => {
         updatedBy: null,
       },
     ],
-    [SLUGS.SINGLE_TYPE]: [
-      {
-        id: 1,
-        title: 'my title',
-        description: 'my description',
-      },
-    ],
   };
 
   describe('json v2', () => {
@@ -64,14 +57,37 @@ describe('import service', () => {
       });
     });
 
-    it('should import single type', async () => {
+    it('should create single type', async () => {
       const SLUG = SLUGS.SINGLE_TYPE;
-      const fileContent = {
-        version: 2,
-        data: {
-          [SLUG]: Object.fromEntries(CONFIG[SLUG].map((data) => [data.id, data])),
-        },
+      const CONFIG = {
+        [SLUG]: [generateData(SLUGS.SINGLE_TYPE, { id: 1 })],
       };
+
+      const fileContent = buildJsonV2FileContent(CONFIG);
+
+      const { failures } = await getService('import').importDataV2(fileContent, { slug: SLUG, user: {}, idField: 'id' });
+
+      const entries = await strapi.db.query(SLUG).findMany();
+
+      expect(failures.length).toBe(0);
+      expect(entries.length).toBe(CONFIG[SLUG].length);
+      CONFIG[SLUG].forEach((configData, idx) => {
+        expect(entries[idx].id).toBe(configData.id);
+        expect(entries[idx].title).toBe(configData.title);
+        expect(entries[idx].description).toBe(configData.description);
+      });
+    });
+
+    it('should update single type', async () => {
+      const SLUG = SLUGS.SINGLE_TYPE;
+
+      await strapi.entityService.create(SLUG, { data: generateData(SLUGS.SINGLE_TYPE, { id: 1 }) });
+
+      const CONFIG = {
+        [SLUG]: [generateData(SLUGS.SINGLE_TYPE, { id: 1 })],
+      };
+
+      const fileContent = buildJsonV2FileContent(CONFIG);
 
       const { failures } = await getService('import').importDataV2(fileContent, { slug: SLUG, user: {}, idField: 'id' });
 
@@ -92,12 +108,7 @@ describe('import service', () => {
         [SLUGS.RELATION_B]: [generateData(SLUGS.RELATION_B, { id: 1 })],
       };
 
-      const fileContent = {
-        version: 2,
-        data: Object.fromEntries(map(CONFIG, (data, slug) => [slug, Object.fromEntries(data.map((datum) => [datum.id, datum]))])),
-      };
-
-      console.log('fileContent', fileContent);
+      const fileContent = buildJsonV2FileContent(CONFIG);
 
       const { failures } = await getService('import').importDataV2(fileContent, { slug: SLUGS.RELATION_A, user: {}, idField: 'id' });
 
