@@ -146,38 +146,38 @@ const updateOrCreate = async (user, slug, datum, idField = 'id', { excludeRelati
   return entry;
 };
 
-const updateOrCreateCollectionType = async (user, slug, data, idField) => {
+const updateOrCreateCollectionType = async (user, slug, datum, idField) => {
   const whereBuilder = new ObjectBuilder();
-  if (data[idField]) {
-    whereBuilder.extend({ [idField]: data[idField] });
+  if (datum[idField]) {
+    whereBuilder.extend({ [idField]: datum[idField] });
   }
   const where = whereBuilder.get();
 
   // Prevent strapi from throwing a unique constraint error on id field.
   if (idField !== 'id') {
-    delete data.id;
+    delete datum.id;
   }
 
   let entry;
   if (!where[idField]) {
-    entry = await strapi.db.query(slug).create({ data });
+    entry = await strapi.db.query(slug).create({ data: datum });
   } else {
-    entry = await strapi.db.query(slug).update({ where, data });
+    entry = await strapi.db.query(slug).update({ where, data: datum });
 
     if (!entry) {
-      entry = await strapi.db.query(slug).create({ data });
+      entry = await strapi.db.query(slug).create({ data: datum });
     }
   }
 
   return entry;
 };
 
-const updateOrCreateSingleType = async (user, slug, data, idField) => {
+const updateOrCreateSingleType = async (user, slug, datum, idField) => {
   let [entry] = await strapi.db.query(slug).findMany();
   if (!entry) {
-    entry = await strapi.db.query(slug).create({ data });
+    entry = await strapi.db.query(slug).create({ data: datum });
   } else {
-    entry = await strapi.db.query(slug).update({ where: { id: entry.id }, data });
+    entry = await strapi.db.query(slug).update({ where: { id: entry.id }, data: datum });
   }
 
   return entry;
