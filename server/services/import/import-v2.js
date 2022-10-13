@@ -1,6 +1,9 @@
+const cloneDeep = require('lodash/cloneDeep');
+const pick = require('lodash/pick');
+
 const { ObjectBuilder } = require('../../../libs/objects');
 const { CustomSlugs, CustomSlugToSlug } = require('../../config/constants');
-const { getModel } = require('../../utils/models');
+const { getModel, getModelAttributes } = require('../../utils/models');
 const { findOrImportFile } = require('./utils/file');
 
 /**
@@ -27,6 +30,7 @@ const importDataV2 = async (fileContent, { slug, user, idField }) => {
 
   const slugs = Object.keys(data);
   let failures = [];
+  // Import without setting relations.
   for (const slugFromFile of slugs) {
     let slugFailures = [];
     if (slugFromFile === CustomSlugToSlug[CustomSlugs.MEDIA]) {
@@ -37,14 +41,30 @@ const importDataV2 = async (fileContent, { slug, user, idField }) => {
         user,
         // Keep behavior of `idField` of version 1.
         ...(slugFromFile === slug ? { idField } : {}),
+        excludeRelations: true,
       }).then((res) => res.failures);
     }
     failures = [...failures, ...(slugFailures || [])];
   }
 
-  return {
-    failures,
-  };
+  // Set relations relations.
+  for (const slugFromFile of slugs) {
+    let slugFailures = [];
+    if (slugFromFile === CustomSlugToSlug[CustomSlugs.MEDIA]) {
+      slugFailures = await importMedia(Object.values(data[slugFromFile]), { user }).then((res) => res.slugFailures);
+    } else {
+      slugFailures = await importOtherSlug(Object.values(data[slugFromFile]), {
+        slug: slugFromFile,
+        user,
+        // Keep behavior of `idField` of version 1.
+        ...(slugFromFile === slug ? { idField } : {}),
+        onlyRelations: true,
+      }).then((res) => res.failures);
+    }
+    failures = [...failures, ...(slugFailures || [])];
+  }
+
+  return { failures };
 };
 
 const importMedia = async (fileData, { user }) => {
@@ -68,12 +88,20 @@ const importMedia = async (fileData, { user }) => {
   };
 };
 
-const importOtherSlug = async (data, { slug, user, idField }) => {
+/**
+ * Import data.
+ * @param {Array<Object>} data
+ * @param {Object} importOptions
+ * @param {boolean} [importOptions.excludeRelations]
+ * @param {boolean} [importOptions.onlyRelations]
+ * @returns
+ */
+const importOtherSlug = async (data, { slug, user, idField, excludeRelations, onlyRelations }) => {
   const processed = [];
   for (let datum of data) {
     let res;
     try {
-      await updateOrCreate(user, slug, datum, idField);
+      await updateOrCreate(user, slug, datum, idField, { excludeRelations, onlyRelations });
       res = { success: true };
     } catch (err) {
       strapi.log.error(err);
@@ -93,17 +121,27 @@ const importOtherSlug = async (data, { slug, user, idField }) => {
  * Update or create entries for a given model.
  * @param {Object} user - User importing the data.
  * @param {string} slug - Slug of the model.
- * @param {Object} data - Data to update/create entries from.
+ * @param {Object} datum - Data to update/create entries from.
  * @param {string} idField - Field used as unique identifier.
  * @returns Updated/created entry.
  */
-const updateOrCreate = async (user, slug, data, idField = 'id') => {
+const updateOrCreate = async (user, slug, datum, idField = 'id', { excludeRelations, onlyRelations }) => {
+  datum = cloneDeep(datum);
+
+  if (excludeRelations) {
+    const attributeNames = getModelAttributes(slug, { filterOutType: ['component', 'dynamiczone', 'media', 'relation'], addIdAttribute: true }).map(({ name }) => name);
+    datum = pick(datum, attributeNames);
+  } else if (onlyRelations) {
+    const attributeNames = getModelAttributes(slug, { filterType: ['component', 'dynamiczone', 'media', 'relation'], addIdAttribute: true }).map(({ name }) => name);
+    datum = pick(datum, attributeNames);
+  }
+
   let entry;
   const model = getModel(slug);
   if (model.kind === 'singleType') {
-    entry = await updateOrCreateSingleType(user, slug, data, idField);
+    entry = await updateOrCreateSingleType(user, slug, datum, idField);
   } else {
-    entry = await updateOrCreateCollectionType(user, slug, data, idField);
+    entry = await updateOrCreateCollectionType(user, slug, datum, idField);
   }
   return entry;
 };

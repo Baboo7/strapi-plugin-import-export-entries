@@ -51,20 +51,28 @@ const getModel = (slug) => {
  * @param {string} slug - Slug of the model.
  * @param {Object} options
  * @param {AttributeType | Array<AttributeType>} [options.filterType] - Only attributes matching the type(s) will be kept.
+ * @param {AttributeType | Array<AttributeType>} [options.filterOutType] - Remove attributes matching the specified type(s).
  * @param {AttributeTarget | Array<AttributeTarget>} [options.filterOutTarget] - Remove attributes matching the specified target(s).
+ * @param {boolean} [options.addIdAttribute] - Add `id` in the returned attributes.
  * @returns {Array<Attribute>}
  */
 const getModelAttributes = (slug, options = {}) => {
-  const typesToKeep = options.filterType ? (Array.isArray(options.filterType) ? options.filterType : [options.filterType]) : [];
+  const typesToKeep = options.filterType ? toArray(options.filterType) : [];
+  const typesToFilterOut = options.filterOutType ? toArray(options.filterOutType) : [];
   const filterOutTarget = toArray(options.filterOutTarget || []);
 
   const attributesObj = strapi.getModel(slug).attributes;
-  const attributes = Object.keys(attributesObj)
+  let attributes = Object.keys(attributesObj)
     .reduce((acc, key) => acc.concat({ ...attributesObj[key], name: key }), [])
+    .filter((attr) => !typesToFilterOut.includes(attr.type))
     .filter((attr) => !filterOutTarget.includes(attr.target));
 
   if (typesToKeep.length) {
-    return attributes.filter((attr) => typesToKeep.includes(attr.type));
+    attributes = attributes.filter((attr) => typesToKeep.includes(attr.type));
+  }
+
+  if (options.addIdAttribute) {
+    attributes.unshift({ name: 'id' });
   }
 
   return attributes;
