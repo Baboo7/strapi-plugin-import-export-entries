@@ -1,0 +1,39 @@
+{
+  "kind": "collectionType",
+  "collectionName": "relation_b",
+  "info": {
+    "singularName": "relation-b",
+    "pluralName": "relations-b",
+    "displayName": "RelationB"
+  },
+  "options": {
+    "draftAndPublish": false
+  },
+  "pluginOptions": {},
+  "attributes": {
+    "name": {
+      "type": "string",
+      "unique": true
+    },
+    "relationOneToOne": {
+      "type": "relation",
+      "relation": "oneToOne",
+      "target": "api::with-relation.relation-a"
+    },
+    "relationOneToMany": {
+      "type": "relation",
+      "relation": "oneToMany",
+      "target": "api::with-relation.relation-a"
+    },
+    "relationManyToOne": {
+      "type": "relation",
+      "relation": "manyToOne",
+      "target": "api::with-relation.relation-a"
+    },
+    "relationManyToMany": {
+      "type": "relation",
+      "relation": "manyToMany",
+      "target": "api::with-relation.relation-a"
+    }
+  }
+}

@@ -1,4 +1,6 @@
-const { getService, SLUGS } = require('../utils');
+const map = require('lodash/map');
+
+const { getService, SLUGS, generateData } = require('../utils');
 
 describe('import service', () => {
   const CONFIG = {
@@ -81,6 +83,40 @@ describe('import service', () => {
         expect(entries[idx].id).toBe(configData.id);
         expect(entries[idx].title).toBe(configData.title);
         expect(entries[idx].description).toBe(configData.description);
+      });
+    });
+
+    it('should import relations in any order', async () => {
+      const CONFIG = {
+        [SLUGS.RELATION_A]: [generateData(SLUGS.RELATION_A, { id: 1, relationOneToOne: 1 })],
+        [SLUGS.RELATION_B]: [generateData(SLUGS.RELATION_B, { id: 1 })],
+      };
+
+      const fileContent = {
+        version: 2,
+        data: Object.fromEntries(map(CONFIG, (data, slug) => [slug, Object.fromEntries(data.map((datum) => [datum.id, datum]))])),
+      };
+
+      console.log('fileContent', fileContent);
+
+      const { failures } = await getService('import').importDataV2(fileContent, { slug: SLUGS.RELATION_A, user: {}, idField: 'id' });
+
+      const [entriesA, entriesB] = await Promise.all([strapi.db.query(SLUGS.RELATION_A).findMany(), strapi.db.query(SLUGS.RELATION_B).findMany()]);
+
+      expect(failures.length).toBe(0);
+
+      expect(entriesA.length).toBe(CONFIG[SLUGS.RELATION_A].length);
+      CONFIG[SLUGS.RELATION_A].forEach((configData, idx) => {
+        expect(entriesA[idx].id).toBe(configData.id);
+        expect(entriesA[idx].title).toBe(configData.title);
+        expect(entriesA[idx].description).toBe(configData.description);
+      });
+
+      expect(entriesB.length).toBe(CONFIG[SLUGS.RELATION_B].length);
+      CONFIG[SLUGS.RELATION_B].forEach((configData, idx) => {
+        expect(entriesB[idx].id).toBe(configData.id);
+        expect(entriesB[idx].title).toBe(configData.title);
+        expect(entriesB[idx].description).toBe(configData.description);
       });
     });
   });
