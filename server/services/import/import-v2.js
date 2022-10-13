@@ -134,6 +134,15 @@ const updateOrCreate = async (user, slug, datum, idField = 'id', { excludeRelati
   } else if (onlyRelations) {
     const attributeNames = getModelAttributes(slug, { filterType: ['component', 'dynamiczone', 'media', 'relation'], addIdAttribute: true }).map(({ name }) => name);
     datum = pick(datum, attributeNames);
+
+    // For compatibility with older file structure.
+    const componentAttributeNames = getModelAttributes(slug, { filterType: ['component'] }).map(({ name }) => name);
+    for (const componentName of componentAttributeNames) {
+      // If the component is an integer, then it's an id.
+      if (Number.isInteger(datum[componentName])) {
+        datum[componentName] = { id: datum[componentName] };
+      }
+    }
   }
 
   let entry;
