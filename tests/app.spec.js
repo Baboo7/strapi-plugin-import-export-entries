@@ -11,7 +11,7 @@ afterAll(async () => {
 });
 
 afterEach(async () => {
-  cleanupDatabase();
+  await cleanupDatabase();
 });
 
 it('strapi should be defined', () => {
