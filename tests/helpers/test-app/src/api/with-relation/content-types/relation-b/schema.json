@@ -13,7 +13,8 @@
   "attributes": {
     "name": {
       "type": "string",
-      "unique": true
+      "unique": true,
+      "required": true
     },
     "relationOneToOne": {
       "type": "relation",

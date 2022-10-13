@@ -119,5 +119,27 @@ describe('import service', () => {
         expect(entriesB[idx].description).toBe(configData.description);
       });
     });
+
+    it('should have failures if missing required field', async () => {
+      const CONFIG = {
+        [SLUGS.RELATION_A]: [{ id: 1 }],
+      };
+
+      const fileContent = buildJsonV2FileContent(CONFIG);
+
+      const { failures } = await getService('import').importDataV2(fileContent, { slug: SLUGS.RELATION_A, user: {}, idField: 'id' });
+
+      const entries = await strapi.db.query(SLUGS.RELATION_A).findMany();
+
+      expect(failures.length).toBeGreaterThanOrEqual(1);
+      expect(entries.length).toBe(0);
+    });
   });
 });
+
+const buildJsonV2FileContent = (config) => {
+  return {
+    version: 2,
+    data: Object.fromEntries(map(config, (data, slug) => [slug, Object.fromEntries(data.map((datum) => [datum.id, datum]))])),
+  };
+};
