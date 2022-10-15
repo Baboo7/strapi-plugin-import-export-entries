@@ -8,9 +8,13 @@ module.exports = ({ env }) => ({
       serverPublicHostname: 'http://localhost:1337',
     },
   },
-  seo: {
-    enabled: true,
-    resolve: resolveFromRoot('node_modules/@strapi/plugin-seo'),
+  'users-permissions': {
+    config: {
+      jwtSecret: 'ARh4pyCd6aA3U7I2/X+ZUg==',
+      jwt: {
+        expiresIn: '7d',
+      },
+    },
   },
 });
 
