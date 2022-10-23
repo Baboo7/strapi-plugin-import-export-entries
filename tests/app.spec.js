@@ -1,12 +1,14 @@
 const { readdirSync } = require('fs');
 
-const { setupStrapi, cleanupStrapi, cleanupDatabase } = require('./helpers/strapi');
+const { setupStrapi, cleanupStrapi, cleanupDatabase, setupDatabase } = require('./helpers/strapi');
 
 beforeAll(async () => {
   await setupStrapi();
+  await setupDatabase();
 });
 
 afterAll(async () => {
+  await cleanupDatabase({ broadCleaning: true });
   await cleanupStrapi();
 });
 

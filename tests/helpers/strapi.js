@@ -4,6 +4,11 @@ const fs = require('fs');
 const DELETE_DB_ENABLED = false;
 const CLEANUP_DB_ENABLED = true;
 
+const LOCALES = [
+  { code: 'fr', name: 'French (fr)' },
+  { code: 'it', name: 'Italian (it)' },
+];
+
 let instance;
 
 async function setupStrapi() {
@@ -36,11 +41,26 @@ async function cleanupStrapi() {
   await strapi.db.connection.destroy();
 }
 
-async function cleanupDatabase() {
+async function setupDatabase() {
+  for (const locale of LOCALES) {
+    const entry = await strapi.plugin('i18n').service('locales').findByCode(locale.code);
+    if (!entry) {
+      console.log(`Created locale: ${locale.name}`);
+      await strapi.query('plugin::i18n.locale').create({ data: { ...locale } });
+    }
+  }
+}
+
+/**
+ * Cleans database.
+ * @param {Object} options
+ * @param {boolean} options.broadCleaning
+ */
+async function cleanupDatabase(options = {}) {
   if (CLEANUP_DB_ENABLED) {
     const cleaningCollections = Array.from(strapi.db.metadata)
       .map(([collectionName]) => collectionName)
-      .filter((collectionName) => collectionName.startsWith('api::'))
+      .filter(shouldCleanCollection(options))
       .map((collectionName) =>
         strapi.db.query(collectionName).deleteMany({
           where: {
@@ -53,7 +73,18 @@ async function cleanupDatabase() {
   }
 }
 
+const shouldCleanCollection = ({ broadCleaning = false } = {}) => {
+  return (collectionName) => {
+    if (broadCleaning) {
+      return collectionName.startsWith('admin::') || collectionName.startsWith('api::') || collectionName.startsWith('plugin::');
+    }
+
+    return collectionName.startsWith('api::');
+  };
+};
+
 module.exports = {
+  setupDatabase,
   cleanupDatabase,
   setupStrapi,
   cleanupStrapi,
