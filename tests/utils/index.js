@@ -26,7 +26,6 @@ const generateData = (slug, customData = {}) => {
   }
   if (slug === SLUGS.SINGLE_TYPE) {
     return {
-      id: faker.datatype.number({ min: 1 }),
       title: faker.commerce.productName(),
       description: faker.commerce.productDescription(),
       ...customData,
