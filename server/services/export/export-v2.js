@@ -59,6 +59,7 @@ const findEntriesForHierarchy = async (slug, hierarchy, deepness, { search, ids 
 
   let entries = await findEntries(slug, deepness, { search, ids })
     .then((entries) => {
+      entries = toArray(entries).filter(Boolean);
       const isModelLocalized = !!hierarchy?.localizations;
 
       // Export locales
