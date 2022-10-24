@@ -97,7 +97,9 @@ describe('export service', () => {
       const dataRaw = await getService('export').exportDataV2({ slug: SLUGS.SINGLE_TYPE });
 
       const { data } = JSON.parse(dataRaw);
+
       const entries = Object.values(data[SLUGS.SINGLE_TYPE]);
+      const entriesIds = Object.keys(data[SLUGS.SINGLE_TYPE]).map((id) => parseInt(id, 10));
 
       expect(entries.length).toBe(3);
       entries.forEach((entry, idx) => {
@@ -107,6 +109,8 @@ describe('export service', () => {
         }
         expect(entry.title).toBe(configData.title);
         expect(entry.description).toBe(configData.description);
+        expect(entry.locale).toBe(configData.locale);
+        expect(entry.localizations.sort()).toEqual(entriesIds.filter((id) => id !== entry.id).sort());
       });
     });
   });
