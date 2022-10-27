@@ -1,9 +1,12 @@
 const cloneDeep = require('lodash/cloneDeep');
+const isEmpty = require('lodash/isEmpty');
+const omit = require('lodash/omit');
 const pick = require('lodash/pick');
+const { isArraySafe } = require('../../../libs/arrays');
 
 const { ObjectBuilder } = require('../../../libs/objects');
 const { CustomSlugs, CustomSlugToSlug } = require('../../config/constants');
-const { getModel, getModelAttributes } = require('../../utils/models');
+const { getModel, getModelAttributes, getModelConfig } = require('../../utils/models');
 const { findOrImportFile } = require('./utils/file');
 
 /**
@@ -145,14 +148,12 @@ const updateOrCreate = async (user, slug, datum, idField = 'id', { excludeRelati
     }
   }
 
-  let entry;
   const model = getModel(slug);
   if (model.kind === 'singleType') {
-    entry = await updateOrCreateSingleType(user, slug, datum, idField);
+    await updateOrCreateSingleType(user, slug, datum, idField);
   } else {
-    entry = await updateOrCreateCollectionType(user, slug, datum, idField);
+    await updateOrCreateCollectionType(user, slug, datum, idField);
   }
-  return entry;
 };
 
 const updateOrCreateCollectionType = async (user, slug, datum, idField) => {
@@ -179,20 +180,50 @@ const updateOrCreateCollectionType = async (user, slug, datum, idField) => {
       entry = await strapi.entityService.create(slug, { data: datum });
     }
   }
-
-  return entry;
 };
 
 const updateOrCreateSingleType = async (user, slug, datum, idField) => {
-  let entry = await strapi.entityService.findMany(slug);
+  const { isLocalized } = getModelConfig(slug);
 
-  if (!entry) {
-    entry = await strapi.entityService.create(slug, { data: datum });
+  if (!isLocalized) {
+    let entry = await strapi.db.query(slug).findMany();
+    entry = isArraySafe(entry) ? entry[0] : entry;
+
+    if (!entry) {
+      await strapi.entityService.create(slug, { data: datum });
+    } else {
+      await strapi.entityService.update(slug, entry.id, { data: datum });
+    }
   } else {
-    entry = await strapi.entityService.update(slug, entry.id, { data: datum });
-  }
+    const defaultLocale = await strapi.plugin('i18n').service('locales').getDefaultLocale();
+    const isDatumInDefaultLocale = !datum.locale || datum.locale === defaultLocale;
 
-  return entry;
+    datum = omit(datum, ['localizations']);
+    if (isEmpty(omit(datum, ['id']))) {
+      return;
+    }
+
+    let entryDefaultLocale = await strapi.db.query(slug).findOne({ where: { locale: defaultLocale } });
+    if (!entryDefaultLocale) {
+      entryDefaultLocale = await strapi.entityService.create(slug, { data: { ...datum, locale: defaultLocale } });
+    }
+
+    if (isDatumInDefaultLocale) {
+      if (!entryDefaultLocale) {
+        await strapi.entityService.create(slug, { data: datum });
+      } else {
+        await strapi.entityService.update(slug, entryDefaultLocale.id, { data: datum });
+      }
+    } else {
+      const entryLocale = await strapi.db.query(slug).findOne({ where: { locale: datum.locale } });
+      let datumLocale = { ...entryLocale, ...datum };
+
+      await strapi.db.query(slug).delete({ where: { locale: datum.locale } });
+
+      const createHandler = strapi.plugin('i18n').service('core-api').createCreateLocalizationHandler(getModel(slug));
+      await createHandler({ id: entryDefaultLocale.id, data: datumLocale });
+    }
+  }
 };
 
 module.exports = {

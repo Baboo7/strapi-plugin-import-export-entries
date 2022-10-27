@@ -46,6 +46,24 @@ const getModel = (slug) => {
   return strapi.getModel(slug);
 };
 
+const getModelConfig = (modelOrSlug) => {
+  const model = getModelFromSlugOrModel(modelOrSlug);
+
+  return {
+    kind: model.kind === 'singleType' ? 'single' : 'collection',
+    isLocalized: !!model.pluginOptions?.i18n?.localized,
+  };
+};
+
+const getModelFromSlugOrModel = (modelOrSlug) => {
+  let model = modelOrSlug;
+  if (typeof model === 'string') {
+    model = getModel(modelOrSlug);
+  }
+
+  return model;
+};
+
 /**
  * Get the attributes of a model.
  * @param {string} slug - Slug of the model.
@@ -89,6 +107,7 @@ const isAttributeDynamicZone = (attribute) => {
 
 module.exports = {
   getModel,
+  getModelConfig,
   getModelAttributes,
   isAttributeDynamicZone,
 };
