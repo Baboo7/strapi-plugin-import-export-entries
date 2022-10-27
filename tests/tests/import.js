@@ -58,9 +58,9 @@ describe('import service', () => {
     });
 
     it('should create single type', async () => {
-      const SLUG = SLUGS.SINGLE_TYPE;
+      const SLUG = SLUGS.SINGLE_TYPE_SIMPLE;
       const CONFIG = {
-        [SLUG]: [generateData(SLUGS.SINGLE_TYPE, { id: 1 })],
+        [SLUG]: [generateData(SLUG, { id: 1 })],
       };
 
       const fileContent = buildJsonV2FileContent(CONFIG);
@@ -79,12 +79,12 @@ describe('import service', () => {
     });
 
     it('should update single type', async () => {
-      const SLUG = SLUGS.SINGLE_TYPE;
+      const SLUG = SLUGS.SINGLE_TYPE_SIMPLE;
 
-      await strapi.entityService.create(SLUG, { data: generateData(SLUGS.SINGLE_TYPE, { id: 1 }) });
+      await strapi.entityService.create(SLUG, { data: generateData(SLUG, { id: 1 }) });
 
       const CONFIG = {
-        [SLUG]: [generateData(SLUGS.SINGLE_TYPE, { id: 1 })],
+        [SLUG]: [generateData(SLUG, { id: 1 })],
       };
 
       const fileContent = buildJsonV2FileContent(CONFIG);
@@ -99,6 +99,79 @@ describe('import service', () => {
         expect(entries[idx].id).toBe(configData.id);
         expect(entries[idx].title).toBe(configData.title);
         expect(entries[idx].description).toBe(configData.description);
+      });
+    });
+
+    it('should create single type localized', async () => {
+      const SLUG = SLUGS.SINGLE_TYPE;
+      const CONFIG = {
+        [SLUG]: [generateData(SLUGS.SINGLE_TYPE, { id: 1, locale: 'en' })],
+      };
+
+      const fileContent = buildJsonV2FileContent(CONFIG);
+
+      const { failures } = await getService('import').importDataV2(fileContent, { slug: SLUG, user: {}, idField: 'id' });
+
+      const entries = await strapi.db.query(SLUG).findMany();
+
+      expect(failures.length).toBe(0);
+      expect(entries.length).toBe(CONFIG[SLUG].length);
+      CONFIG[SLUG].forEach((configData, idx) => {
+        expect(entries[idx].id).toBe(configData.id);
+        expect(entries[idx].title).toBe(configData.title);
+        expect(entries[idx].description).toBe(configData.description);
+      });
+    });
+
+    it('should update single type localized', async () => {
+      const SLUG = SLUGS.SINGLE_TYPE;
+
+      await strapi.entityService.create(SLUG, { data: generateData(SLUGS.SINGLE_TYPE, { id: 1 }) });
+
+      const CONFIG = {
+        [SLUG]: [generateData(SLUGS.SINGLE_TYPE, { id: 1, locale: 'en' })],
+      };
+
+      const fileContent = buildJsonV2FileContent(CONFIG);
+
+      const { failures } = await getService('import').importDataV2(fileContent, { slug: SLUG, user: {}, idField: 'id' });
+
+      const entries = await strapi.db.query(SLUG).findMany();
+
+      expect(failures.length).toBe(0);
+      expect(entries.length).toBe(CONFIG[SLUG].length);
+      CONFIG[SLUG].forEach((configData, idx) => {
+        expect(entries[idx].id).toBe(configData.id);
+        expect(entries[idx].title).toBe(configData.title);
+        expect(entries[idx].description).toBe(configData.description);
+      });
+    });
+
+    it('should create single type localized with multiple locales', async () => {
+      const SLUG = SLUGS.SINGLE_TYPE;
+      const CONFIG = {
+        [SLUG]: [
+          generateData(SLUGS.SINGLE_TYPE, { id: 1, locale: 'en' }),
+          generateData(SLUGS.SINGLE_TYPE, { id: 2, locale: 'fr' }),
+          generateData(SLUGS.SINGLE_TYPE, { id: 3, locale: 'it' }),
+        ],
+      };
+
+      const fileContent = buildJsonV2FileContent(CONFIG);
+
+      const { failures } = await getService('import').importDataV2(fileContent, { slug: SLUG, user: {}, idField: 'id' });
+
+      const entries = await strapi.db.query(SLUG).findMany();
+
+      expect(failures.length).toBe(0);
+      entries.forEach((entry, idx) => {
+        const configData = CONFIG[SLUGS.SINGLE_TYPE][idx];
+        if (idx === 0) {
+          expect(entry.id).toBe(configData.id);
+        }
+        expect(entry.title).toBe(configData.title);
+        expect(entry.description).toBe(configData.description);
+        expect(entry.locale).toBe(configData.locale);
       });
     });
 

@@ -9,6 +9,7 @@ const SLUGS = {
   RELATION_A: 'api::with-relation.relation-a',
   RELATION_B: 'api::with-relation.relation-b',
   SINGLE_TYPE: 'api::single-type.single-type',
+  SINGLE_TYPE_SIMPLE: 'api::single-type.single-type-simple',
 };
 
 const generateData = (slug, customData = {}) => {
@@ -25,6 +26,13 @@ const generateData = (slug, customData = {}) => {
     };
   }
   if (slug === SLUGS.SINGLE_TYPE) {
+    return {
+      title: faker.commerce.productName(),
+      description: faker.commerce.productDescription(),
+      ...customData,
+    };
+  }
+  if (slug === SLUGS.SINGLE_TYPE_SIMPLE) {
     return {
       title: faker.commerce.productName(),
       description: faker.commerce.productDescription(),

@@ -1,0 +1,21 @@
+{
+  "kind": "singleType",
+  "collectionName": "single_type_simple",
+  "info": {
+    "singularName": "single-type-simple",
+    "pluralName": "single-type-simples",
+    "displayName": "SingleTypeSimple"
+  },
+  "options": {
+    "draftAndPublish": false
+  },
+  "pluginOptions": {},
+  "attributes": {
+    "title": {
+      "type": "string"
+    },
+    "description": {
+      "type": "text"
+    }
+  }
+}
