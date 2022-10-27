@@ -166,6 +166,7 @@ describe('import service', () => {
       expect(failures.length).toBe(0);
       entries.forEach((entry, idx) => {
         const configData = CONFIG[SLUGS.SINGLE_TYPE][idx];
+        // Atm it is not possible to set the `id` for locales that are not the default one.
         if (idx === 0) {
           expect(entry.id).toBe(configData.id);
         }
