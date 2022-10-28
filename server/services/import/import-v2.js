@@ -159,7 +159,7 @@ const updateOrCreate = async (user, slug, datum, idField = 'id', { excludeRelati
 
   const model = getModel(slug);
   if (model.kind === 'singleType') {
-    await updateOrCreateSingleType(user, slug, datum, idField);
+    await updateOrCreateSingleType(user, slug, datum);
   } else {
     await updateOrCreateCollectionType(user, slug, datum, idField);
   }
@@ -184,7 +184,7 @@ const updateOrCreateCollectionType = async (user, slug, datum, idField) => {
   }
 };
 
-const updateOrCreateSingleType = async (user, slug, datum, idField) => {
+const updateOrCreateSingleType = async (user, slug, datum) => {
   const { isLocalized } = getModelConfig(slug);
 
   if (!isLocalized) {
