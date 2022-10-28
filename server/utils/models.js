@@ -11,6 +11,7 @@ const { toArray } = require('../../libs/arrays');
  * A model.
  * @typedef {Object} Model
  * @property {ModelKind} kind
+ * @property {string} collectionName
  * @property {{[k: string]: Attribute}} attributes - Name of the attribute.
  */
 

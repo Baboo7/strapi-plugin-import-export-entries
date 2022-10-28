@@ -67,6 +67,15 @@ const importDataV2 = async (fileContent, { slug, user, idField }) => {
     failures = [...failures, ...(slugFailures || [])];
   }
 
+  // Sync primary key sequence for postgres databases.
+  // See https://github.com/strapi/strapi/issues/12493.
+  if (strapi.db.config.connection.client === 'postgres') {
+    for (const slugFromFile of slugs) {
+      const model = getModel(slugFromFile);
+      await strapi.db.connection.raw(`SELECT SETVAL((SELECT PG_GET_SERIAL_SEQUENCE('${model.collectionName}', 'id')), (SELECT MAX(id) FROM ${model.collectionName}) + 1, FALSE);`);
+    }
+  }
+
   return { failures };
 };
 
