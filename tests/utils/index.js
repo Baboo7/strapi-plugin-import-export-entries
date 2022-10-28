@@ -13,6 +13,15 @@ const SLUGS = {
 };
 
 const generateData = (slug, customData = {}) => {
+  if (slug === SLUGS.COLLECTION_TYPE) {
+    return {
+      title: faker.commerce.productName(),
+      description: faker.commerce.productDescription(),
+      startDateTime: faker.date.recent().toISOString(),
+      enabled: faker.datatype.boolean(),
+      ...customData,
+    };
+  }
   if (slug === SLUGS.RELATION_A) {
     return {
       name: faker.company.name(),

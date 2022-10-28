@@ -1,40 +1,16 @@
 const map = require('lodash/map');
+const pick = require('lodash/pick');
 
 const { getService, SLUGS, generateData } = require('../utils');
 
 describe('import service', () => {
-  const CONFIG = {
-    [SLUGS.COLLECTION_TYPE]: [
-      {
-        id: 1,
-        title: 'my collection title',
-        description: 'my collection description',
-        startDateTime: '2022-10-10T12:30:15.000Z',
-        enabled: true,
-        createdAt: '2022-09-01T09:00:00.000Z',
-        updatedAt: '2022-09-01T09:00:00.000Z',
-        publishedAt: null,
-        createdBy: null,
-        updatedBy: null,
-      },
-      {
-        id: 2,
-        title: 'my second collection title',
-        description: 'my second collection description',
-        startDateTime: '2022-10-20T12:30:15.000Z',
-        enabled: false,
-        createdAt: '2022-09-01T09:00:00.000Z',
-        updatedAt: '2022-09-01T09:00:00.000Z',
-        publishedAt: null,
-        createdBy: null,
-        updatedBy: null,
-      },
-    ],
-  };
-
   describe('json v2', () => {
-    it('should import collection type', async () => {
+    it('should create collection type', async () => {
       const SLUG = SLUGS.COLLECTION_TYPE;
+      const CONFIG = {
+        [SLUG]: [generateData(SLUG, { id: 1 }), generateData(SLUG, { id: 2 })],
+      };
+
       const fileContent = {
         version: 2,
         data: {
@@ -55,6 +31,36 @@ describe('import service', () => {
         expect(entries[idx].startDateTime).toBe(configData.startDateTime);
         expect(entries[idx].enabled).toBe(configData.enabled);
       });
+    });
+
+    it('should update partially collection type', async () => {
+      const SLUG = SLUGS.COLLECTION_TYPE;
+
+      const CONFIG_CREATE = {
+        [SLUG]: [generateData(SLUG, { id: 1 })],
+      };
+
+      await Promise.all(CONFIG_CREATE[SLUG].map((datum) => strapi.entityService.create(SLUG, { data: datum })));
+
+      const CONFIG_UPDATE = {
+        [SLUG]: [pick(generateData(SLUG, { id: 1 }), ['id', 'description', 'startDateTime'])],
+      };
+
+      const fileContent = buildJsonV2FileContent(CONFIG_UPDATE);
+
+      const { failures } = await getService('import').importDataV2(fileContent, { slug: SLUG, user: {}, idField: 'id' });
+
+      const entries = await strapi.db.query(SLUG).findMany();
+
+      const [entry] = entries;
+
+      expect(failures.length).toBe(0);
+      expect(entries.length).toBe(CONFIG_UPDATE[SLUG].length);
+      expect(entry.id).toBe(CONFIG_CREATE[SLUG][0].id);
+      expect(entry.title).toBe(CONFIG_CREATE[SLUG][0].title);
+      expect(entry.description).toBe(CONFIG_UPDATE[SLUG][0].description);
+      expect(entry.startDateTime).toBe(CONFIG_UPDATE[SLUG][0].startDateTime);
+      expect(entry.enabled).toBe(CONFIG_CREATE[SLUG][0].enabled);
     });
 
     it('should create single type', async () => {
