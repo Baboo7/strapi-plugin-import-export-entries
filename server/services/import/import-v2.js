@@ -172,22 +172,15 @@ const updateOrCreateCollectionType = async (user, slug, datum, idField) => {
   }
   const where = whereBuilder.get();
 
-  const shouldFindEntryId = idField !== 'id' && datum[idField];
-  if (shouldFindEntryId) {
-    delete datum.id;
-    let entry = await strapi.db.query(slug).findOne({ where });
-    datum.id = entry?.id;
+  let entry = await strapi.db.query(slug).findOne({ where });
+  if (entry) {
+    datum.id = entry.id;
   }
 
-  let entry;
-  if (!datum.id) {
-    entry = await strapi.entityService.create(slug, { data: datum });
+  if (!entry) {
+    await strapi.entityService.create(slug, { data: datum });
   } else {
-    entry = await strapi.entityService.update(slug, datum.id, { data: datum });
-
-    if (!entry) {
-      entry = await strapi.entityService.create(slug, { data: datum });
-    }
+    await strapi.entityService.update(slug, datum.id, { data: datum });
   }
 };
 
