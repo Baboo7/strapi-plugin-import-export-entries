@@ -21,6 +21,13 @@ Import/Export data from and to your database in just few clicks.
 - Download files or copy exported data to clipboard
 - Filter & sort data using Content Manager filters & sorting
 
+### Known Limitations
+
+- ⚠️ Importing localized collection types only import for the default locale (import works for single types)
+- ⚠️ Importing components do not link them to their entry
+
+At the moment, components, dynamic zones and media are not unit tested. Tests will be implemented in a near future to improve quality and development speed.
+
 ## Screenshots
 
 <p align="center">
