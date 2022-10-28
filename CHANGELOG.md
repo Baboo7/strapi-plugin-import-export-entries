@@ -2,6 +2,29 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [1.17.1](https://github.com/Baboo7/strapi-plugin-import-export-entries/compare/v1.17.0...v1.17.1) (2022-10-28)
+
+### ⚡️ Features
+
+- **package.json:** Enable plugin for node 18 ([eb532cf](https://github.com/Baboo7/strapi-plugin-import-export-entries/commits/eb532cf6965b01a104ceb93169d8ea7cb86ddb24))
+
+### 🧪 Tests
+
+- **import-v2:** Test partial update of collection type ([3a2e8b3](https://github.com/Baboo7/strapi-plugin-import-export-entries/commits/3a2e8b393936846b13bb583e0b5d701d5a18b4fd))
+
+### 🐞 Bug Fixes
+
+- **import-v2:** Sync primary key sequence for postgres database ([5220b64](https://github.com/Baboo7/strapi-plugin-import-export-entries/commits/5220b6456169be6357c2e092cec13c0e4f8c310a))
+
+### 🛠 Refacto
+
+- **import-v2:** Find collection type entry before update ([ff6ef95](https://github.com/Baboo7/strapi-plugin-import-export-entries/commits/ff6ef95631f7cf8c9da1a03e76a54fbaebdca5cb))
+- **import-v2:** Remove id field for single type ([0070693](https://github.com/Baboo7/strapi-plugin-import-export-entries/commits/007069377be471f11c629e199c34fa4ec6e2e480))
+
+### 🧹 Chores
+
+- **README.md:** Add section about known limitations ([2fcfeae](https://github.com/Baboo7/strapi-plugin-import-export-entries/commits/2fcfeaec58442d94caccf940d92d1b906381caaa))
+
 ## [1.17.0](https://github.com/Baboo7/strapi-plugin-import-export-entries/compare/v1.16.2...v1.17.0) (2022-10-27)
 
 ### 🧹 Chores
