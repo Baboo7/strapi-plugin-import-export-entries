@@ -1,0 +1,24 @@
+{
+  "kind": "collectionType",
+  "collectionName": "collection_type_simples",
+  "info": {
+    "singularName": "collection-type-simple",
+    "pluralName": "collection-type-simples",
+    "displayName": "CollectionTypeSimple"
+  },
+  "pluginOptions": {},
+  "attributes": {
+    "title": {
+      "type": "string"
+    },
+    "description": {
+      "type": "richtext"
+    },
+    "startDateTime": {
+      "type": "datetime"
+    },
+    "enabled": {
+      "type": "boolean"
+    }
+  }
+}

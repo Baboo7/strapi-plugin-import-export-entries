@@ -6,7 +6,7 @@ const { getService, SLUGS, generateData } = require('../utils');
 describe('import service', () => {
   describe('json v2', () => {
     it('should create collection type', async () => {
-      const SLUG = SLUGS.COLLECTION_TYPE;
+      const SLUG = SLUGS.COLLECTION_TYPE_SIMPLE;
       const CONFIG = {
         [SLUG]: [generateData(SLUG, { id: 1 }), generateData(SLUG, { id: 2 })],
       };
@@ -34,7 +34,7 @@ describe('import service', () => {
     });
 
     it('should update partially collection type', async () => {
-      const SLUG = SLUGS.COLLECTION_TYPE;
+      const SLUG = SLUGS.COLLECTION_TYPE_SIMPLE;
 
       const CONFIG_CREATE = {
         [SLUG]: [generateData(SLUG, { id: 1 })],

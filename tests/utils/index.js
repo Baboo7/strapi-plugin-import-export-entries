@@ -6,6 +6,7 @@ const { faker } = FakerJs;
 
 const SLUGS = {
   COLLECTION_TYPE: 'api::collection-type.collection-type',
+  COLLECTION_TYPE_SIMPLE: 'api::collection-type.collection-type-simple',
   RELATION_A: 'api::with-relation.relation-a',
   RELATION_B: 'api::with-relation.relation-b',
   SINGLE_TYPE: 'api::single-type.single-type',
@@ -14,6 +15,15 @@ const SLUGS = {
 
 const generateData = (slug, customData = {}) => {
   if (slug === SLUGS.COLLECTION_TYPE) {
+    return {
+      title: faker.commerce.productName(),
+      description: faker.commerce.productDescription(),
+      startDateTime: faker.date.recent().toISOString(),
+      enabled: faker.datatype.boolean(),
+      ...customData,
+    };
+  }
+  if (slug === SLUGS.COLLECTION_TYPE_SIMPLE) {
     return {
       title: faker.commerce.productName(),
       description: faker.commerce.productDescription(),

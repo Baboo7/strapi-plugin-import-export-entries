@@ -3,7 +3,7 @@ const { getService, SLUGS, generateData } = require('../utils');
 
 describe('export service', () => {
   const CONFIG = {
-    [SLUGS.COLLECTION_TYPE]: [
+    [SLUGS.COLLECTION_TYPE_SIMPLE]: [
       {
         id: 1,
         title: 'my collection title',
@@ -41,21 +41,22 @@ describe('export service', () => {
 
   describe('json v2', () => {
     it('should export collection type', async () => {
-      await strapi.db.query(SLUGS.COLLECTION_TYPE).createMany({
-        data: [...CONFIG[SLUGS.COLLECTION_TYPE]],
+      const SLUG = SLUGS.COLLECTION_TYPE_SIMPLE;
+      await strapi.db.query(SLUG).createMany({
+        data: [...CONFIG[SLUG]],
       });
 
-      const dataRaw = await getService('export').exportDataV2({ slug: SLUGS.COLLECTION_TYPE });
+      const dataRaw = await getService('export').exportDataV2({ slug: SLUG });
 
       const { data } = JSON.parse(dataRaw);
 
-      expect(Object.values(data[SLUGS.COLLECTION_TYPE]).length).toBe(CONFIG[SLUGS.COLLECTION_TYPE].length);
-      CONFIG[SLUGS.COLLECTION_TYPE].forEach((configData) => {
-        expect(data[SLUGS.COLLECTION_TYPE][configData.id].id).toBe(configData.id);
-        expect(data[SLUGS.COLLECTION_TYPE][configData.id].title).toBe(configData.title);
-        expect(data[SLUGS.COLLECTION_TYPE][configData.id].description).toBe(configData.description);
-        expect(data[SLUGS.COLLECTION_TYPE][configData.id].startDateTime).toBe(configData.startDateTime);
-        expect(data[SLUGS.COLLECTION_TYPE][configData.id].enabled).toBe(configData.enabled);
+      expect(Object.values(data[SLUG]).length).toBe(CONFIG[SLUG].length);
+      CONFIG[SLUG].forEach((configData) => {
+        expect(data[SLUG][configData.id].id).toBe(configData.id);
+        expect(data[SLUG][configData.id].title).toBe(configData.title);
+        expect(data[SLUG][configData.id].description).toBe(configData.description);
+        expect(data[SLUG][configData.id].startDateTime).toBe(configData.startDateTime);
+        expect(data[SLUG][configData.id].enabled).toBe(configData.enabled);
       });
     });
 
