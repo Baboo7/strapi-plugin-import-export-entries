@@ -214,6 +214,64 @@ describe('import service', () => {
       });
     });
 
+    it('should create collection type with component', async () => {
+      const SLUG = SLUGS.COLLECTION_TYPE_SIMPLE;
+      const CONFIG = {
+        [SLUG]: [generateData(SLUG, { id: 1, component: 1 }), generateData(SLUG, { id: 2, component: 2 })],
+        [SLUGS.COMPONENT_COMPONENT]: [generateData(SLUGS.COMPONENT_COMPONENT, { id: 1 }), generateData(SLUGS.COMPONENT_COMPONENT, { id: 2 })],
+      };
+
+      const fileContent = buildJsonV2FileContent(CONFIG);
+
+      const { failures } = await getService('import').importDataV2(fileContent, { slug: SLUG, user: {}, idField: 'id' });
+
+      const entries = await strapi.db.query(SLUG).findMany({ populate: true });
+
+      expect(failures.length).toBe(0);
+      expect(entries.length).toBe(CONFIG[SLUG].length);
+      entries.forEach((entry, idx) => {
+        const configData = CONFIG[SLUG][idx];
+        const componentConfigData = CONFIG[SLUGS.COMPONENT_COMPONENT][idx];
+        expect(entry.id).toBe(configData.id);
+        expect(entry.title).toBe(configData.title);
+        expect(entry.description).toBe(configData.description);
+        expect(entry.startDateTime).toBe(configData.startDateTime);
+        expect(entry.enabled).toBe(configData.enabled);
+        expect(entry.component.id).toBe(componentConfigData.id);
+        expect(entry.component.name).toBe(componentConfigData.name);
+        expect(entry.component.description).toBe(componentConfigData.description);
+      });
+    });
+
+    it('should create collection type with component repeatable', async () => {
+      const SLUG = SLUGS.COLLECTION_TYPE_SIMPLE;
+      const CONFIG = {
+        [SLUG]: [generateData(SLUG, { id: 1, componentRepeatable: [1, 2] })],
+        [SLUGS.COMPONENT_COMPONENT]: [generateData(SLUGS.COMPONENT_COMPONENT, { id: 1 }), generateData(SLUGS.COMPONENT_COMPONENT, { id: 2 })],
+      };
+
+      const fileContent = buildJsonV2FileContent(CONFIG);
+
+      const { failures } = await getService('import').importDataV2(fileContent, { slug: SLUG, user: {}, idField: 'id' });
+
+      const entries = await strapi.db.query(SLUG).findMany({ populate: true });
+
+      expect(failures.length).toBe(0);
+      expect(entries.length).toBe(CONFIG[SLUG].length);
+      const [entry] = entries;
+      expect(entry.id).toBe(CONFIG[SLUG][0].id);
+      expect(entry.title).toBe(CONFIG[SLUG][0].title);
+      expect(entry.description).toBe(CONFIG[SLUG][0].description);
+      expect(entry.startDateTime).toBe(CONFIG[SLUG][0].startDateTime);
+      expect(entry.enabled).toBe(CONFIG[SLUG][0].enabled);
+      expect(entry.componentRepeatable[0].id).toBe(CONFIG[SLUGS.COMPONENT_COMPONENT][0].id);
+      expect(entry.componentRepeatable[0].name).toBe(CONFIG[SLUGS.COMPONENT_COMPONENT][0].name);
+      expect(entry.componentRepeatable[0].description).toBe(CONFIG[SLUGS.COMPONENT_COMPONENT][0].description);
+      expect(entry.componentRepeatable[1].id).toBe(CONFIG[SLUGS.COMPONENT_COMPONENT][1].id);
+      expect(entry.componentRepeatable[1].name).toBe(CONFIG[SLUGS.COMPONENT_COMPONENT][1].name);
+      expect(entry.componentRepeatable[1].description).toBe(CONFIG[SLUGS.COMPONENT_COMPONENT][1].description);
+    });
+
     it('should create single type', async () => {
       const SLUG = SLUGS.SINGLE_TYPE_SIMPLE;
       const CONFIG = {
@@ -381,6 +439,61 @@ describe('import service', () => {
         expect(entry.locale).toBe(createConfigData.locale);
         expect(entry.localizations.sort()).toEqual(entriesIds.filter((id) => id !== entry.id).sort());
       });
+    });
+
+    it('should create single type with component', async () => {
+      const SLUG = SLUGS.SINGLE_TYPE_SIMPLE;
+      const CONFIG = {
+        [SLUG]: [generateData(SLUG, { id: 1, component: 1 })],
+        [SLUGS.COMPONENT_COMPONENT]: [generateData(SLUGS.COMPONENT_COMPONENT, { id: 1 })],
+      };
+
+      const fileContent = buildJsonV2FileContent(CONFIG);
+
+      const { failures } = await getService('import').importDataV2(fileContent, { slug: SLUG, user: {}, idField: 'id' });
+
+      const entries = await strapi.db.query(SLUG).findMany({ populate: true });
+
+      expect(failures.length).toBe(0);
+      expect(entries.length).toBe(CONFIG[SLUG].length);
+      const [entry] = entries;
+      const configData = CONFIG[SLUG][0];
+      const componentConfigData = CONFIG[SLUGS.COMPONENT_COMPONENT][0];
+      expect(entry.id).toBe(configData.id);
+      expect(entry.title).toBe(configData.title);
+      expect(entry.description).toBe(configData.description);
+      expect(entry.component.id).toBe(componentConfigData.id);
+      expect(entry.component.name).toBe(componentConfigData.name);
+      expect(entry.component.description).toBe(componentConfigData.description);
+    });
+
+    it('should create single type with component repeatable', async () => {
+      const SLUG = SLUGS.SINGLE_TYPE_SIMPLE;
+      const CONFIG = {
+        [SLUG]: [generateData(SLUG, { id: 1, componentRepeatable: [1, 2] })],
+        [SLUGS.COMPONENT_COMPONENT]: [generateData(SLUGS.COMPONENT_COMPONENT, { id: 1 }), generateData(SLUGS.COMPONENT_COMPONENT, { id: 2 })],
+      };
+
+      const fileContent = buildJsonV2FileContent(CONFIG);
+
+      const { failures } = await getService('import').importDataV2(fileContent, { slug: SLUG, user: {}, idField: 'id' });
+
+      const entries = await strapi.db.query(SLUG).findMany({ populate: true });
+
+      expect(failures.length).toBe(0);
+      expect(entries.length).toBe(CONFIG[SLUG].length);
+      const [entry] = entries;
+      expect(entry.id).toBe(CONFIG[SLUG][0].id);
+      expect(entry.title).toBe(CONFIG[SLUG][0].title);
+      expect(entry.description).toBe(CONFIG[SLUG][0].description);
+      expect(entry.startDateTime).toBe(CONFIG[SLUG][0].startDateTime);
+      expect(entry.enabled).toBe(CONFIG[SLUG][0].enabled);
+      expect(entry.componentRepeatable[0].id).toBe(CONFIG[SLUGS.COMPONENT_COMPONENT][0].id);
+      expect(entry.componentRepeatable[0].name).toBe(CONFIG[SLUGS.COMPONENT_COMPONENT][0].name);
+      expect(entry.componentRepeatable[0].description).toBe(CONFIG[SLUGS.COMPONENT_COMPONENT][0].description);
+      expect(entry.componentRepeatable[1].id).toBe(CONFIG[SLUGS.COMPONENT_COMPONENT][1].id);
+      expect(entry.componentRepeatable[1].name).toBe(CONFIG[SLUGS.COMPONENT_COMPONENT][1].name);
+      expect(entry.componentRepeatable[1].description).toBe(CONFIG[SLUGS.COMPONENT_COMPONENT][1].description);
     });
 
     it('should import relations in any order', async () => {

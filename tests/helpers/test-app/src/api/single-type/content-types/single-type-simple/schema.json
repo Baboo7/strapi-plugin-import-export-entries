@@ -16,6 +16,16 @@
     },
     "description": {
       "type": "text"
+    },
+    "component": {
+      "type": "component",
+      "repeatable": false,
+      "component": "component.component"
+    },
+    "componentRepeatable": {
+      "type": "component",
+      "repeatable": true,
+      "component": "component.component"
     }
   }
 }
