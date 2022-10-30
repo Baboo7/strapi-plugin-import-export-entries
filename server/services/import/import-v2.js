@@ -44,7 +44,7 @@ const importDataV2 = async (fileContent, { slug, user, idField }) => {
         user,
         // Keep behavior of `idField` of version 1.
         ...(slugFromFile === slug ? { idField } : {}),
-        excludeRelations: true,
+        importStage: 'simpleAttributes',
       }).then((res) => res.failures);
     }
     failures = [...failures, ...(slugFailures || [])];
@@ -61,7 +61,7 @@ const importDataV2 = async (fileContent, { slug, user, idField }) => {
         user,
         // Keep behavior of `idField` of version 1.
         ...(slugFromFile === slug ? { idField } : {}),
-        onlyRelations: true,
+        importStage: 'relationAttributes',
       }).then((res) => res.failures);
     }
     failures = [...failures, ...(slugFailures || [])];
@@ -104,11 +104,9 @@ const importMedia = async (fileData, { user }) => {
  * Import data.
  * @param {Array<Object>} data
  * @param {Object} importOptions
- * @param {boolean} [importOptions.excludeRelations]
- * @param {boolean} [importOptions.onlyRelations]
- * @returns
+ * @param {('simpleAttributes'|'relationAttributes')} [importOptions.importStage]
  */
-const importOtherSlug = async (data, { slug, user, idField, excludeRelations, onlyRelations }) => {
+const importOtherSlug = async (data, { slug, user, idField, importStage }) => {
   // Sort localized data with default locale first.
   await (async () => {
     const { isLocalized } = getModelConfig(slug);
@@ -130,7 +128,7 @@ const importOtherSlug = async (data, { slug, user, idField, excludeRelations, on
   for (let datum of data) {
     let res;
     try {
-      await updateOrCreate(user, slug, datum, idField, { excludeRelations, onlyRelations });
+      await updateOrCreate(user, slug, datum, idField, { importStage });
       res = { success: true };
     } catch (err) {
       strapi.log.error(err);
@@ -152,41 +150,42 @@ const importOtherSlug = async (data, { slug, user, idField, excludeRelations, on
  * @param {string} slug - Slug of the model.
  * @param {Object} datum - Data to update/create entries from.
  * @param {string} idField - Field used as unique identifier.
- * @returns Updated/created entry.
+ * @param {Object} importOptions
+ * @param {('simpleAttributes'|'relationAttributes')} [importOptions.importStage]
  */
-const updateOrCreate = async (user, slug, datum, idField = 'id', { excludeRelations, onlyRelations }) => {
+const updateOrCreate = async (user, slug, datum, idField = 'id', { importStage }) => {
   datum = cloneDeep(datum);
 
-  if (excludeRelations) {
+  if (importStage == 'simpleAttributes') {
     const attributeNames = getModelAttributes(slug, { filterOutType: ['component', 'dynamiczone', 'media', 'relation'], addIdAttribute: true })
       .map(({ name }) => name)
       .concat('localizations', 'locale');
     datum = pick(datum, attributeNames);
-  } else if (onlyRelations) {
+  } else if (importStage === 'relationAttributes') {
     const attributeNames = getModelAttributes(slug, { filterType: ['component', 'dynamiczone', 'media', 'relation'], addIdAttribute: true })
       .map(({ name }) => name)
       .concat('localizations', 'locale');
     datum = pick(datum, attributeNames);
-
-    // For compatibility with older file structure.
-    const componentAttributeNames = getModelAttributes(slug, { filterType: ['component'] }).map(({ name }) => name);
-    for (const componentName of componentAttributeNames) {
-      // If the component is an integer, then it's an id.
-      if (Number.isInteger(datum[componentName])) {
-        datum[componentName] = { id: datum[componentName] };
-      }
-    }
   }
 
   const model = getModel(slug);
   if (model.kind === 'singleType') {
-    await updateOrCreateSingleType(user, slug, datum);
+    await updateOrCreateSingleType(user, slug, datum, { importStage });
   } else {
-    await updateOrCreateCollectionType(user, slug, datum, idField);
+    await updateOrCreateCollectionType(user, slug, datum, { idField, importStage });
   }
 };
 
-const updateOrCreateCollectionType = async (user, slug, datum, idField) => {
+/**
+ * Update or create entries for a given model.
+ * @param {Object} user - User importing the data.
+ * @param {string} slug - Slug of the model.
+ * @param {Object} datum - Data to update/create entries from.
+ * @param {Object} importOptions
+ * @param {string} [importOptions.idField] - Field used as unique identifier.
+ * @param {('simpleAttributes'|'relationAttributes')} [importOptions.importStage]
+ */
+const updateOrCreateCollectionType = async (user, slug, datum, { idField, importStage }) => {
   const { isLocalized } = getModelConfig(slug);
 
   const whereBuilder = new ObjectBuilder();
@@ -197,14 +196,11 @@ const updateOrCreateCollectionType = async (user, slug, datum, idField) => {
 
   if (!isLocalized) {
     let entry = await strapi.db.query(slug).findOne({ where });
-    if (entry) {
-      datum.id = entry.id;
-    }
 
     if (!entry) {
       await strapi.entityService.create(slug, { data: datum });
     } else {
-      await strapi.entityService.update(slug, datum.id, { data: datum });
+      await updateEntry(slug, entry.id, datum, { importStage });
     }
   } else {
     if (!datum.locale) {
@@ -272,7 +268,7 @@ const updateOrCreateCollectionType = async (user, slug, datum, idField) => {
   }
 };
 
-const updateOrCreateSingleType = async (user, slug, datum) => {
+const updateOrCreateSingleType = async (user, slug, datum, { importStage }) => {
   const { isLocalized } = getModelConfig(slug);
 
   if (!isLocalized) {
@@ -282,7 +278,7 @@ const updateOrCreateSingleType = async (user, slug, datum) => {
     if (!entry) {
       await strapi.entityService.create(slug, { data: datum });
     } else {
-      await strapi.entityService.update(slug, entry.id, { data: datum });
+      await updateEntry(slug, entry.id, datum, { importStage });
     }
   } else {
     const defaultLocale = await strapi.plugin('i18n').service('locales').getDefaultLocale();
@@ -313,6 +309,16 @@ const updateOrCreateSingleType = async (user, slug, datum) => {
       const createHandler = strapi.plugin('i18n').service('core-api').createCreateLocalizationHandler(getModel(slug));
       await createHandler({ id: entryDefaultLocale.id, data: datumLocale });
     }
+  }
+};
+
+const updateEntry = async (slug, id, datum, { importStage }) => {
+  datum = omit(datum, ['id']);
+
+  if (importStage === 'simpleAttributes') {
+    await strapi.entityService.update(slug, id, { data: datum });
+  } else if (importStage === 'relationAttributes') {
+    await strapi.db.query(slug).update({ where: { id }, data: datum });
   }
 };
 
