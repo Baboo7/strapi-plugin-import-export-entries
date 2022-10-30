@@ -2,6 +2,27 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [1.17.2](https://github.com/Baboo7/strapi-plugin-import-export-entries/compare/v1.17.1...v1.17.2) (2022-10-30)
+
+### 🧹 Chores
+
+- **package-lock.json:** Update node engine ([1dfff19](https://github.com/Baboo7/strapi-plugin-import-export-entries/commits/1dfff19112c25a85635b1afc5b8cc171f411a89b))
+
+### 🐞 Bug Fixes
+
+- **import-v2:** Import collection types localized ([4a2c913](https://github.com/Baboo7/strapi-plugin-import-export-entries/commits/4a2c9131a27e1c3f3e0175cc3aa25cf7751014f3))
+
+### 🛠 Refacto
+
+- **import:** Factorize slug in tests ([0edbccb](https://github.com/Baboo7/strapi-plugin-import-export-entries/commits/0edbccb86b6d8a176dd92fa9c21c8e8b16de1a00))
+
+### 🧪 Tests
+
+- **collection-type:** Should create localized collection type ([efa58f5](https://github.com/Baboo7/strapi-plugin-import-export-entries/commits/efa58f52f66b883d447bc7725a11b6cfa95eea83))
+- **export-v2:** Should export collection type localized ([454e2d3](https://github.com/Baboo7/strapi-plugin-import-export-entries/commits/454e2d345b0cadaca40e69289a8db4e762ccc6ab))
+- **import-v2:** Should import collection type localized ([32f552a](https://github.com/Baboo7/strapi-plugin-import-export-entries/commits/32f552a9954e0c8c9af5778a4621b1fb4bae072c))
+- **import-v2:** Should update partially single types localized ([4618509](https://github.com/Baboo7/strapi-plugin-import-export-entries/commits/4618509adda06e08f58f95741ec3fce778a5c380))
+
 ### [1.17.1](https://github.com/Baboo7/strapi-plugin-import-export-entries/compare/v1.17.0...v1.17.1) (2022-10-28)
 
 ### ⚡️ Features
@@ -25,7 +46,7 @@ All notable changes to this project will be documented in this file. See [standa
 
 - **README.md:** Add section about known limitations ([2fcfeae](https://github.com/Baboo7/strapi-plugin-import-export-entries/commits/2fcfeaec58442d94caccf940d92d1b906381caaa))
 
-## [1.17.0](https://github.com/Baboo7/strapi-plugin-import-export-entries/compare/v1.16.2...v1.17.0) (2022-10-27)
+### [1.17.0](https://github.com/Baboo7/strapi-plugin-import-export-entries/compare/v1.16.2...v1.17.0) (2022-10-27)
 
 ### 🧹 Chores
 
