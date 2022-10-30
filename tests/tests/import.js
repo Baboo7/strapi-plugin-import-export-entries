@@ -1,5 +1,6 @@
 const map = require('lodash/map');
 const pick = require('lodash/pick');
+const { getModel } = require('../../server/utils/models');
 
 const { getService, SLUGS, generateData } = require('../utils');
 
@@ -61,6 +62,156 @@ describe('import service', () => {
       expect(entry.description).toBe(CONFIG_UPDATE[SLUG][0].description);
       expect(entry.startDateTime).toBe(CONFIG_UPDATE[SLUG][0].startDateTime);
       expect(entry.enabled).toBe(CONFIG_CREATE[SLUG][0].enabled);
+    });
+
+    it('should create collection type localized', async () => {
+      const SLUG = SLUGS.COLLECTION_TYPE;
+      const CONFIG = {
+        [SLUG]: [generateData(SLUG, { id: 1, locale: 'en' })],
+      };
+
+      const fileContent = buildJsonV2FileContent(CONFIG);
+
+      const { failures } = await getService('import').importDataV2(fileContent, { slug: SLUG, user: {}, idField: 'id' });
+
+      const entries = await strapi.entityService.findMany(SLUG, { populate: '*' });
+
+      expect(failures.length).toBe(0);
+      expect(entries.length).toBe(CONFIG[SLUG].length);
+      entries.forEach((entry, idx) => {
+        const configData = CONFIG[SLUG][idx];
+        if (configData.id) {
+          expect(entry.id).toBe(configData.id);
+        }
+        expect(entry.title).toBe(configData.title);
+        expect(entry.description).toBe(configData.description);
+        expect(entry.locale).toBe(configData.locale);
+        expect(entry.localizations).toEqual([]);
+      });
+    });
+
+    it('should update collection type localized', async () => {
+      const SLUG = SLUGS.COLLECTION_TYPE;
+
+      await strapi.entityService.create(SLUG, { data: generateData(SLUG, { id: 1, locale: 'en' }) });
+
+      const CONFIG = {
+        [SLUG]: [generateData(SLUG, { id: 1, locale: 'en' })],
+      };
+
+      const fileContent = buildJsonV2FileContent(CONFIG);
+
+      const { failures } = await getService('import').importDataV2(fileContent, { slug: SLUG, user: {}, idField: 'id' });
+
+      const entries = await strapi.entityService.findMany(SLUG, { populate: '*' });
+
+      expect(failures.length).toBe(0);
+      expect(entries.length).toBe(CONFIG[SLUG].length);
+      entries.forEach((entry, idx) => {
+        const configData = CONFIG[SLUG][idx];
+        if (configData.id) {
+          expect(entry.id).toBe(configData.id);
+        }
+        expect(entry.title).toBe(configData.title);
+        expect(entry.description).toBe(configData.description);
+        expect(entry.locale).toBe(configData.locale);
+        expect(entry.localizations).toEqual([]);
+      });
+    });
+
+    it('should create collection type localized with multiple locales', async () => {
+      const SLUG = SLUGS.COLLECTION_TYPE;
+      const CONFIG = {
+        [SLUG]: [
+          generateData(SLUG, { id: 2, locale: 'en' }),
+          generateData(SLUG, { id: 1, locale: 'fr', localizations: [2] }),
+          generateData(SLUG, { id: 3, locale: 'it', localizations: [2] }),
+        ],
+      };
+
+      const fileContent = buildJsonV2FileContent(CONFIG);
+
+      const { failures } = await getService('import').importDataV2(fileContent, { slug: SLUG, user: {}, idField: 'id' });
+
+      const entries = await strapi.db
+        .query(SLUG)
+        .findMany({ populate: ['localizations'] })
+        .then((entries) =>
+          entries.map((e) => {
+            e.localizations = e.localizations.map((l) => l.id);
+            return e;
+          }),
+        );
+      const entriesIds = entries.map((e) => e.id);
+
+      expect(failures.length).toBe(0);
+      entries.forEach((entry, idx) => {
+        const configData = CONFIG[SLUG][idx];
+        // Atm it is not possible to set the `id` for locales that are not the default one.
+        if (entry.locale === 'en') {
+          expect(entry.id).toBe(configData.id);
+        }
+        expect(entry.title).toBe(configData.title);
+        expect(entry.description).toBe(configData.description);
+        expect(entry.locale).toBe(configData.locale);
+        expect(entry.localizations.sort()).toEqual(entriesIds.filter((id) => id !== entry.id).sort());
+      });
+    });
+
+    it('should update partially collection type localized with multiple locales', async () => {
+      const SLUG = SLUGS.COLLECTION_TYPE;
+
+      const CONFIG_CREATE = {
+        [SLUG]: [generateData(SLUG, { id: 2, locale: 'en' }), generateData(SLUG, { id: 1, locale: 'fr' }), generateData(SLUG, { id: 3, locale: 'it' })],
+      };
+
+      // Create data.
+      await (async () => {
+        await strapi.db.query(SLUG).create({ data: CONFIG_CREATE[SLUG][0] });
+        const createHandler = strapi.plugin('i18n').service('core-api').createCreateLocalizationHandler(getModel(SLUG));
+        await createHandler({ id: CONFIG_CREATE[SLUG][0].id, data: CONFIG_CREATE[SLUG][1] });
+        await createHandler({ id: CONFIG_CREATE[SLUG][0].id, data: CONFIG_CREATE[SLUG][2] });
+      })();
+
+      const CONFIG_UPDATE = {
+        [SLUG]: [
+          pick(generateData(SLUG, { id: 2, locale: 'en' }), ['id', 'locale', 'localizations', 'description', 'startDateTime']),
+          pick(generateData(SLUG, { id: 1, locale: 'fr', localizations: [2] }), ['id', 'locale', 'localizations', 'description', 'startDateTime']),
+          pick(generateData(SLUG, { id: 3, locale: 'it', localizations: [2] }), ['id', 'locale', 'localizations', 'description', 'startDateTime']),
+        ],
+      };
+
+      const fileContent = buildJsonV2FileContent(CONFIG_UPDATE);
+
+      const { failures } = await getService('import').importDataV2(fileContent, { slug: SLUG, user: {}, idField: 'id' });
+
+      const entries = await strapi.db
+        .query(SLUG)
+        .findMany({ populate: ['localizations'] })
+        .then((entries) =>
+          entries.map((e) => {
+            e.localizations = e.localizations.map((l) => l.id);
+            return e;
+          }),
+        );
+      const entriesIds = entries.map((e) => e.id);
+
+      expect(failures.length).toBe(0);
+      entries.forEach((entry) => {
+        const createConfigData = CONFIG_CREATE[SLUG].find((c) => c.locale === entry.locale);
+        const updateConfigData = CONFIG_UPDATE[SLUG].find((c) => c.locale === entry.locale);
+
+        // Atm it is not possible to set the `id` for locales that are not the default one.
+        if (entry.locale === 'en') {
+          expect(entry.id).toBe(createConfigData.id);
+        }
+        expect(entry.title).toBe(createConfigData.title);
+        expect(entry.description).toBe(updateConfigData.description);
+        expect(entry.startDateTime).toBe(updateConfigData.startDateTime);
+        expect(entry.enabled).toBe(createConfigData.enabled);
+        expect(entry.locale).toBe(createConfigData.locale);
+        expect(entry.localizations.sort()).toEqual(entriesIds.filter((id) => id !== entry.id).sort());
+      });
     });
 
     it('should create single type', async () => {
