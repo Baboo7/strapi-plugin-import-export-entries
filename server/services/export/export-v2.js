@@ -96,15 +96,6 @@ const findEntriesForHierarchy = async (slug, hierarchy, deepness, { search, ids 
       return dynamicZoneEntries;
     };
 
-    const flattenEntryComponent = (componentEntry) => {
-      if (isObjectSafe(componentEntry)) {
-        return {
-          id: componentEntry.id,
-        };
-      }
-      return componentEntry;
-    };
-
     const flattenEntryCommon = (entry) => {
       if (entry == null) {
         return null;
@@ -125,7 +116,7 @@ const findEntriesForHierarchy = async (slug, hierarchy, deepness, { search, ids 
       const attributes = getModelAttributes(slug, { filterType: ['component', 'dynamiczone', 'media', 'relation'] });
 
       attributes.forEach((attribute) => {
-        const flattener = attribute.type === 'dynamiczone' ? flattenEntryDynamicZone : attribute.type === 'component' ? flattenEntryComponent : flattenEntryCommon;
+        const flattener = attribute.type === 'dynamiczone' ? flattenEntryDynamicZone : flattenEntryCommon;
         entry[attribute.name] = flattener(entry[attribute.name]);
       });
 
