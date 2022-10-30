@@ -131,3 +131,4 @@ dist
 
 .DS_Store
 .strapi-updater.json
+data.sqlite
