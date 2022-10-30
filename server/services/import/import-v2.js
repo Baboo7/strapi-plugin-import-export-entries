@@ -109,6 +109,23 @@ const importMedia = async (fileData, { user }) => {
  * @returns
  */
 const importOtherSlug = async (data, { slug, user, idField, excludeRelations, onlyRelations }) => {
+  // Sort localized data with default locale first.
+  await (async () => {
+    const { isLocalized } = getModelConfig(slug);
+
+    if (isLocalized) {
+      const defaultLocale = await strapi.plugin('i18n').service('locales').getDefaultLocale();
+      data = data.sort((dataA, dataB) => {
+        if (dataA?.locale === defaultLocale && dataB?.locale === defaultLocale) {
+          return 0;
+        } else if (dataA?.locale === defaultLocale) {
+          return -1;
+        }
+        return 1;
+      });
+    }
+  })();
+
   const processed = [];
   for (let datum of data) {
     let res;
@@ -141,10 +158,14 @@ const updateOrCreate = async (user, slug, datum, idField = 'id', { excludeRelati
   datum = cloneDeep(datum);
 
   if (excludeRelations) {
-    const attributeNames = getModelAttributes(slug, { filterOutType: ['component', 'dynamiczone', 'media', 'relation'], addIdAttribute: true }).map(({ name }) => name);
+    const attributeNames = getModelAttributes(slug, { filterOutType: ['component', 'dynamiczone', 'media', 'relation'], addIdAttribute: true })
+      .map(({ name }) => name)
+      .concat('localizations', 'locale');
     datum = pick(datum, attributeNames);
   } else if (onlyRelations) {
-    const attributeNames = getModelAttributes(slug, { filterType: ['component', 'dynamiczone', 'media', 'relation'], addIdAttribute: true }).map(({ name }) => name);
+    const attributeNames = getModelAttributes(slug, { filterType: ['component', 'dynamiczone', 'media', 'relation'], addIdAttribute: true })
+      .map(({ name }) => name)
+      .concat('localizations', 'locale');
     datum = pick(datum, attributeNames);
 
     // For compatibility with older file structure.
@@ -166,21 +187,88 @@ const updateOrCreate = async (user, slug, datum, idField = 'id', { excludeRelati
 };
 
 const updateOrCreateCollectionType = async (user, slug, datum, idField) => {
+  const { isLocalized } = getModelConfig(slug);
+
   const whereBuilder = new ObjectBuilder();
   if (datum[idField]) {
     whereBuilder.extend({ [idField]: datum[idField] });
   }
   const where = whereBuilder.get();
 
-  let entry = await strapi.db.query(slug).findOne({ where });
-  if (entry) {
-    datum.id = entry.id;
-  }
+  if (!isLocalized) {
+    let entry = await strapi.db.query(slug).findOne({ where });
+    if (entry) {
+      datum.id = entry.id;
+    }
 
-  if (!entry) {
-    await strapi.entityService.create(slug, { data: datum });
+    if (!entry) {
+      await strapi.entityService.create(slug, { data: datum });
+    } else {
+      await strapi.entityService.update(slug, datum.id, { data: datum });
+    }
   } else {
-    await strapi.entityService.update(slug, datum.id, { data: datum });
+    if (!datum.locale) {
+      throw new Error(`No locale set to import entry for slug ${slug} (data ${JSON.stringify(datum)})`);
+    }
+
+    const defaultLocale = await strapi.plugin('i18n').service('locales').getDefaultLocale();
+    const isDatumInDefaultLocale = datum.locale === defaultLocale;
+
+    let entryDefaultLocale = null;
+    let entry = await strapi.db.query(slug).findOne({ where, populate: ['localizations'] });
+    if (isDatumInDefaultLocale) {
+      entryDefaultLocale = entry;
+    } else {
+      if (entry) {
+        // If `entry` has been found, `entry` holds the data for the default locale and
+        // the data for other locales in its `localizations` attribute.
+        const localizedEntries = [entry, ...(entry?.localizations || [])];
+        entryDefaultLocale = localizedEntries.find((e) => e.locale === defaultLocale);
+        entry = localizedEntries.find((e) => e.locale === datum.locale);
+      } else {
+        // Otherwise try to find entry for default locale through localized siblings.
+        let localizationIdx = 0;
+        const localizations = datum?.localizations || [];
+        while (localizationIdx < localizations.length && !entryDefaultLocale && !entry) {
+          const id = localizations[localizationIdx];
+          const localizedEntry = await strapi.db.query(slug).findOne({ where: { id }, populate: ['localizations'] });
+          const localizedEntries = localizedEntry != null ? [localizedEntry, ...(localizedEntry?.localizations || [])] : [];
+          if (!entryDefaultLocale) {
+            entryDefaultLocale = localizedEntries.find((e) => e.locale === defaultLocale);
+          }
+          if (!entry) {
+            entry = localizedEntries.find((e) => e.locale === datum.locale);
+          }
+          localizationIdx += 1;
+        }
+      }
+    }
+
+    datum = omit(datum, ['localizations']);
+    if (isEmpty(omit(datum, ['id']))) {
+      return;
+    }
+
+    if (isDatumInDefaultLocale) {
+      if (!entryDefaultLocale) {
+        await strapi.entityService.create(slug, { data: datum });
+      } else {
+        await strapi.entityService.update(slug, entryDefaultLocale.id, { data: omit({ ...datum }, ['id']) });
+      }
+    } else {
+      if (!entryDefaultLocale) {
+        throw new Error(`Could not find default locale entry to import localization for slug ${slug} (data ${JSON.stringify(datum)})`);
+      }
+
+      datum = omit({ ...datum }, ['id']);
+
+      if (!entry) {
+        const createHandler = strapi.plugin('i18n').service('core-api').createCreateLocalizationHandler(getModel(slug));
+        await createHandler({ id: entryDefaultLocale.id, data: datum });
+      } else {
+        await strapi.entityService.update(slug, entry.id, { data: datum });
+      }
+    }
   }
 };
 
