@@ -60,7 +60,7 @@ describe('export service', () => {
       });
     });
 
-    it('should export collection type with multiple locales', async () => {
+    it('should export collection type localized with multiple locales', async () => {
       const SLUG = SLUGS.COLLECTION_TYPE;
       const CONFIG = {
         [SLUG]: [generateData(SLUG, { id: 1, locale: 'en' }), generateData(SLUG, { locale: 'fr' }), generateData(SLUG, { locale: 'it' })],
@@ -93,7 +93,65 @@ describe('export service', () => {
       });
     });
 
-    it('should export single type', async () => {
+    it('should export collection type with component', async () => {
+      const SLUG = SLUGS.COLLECTION_TYPE_SIMPLE;
+
+      const CONFIG = {
+        [SLUG]: [generateData(SLUG, { id: 1, component: generateData(SLUGS.COMPONENT_COMPONENT, { id: 1 }) })],
+      };
+
+      await Promise.all(CONFIG[SLUG].map((datum) => strapi.entityService.create(SLUG, { data: datum })));
+
+      const dataRaw = await getService('export').exportDataV2({ slug: SLUG });
+      const { data } = JSON.parse(dataRaw);
+
+      expect(Object.keys(data[SLUG]).length).toBe(1);
+      expect(Object.keys(data[SLUGS.COMPONENT_COMPONENT]).length).toBe(1);
+      CONFIG[SLUG].forEach((config) => {
+        const entry = data[SLUG][config.id];
+        const componentEntry = data[SLUGS.COMPONENT_COMPONENT][config.component.id];
+        expect(entry.id).toBe(config.id);
+        expect(entry.title).toBe(config.title);
+        expect(entry.description).toBe(config.description);
+        expect(entry.startDateTime).toBe(config.startDateTime);
+        expect(entry.enabled).toBe(config.enabled);
+        expect(entry.component).toBe(config.component.id);
+        expect(componentEntry.id).toBe(config.component.id);
+        expect(componentEntry.name).toBe(config.component.name);
+        expect(componentEntry.description).toBe(config.component.description);
+      });
+    });
+
+    it('should export collection type with component repeatable', async () => {
+      const SLUG = SLUGS.COLLECTION_TYPE_SIMPLE;
+
+      const CONFIG = {
+        [SLUG]: [generateData(SLUG, { id: 1, componentRepeatable: [generateData(SLUGS.COMPONENT_COMPONENT, { id: 1 }), generateData(SLUGS.COMPONENT_COMPONENT, { id: 2 })] })],
+      };
+
+      await Promise.all(CONFIG[SLUG].map((datum) => strapi.entityService.create(SLUG, { data: datum })));
+
+      const dataRaw = await getService('export').exportDataV2({ slug: SLUG });
+      const { data } = JSON.parse(dataRaw);
+
+      expect(Object.keys(data[SLUG]).length).toBe(1);
+      expect(Object.keys(data[SLUGS.COMPONENT_COMPONENT]).length).toBe(2);
+      CONFIG[SLUG].forEach((config) => {
+        const entry = data[SLUG][config.id];
+        expect(entry.id).toBe(config.id);
+        expect(entry.title).toBe(config.title);
+        expect(entry.description).toBe(config.description);
+        expect(entry.componentRepeatable).toEqual(config.componentRepeatable.map((c) => c.id));
+        config.componentRepeatable.forEach((componentConfig) => {
+          const componentEntry = data[SLUGS.COMPONENT_COMPONENT][componentConfig.id];
+          expect(componentEntry.id).toBe(componentConfig.id);
+          expect(componentEntry.name).toBe(componentConfig.name);
+          expect(componentEntry.description).toBe(componentConfig.description);
+        });
+      });
+    });
+
+    it('should export single type localized', async () => {
       const CONFIG = {
         [SLUGS.SINGLE_TYPE]: [generateData(SLUGS.SINGLE_TYPE, { id: 1, locale: 'en' })],
       };
@@ -114,7 +172,7 @@ describe('export service', () => {
       });
     });
 
-    it('should export single type with multiple locales', async () => {
+    it('should export single type localized with multiple locales', async () => {
       const CONFIG = {
         [SLUGS.SINGLE_TYPE]: [
           generateData(SLUGS.SINGLE_TYPE, { id: 1, locale: 'en' }),
@@ -145,6 +203,62 @@ describe('export service', () => {
         expect(entry.description).toBe(configData.description);
         expect(entry.locale).toBe(configData.locale);
         expect(entry.localizations.sort()).toEqual(entriesIds.filter((id) => id !== entry.id).sort());
+      });
+    });
+
+    it('should export single type with component', async () => {
+      const SLUG = SLUGS.SINGLE_TYPE_SIMPLE;
+
+      const CONFIG = {
+        [SLUG]: [generateData(SLUG, { id: 1, component: generateData(SLUGS.COMPONENT_COMPONENT, { id: 1 }) })],
+      };
+
+      await Promise.all(CONFIG[SLUG].map((datum) => strapi.entityService.create(SLUG, { data: datum })));
+
+      const dataRaw = await getService('export').exportDataV2({ slug: SLUG });
+      const { data } = JSON.parse(dataRaw);
+
+      expect(Object.keys(data[SLUG]).length).toBe(1);
+      expect(Object.keys(data[SLUGS.COMPONENT_COMPONENT]).length).toBe(1);
+      CONFIG[SLUG].forEach((config) => {
+        const entry = data[SLUG][config.id];
+        const componentEntry = data[SLUGS.COMPONENT_COMPONENT][config.component.id];
+        expect(entry.id).toBe(config.id);
+        expect(entry.title).toBe(config.title);
+        expect(entry.description).toBe(config.description);
+        expect(entry.component).toBe(config.component.id);
+        expect(componentEntry.id).toBe(config.component.id);
+        expect(componentEntry.name).toBe(config.component.name);
+        expect(componentEntry.description).toBe(config.component.description);
+      });
+    });
+
+    it('should export single type with component repeatable', async () => {
+      const SLUG = SLUGS.SINGLE_TYPE_SIMPLE;
+
+      const CONFIG = {
+        [SLUG]: [generateData(SLUG, { id: 1, componentRepeatable: [generateData(SLUGS.COMPONENT_COMPONENT, { id: 1 }), generateData(SLUGS.COMPONENT_COMPONENT, { id: 2 })] })],
+      };
+
+      await Promise.all(CONFIG[SLUG].map((datum) => strapi.entityService.create(SLUG, { data: datum })));
+
+      const dataRaw = await getService('export').exportDataV2({ slug: SLUG });
+      const { data } = JSON.parse(dataRaw);
+
+      expect(Object.keys(data[SLUG]).length).toBe(1);
+      expect(Object.keys(data[SLUGS.COMPONENT_COMPONENT]).length).toBe(2);
+      CONFIG[SLUG].forEach((config) => {
+        const entry = data[SLUG][config.id];
+        expect(entry.id).toBe(config.id);
+        expect(entry.title).toBe(config.title);
+        expect(entry.description).toBe(config.description);
+        expect(entry.componentRepeatable).toEqual(config.componentRepeatable.map((c) => c.id));
+        config.componentRepeatable.forEach((componentConfig) => {
+          const componentEntry = data[SLUGS.COMPONENT_COMPONENT][componentConfig.id];
+          expect(componentEntry.id).toBe(componentConfig.id);
+          expect(componentEntry.name).toBe(componentConfig.name);
+          expect(componentEntry.description).toBe(componentConfig.description);
+        });
       });
     });
   });
