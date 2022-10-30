@@ -17,8 +17,8 @@ const SLUGS = {
 const generateData = (slug, customData = {}) => {
   if (slug === SLUGS.COLLECTION_TYPE) {
     return {
-      title: faker.commerce.productName(),
-      description: faker.commerce.productDescription(),
+      title: faker.helpers.unique(faker.word.noun),
+      description: faker.helpers.unique(faker.word.noun),
       startDateTime: faker.date.recent().toISOString(),
       enabled: faker.datatype.boolean(),
       ...customData,
@@ -26,8 +26,8 @@ const generateData = (slug, customData = {}) => {
   }
   if (slug === SLUGS.COLLECTION_TYPE_SIMPLE) {
     return {
-      title: faker.commerce.productName(),
-      description: faker.commerce.productDescription(),
+      title: faker.helpers.unique(faker.word.noun),
+      description: faker.helpers.unique(faker.word.noun),
       startDateTime: faker.date.recent().toISOString(),
       enabled: faker.datatype.boolean(),
       ...customData,
@@ -42,27 +42,27 @@ const generateData = (slug, customData = {}) => {
   }
   if (slug === SLUGS.RELATION_A) {
     return {
-      name: faker.company.name(),
+      name: faker.helpers.unique(faker.word.noun),
       ...customData,
     };
   }
   if (slug === SLUGS.RELATION_B) {
     return {
-      name: faker.company.name(),
+      name: faker.helpers.unique(faker.word.noun),
       ...customData,
     };
   }
   if (slug === SLUGS.SINGLE_TYPE) {
     return {
-      title: faker.commerce.productName(),
-      description: faker.commerce.productDescription(),
+      title: faker.helpers.unique(faker.word.noun),
+      description: faker.helpers.unique(faker.word.noun),
       ...customData,
     };
   }
   if (slug === SLUGS.SINGLE_TYPE_SIMPLE) {
     return {
-      title: faker.commerce.productName(),
-      description: faker.commerce.productDescription(),
+      title: faker.helpers.unique(faker.word.noun),
+      description: faker.helpers.unique(faker.word.noun),
       ...customData,
     };
   }
