@@ -426,6 +426,61 @@ describe('import service', () => {
       expect(failures.length).toBeGreaterThanOrEqual(1);
       expect(entries.length).toBe(0);
     });
+
+    it('should create component', async () => {
+      const SLUG = SLUGS.COMPONENT_COMPONENT;
+      const CONFIG = {
+        [SLUG]: [generateData(SLUG, { id: 1, component: { id: 1 } }), generateData(SLUG, { id: 2, component: { id: 2 } })],
+      };
+
+      const fileContent = buildJsonV2FileContent(CONFIG);
+
+      const { failures } = await getService('import').importDataV2(fileContent, { slug: SLUG, user: {}, idField: 'id' });
+
+      const entries = await strapi.db.query(SLUG).findMany({ populate: true });
+
+      expect(failures.length).toBe(0);
+      expect(entries.length).toBe(CONFIG[SLUG].length);
+      entries.forEach((entry, idx) => {
+        const configData = CONFIG[SLUG][idx];
+        expect(entry.id).toBe(configData.id);
+        expect(entry.name).toBe(configData.name);
+        expect(entry.description).toBe(configData.description);
+      });
+    });
+
+    it('should update partially component', async () => {
+      const SLUG = SLUGS.COMPONENT_COMPONENT;
+
+      const CONFIG_CREATE = {
+        [SLUG]: [generateData(SLUG, { id: 1 }), generateData(SLUG, { id: 2 })],
+      };
+
+      // Create data.
+      await (async () => {
+        await Promise.all(CONFIG_CREATE[SLUG].map((datum) => strapi.db.query(SLUG).create({ data: datum })));
+      })();
+
+      const CONFIG_UPDATE = {
+        [SLUG]: [pick(generateData(SLUG, { id: 1 }), ['id', 'description']), pick(generateData(SLUG, { id: 2 }), ['id', 'description'])],
+      };
+
+      const fileContent = buildJsonV2FileContent(CONFIG_UPDATE);
+
+      const { failures } = await getService('import').importDataV2(fileContent, { slug: SLUG, user: {}, idField: 'id' });
+
+      const entries = await strapi.db.query(SLUG).findMany();
+
+      expect(failures.length).toBe(0);
+      expect(entries.length).toBe(CONFIG_CREATE[SLUG].length);
+      entries.forEach((entry, idx) => {
+        const createConfigData = CONFIG_CREATE[SLUG][idx];
+        const updateConfigData = CONFIG_UPDATE[SLUG][idx];
+        expect(entry.id).toBe(createConfigData.id);
+        expect(entry.name).toBe(createConfigData.name);
+        expect(entry.description).toBe(updateConfigData.description);
+      });
+    });
   });
 });
 
