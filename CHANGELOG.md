@@ -4,26 +4,23 @@ All notable changes to this project will be documented in this file. See [standa
 
 ### [1.17.3](https://github.com/Baboo7/strapi-plugin-import-export-entries/compare/v1.17.2...v1.17.3) (2022-10-30)
 
-
 ### 🧹 Chores
 
-* **git:** Update gitignore ([55c3145](https://github.com/Baboo7/strapi-plugin-import-export-entries/commits/55c31458e40587bec72b77469cdafaf13437cb9a))
-* **husky:** Setup husky ([dcfbb35](https://github.com/Baboo7/strapi-plugin-import-export-entries/commits/dcfbb35eb53b649704f719c86436d5cbddf03277))
-
+- **git:** Update gitignore ([55c3145](https://github.com/Baboo7/strapi-plugin-import-export-entries/commits/55c31458e40587bec72b77469cdafaf13437cb9a))
+- **husky:** Setup husky ([dcfbb35](https://github.com/Baboo7/strapi-plugin-import-export-entries/commits/dcfbb35eb53b649704f719c86436d5cbddf03277))
 
 ### 🧪 Tests
 
-* **export-v2:** Should export components for simple single and collection types ([c1e4528](https://github.com/Baboo7/strapi-plugin-import-export-entries/commits/c1e452841f68d3441caf560259e7a4b07ab53614))
-* Generate unique data ([22a26e5](https://github.com/Baboo7/strapi-plugin-import-export-entries/commits/22a26e5066383380e1fded3b925d66313e6fa235))
-* **import-v2:** Should create or update standalone components ([97fb6b1](https://github.com/Baboo7/strapi-plugin-import-export-entries/commits/97fb6b140345caa0b412f7e8f696b93731fcc349))
-* **import-v2:** Should set components for simple single and collection types ([372f1e4](https://github.com/Baboo7/strapi-plugin-import-export-entries/commits/372f1e4a437ed7b0dc5965bf1c821c9b92cf644d))
-* **strapi:** Cleanup components ([b86edaa](https://github.com/Baboo7/strapi-plugin-import-export-entries/commits/b86edaaee3046310acfb20ccbc96856a4c77ad78))
-
+- **export-v2:** Should export components for simple single and collection types ([c1e4528](https://github.com/Baboo7/strapi-plugin-import-export-entries/commits/c1e452841f68d3441caf560259e7a4b07ab53614))
+- Generate unique data ([22a26e5](https://github.com/Baboo7/strapi-plugin-import-export-entries/commits/22a26e5066383380e1fded3b925d66313e6fa235))
+- **import-v2:** Should create or update standalone components ([97fb6b1](https://github.com/Baboo7/strapi-plugin-import-export-entries/commits/97fb6b140345caa0b412f7e8f696b93731fcc349))
+- **import-v2:** Should set components for simple single and collection types ([372f1e4](https://github.com/Baboo7/strapi-plugin-import-export-entries/commits/372f1e4a437ed7b0dc5965bf1c821c9b92cf644d))
+- **strapi:** Cleanup components ([b86edaa](https://github.com/Baboo7/strapi-plugin-import-export-entries/commits/b86edaaee3046310acfb20ccbc96856a4c77ad78))
 
 ### 🐞 Bug Fixes
 
-* **export-v2:** Export components for simple single and collection types ([c954791](https://github.com/Baboo7/strapi-plugin-import-export-entries/commits/c9547913b4699da87fac2f5d16345a59669600f7))
-* **import-v2:** Set components for simple single and collection types ([366461f](https://github.com/Baboo7/strapi-plugin-import-export-entries/commits/366461f6c548cc808d2a0fd4823c333e58d08d99))
+- **export-v2:** Export components for simple single and collection types ([c954791](https://github.com/Baboo7/strapi-plugin-import-export-entries/commits/c9547913b4699da87fac2f5d16345a59669600f7))
+- **import-v2:** Set components for simple single and collection types ([366461f](https://github.com/Baboo7/strapi-plugin-import-export-entries/commits/366461f6c548cc808d2a0fd4823c333e58d08d99))
 
 ### [1.17.2](https://github.com/Baboo7/strapi-plugin-import-export-entries/compare/v1.17.1...v1.17.2) (2022-10-30)
 
