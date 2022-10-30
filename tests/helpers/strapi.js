@@ -64,7 +64,7 @@ async function cleanupDatabase(options = {}) {
       .map((collectionName) =>
         strapi.db.query(collectionName).deleteMany({
           where: {
-            createdAt: { $gt: '1900-01-01T00:00:00.000Z' },
+            id: { $gte: 0 },
           },
         }),
       );
@@ -76,12 +76,14 @@ async function cleanupDatabase(options = {}) {
 const shouldCleanCollection = ({ broadCleaning = false } = {}) => {
   return (collectionName) => {
     if (broadCleaning) {
-      return collectionName.startsWith('admin::') || collectionName.startsWith('api::') || collectionName.startsWith('plugin::');
+      return collectionName.startsWith('admin::') || collectionName.startsWith('api::') || collectionName.startsWith('plugin::') || isComponent(collectionName);
     }
 
-    return collectionName.startsWith('api::');
+    return collectionName.startsWith('api::') || isComponent(collectionName);
   };
 };
+
+const isComponent = (collectionName) => Object.keys(strapi.components).indexOf(collectionName) > -1;
 
 module.exports = {
   setupDatabase,
