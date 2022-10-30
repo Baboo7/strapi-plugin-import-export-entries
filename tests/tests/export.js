@@ -60,6 +60,39 @@ describe('export service', () => {
       });
     });
 
+    it('should export collection type with multiple locales', async () => {
+      const SLUG = SLUGS.COLLECTION_TYPE;
+      const CONFIG = {
+        [SLUG]: [generateData(SLUG, { id: 1, locale: 'en' }), generateData(SLUG, { locale: 'fr' }), generateData(SLUG, { locale: 'it' })],
+      };
+
+      await strapi.entityService.create(SLUG, { data: CONFIG[SLUG][0] });
+      const createHandler = strapi.plugin('i18n').service('core-api').createCreateLocalizationHandler(getModel(SLUG));
+      await createHandler({ id: CONFIG[SLUG][0].id, data: CONFIG[SLUG][1] });
+      await createHandler({ id: CONFIG[SLUG][0].id, data: CONFIG[SLUG][2] });
+
+      const dataRaw = await getService('export').exportDataV2({ slug: SLUG });
+
+      const { data } = JSON.parse(dataRaw);
+
+      const entries = Object.values(data[SLUG]);
+      const entriesIds = Object.keys(data[SLUG]).map((id) => parseInt(id, 10));
+
+      expect(entries.length).toBe(3);
+      entries.forEach((entry, idx) => {
+        const configData = CONFIG[SLUG][idx];
+        if (configData.id) {
+          expect(entry.id).toBe(configData.id);
+        }
+        expect(entry.title).toBe(configData.title);
+        expect(entry.description).toBe(configData.description);
+        expect(entry.startDateTime).toBe(configData.startDateTime);
+        expect(entry.enabled).toBe(configData.enabled);
+        expect(entry.locale).toBe(configData.locale);
+        expect(entry.localizations.sort()).toEqual(entriesIds.filter((id) => id !== entry.id).sort());
+      });
+    });
+
     it('should export single type', async () => {
       const CONFIG = {
         [SLUGS.SINGLE_TYPE]: [generateData(SLUGS.SINGLE_TYPE, { id: 1, locale: 'en' })],
