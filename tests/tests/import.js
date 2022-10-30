@@ -262,7 +262,7 @@ describe('import service', () => {
     it('should create single type localized', async () => {
       const SLUG = SLUGS.SINGLE_TYPE;
       const CONFIG = {
-        [SLUG]: [generateData(SLUGS.SINGLE_TYPE, { id: 1, locale: 'en' })],
+        [SLUG]: [generateData(SLUG, { id: 1, locale: 'en' })],
       };
 
       const fileContent = buildJsonV2FileContent(CONFIG);
@@ -283,10 +283,10 @@ describe('import service', () => {
     it('should update single type localized', async () => {
       const SLUG = SLUGS.SINGLE_TYPE;
 
-      await strapi.entityService.create(SLUG, { data: generateData(SLUGS.SINGLE_TYPE, { id: 1 }) });
+      await strapi.entityService.create(SLUG, { data: generateData(SLUG, { id: 1 }) });
 
       const CONFIG = {
-        [SLUG]: [generateData(SLUGS.SINGLE_TYPE, { id: 1, locale: 'en' })],
+        [SLUG]: [generateData(SLUG, { id: 1, locale: 'en' })],
       };
 
       const fileContent = buildJsonV2FileContent(CONFIG);
@@ -307,11 +307,7 @@ describe('import service', () => {
     it('should create single type localized with multiple locales', async () => {
       const SLUG = SLUGS.SINGLE_TYPE;
       const CONFIG = {
-        [SLUG]: [
-          generateData(SLUGS.SINGLE_TYPE, { id: 1, locale: 'en' }),
-          generateData(SLUGS.SINGLE_TYPE, { id: 2, locale: 'fr' }),
-          generateData(SLUGS.SINGLE_TYPE, { id: 3, locale: 'it' }),
-        ],
+        [SLUG]: [generateData(SLUG, { id: 1, locale: 'en' }), generateData(SLUG, { id: 2, locale: 'fr' }), generateData(SLUG, { id: 3, locale: 'it' })],
       };
 
       const fileContent = buildJsonV2FileContent(CONFIG);
@@ -322,7 +318,7 @@ describe('import service', () => {
 
       expect(failures.length).toBe(0);
       entries.forEach((entry, idx) => {
-        const configData = CONFIG[SLUGS.SINGLE_TYPE][idx];
+        const configData = CONFIG[SLUG][idx];
         // Atm it is not possible to set the `id` for locales that are not the default one.
         if (idx === 0) {
           expect(entry.id).toBe(configData.id);
