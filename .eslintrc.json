@@ -10,7 +10,7 @@
     "sourceType": "module"
   },
   "extends": ["eslint:recommended", "plugin:react/recommended"],
-  "plugins": ["jest"],
+  "plugins": ["jest", "simple-import-sort"],
   "env": {
     "commonjs": true,
     "es6": true,
@@ -33,6 +33,9 @@
     "no-console": 0,
     "semi": ["error", "always"],
     "no-unused-vars": 1,
-    "react/prop-types": 0
+    "react/prop-types": 0,
+
+    "simple-import-sort/exports": "error",
+    "simple-import-sort/imports": "error"
   }
 }
