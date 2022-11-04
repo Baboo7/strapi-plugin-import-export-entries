@@ -1,27 +1,28 @@
+import './style.css';
+
 import { Button } from '@strapi/design-system/Button';
 import { Checkbox } from '@strapi/design-system/Checkbox';
-import { ModalLayout, ModalBody, ModalHeader, ModalFooter } from '@strapi/design-system/ModalLayout';
 import { Flex } from '@strapi/design-system/Flex';
 import { Grid, GridItem } from '@strapi/design-system/Grid';
 import { Loader } from '@strapi/design-system/Loader';
+import { ModalBody, ModalFooter, ModalHeader, ModalLayout } from '@strapi/design-system/ModalLayout';
 import { Portal } from '@strapi/design-system/Portal';
-import { Select, Option } from '@strapi/design-system/Select';
+import { Option, Select } from '@strapi/design-system/Select';
 import { Typography } from '@strapi/design-system/Typography';
 import pick from 'lodash/pick';
 import range from 'lodash/range';
+import qs from 'qs';
 import React, { useState } from 'react';
 import { useLocation } from 'react-router-dom';
-import qs from 'qs';
 
-import './style.css';
 import ExportProxy from '../../api/exportProxy';
+import { useAlerts } from '../../hooks/useAlerts';
 import { useDownloadFile } from '../../hooks/useDownloadFile';
+import { useI18n } from '../../hooks/useI18n';
 import { useSlug } from '../../hooks/useSlug';
 import { dataFormatConfigs, dataFormats } from '../../utils/dataFormats';
-import { Editor } from '../Editor';
-import { useAlerts } from '../../hooks/useAlerts';
 import { handleRequestErr } from '../../utils/error';
-import { useI18n } from '../../hooks/useI18n';
+import { Editor } from '../Editor';
 
 export const ExportModal = ({ onClose }) => {
   const { i18n } = useI18n();

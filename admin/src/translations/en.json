@@ -1,5 +1,6 @@
 {
   "plugin.name": "Import Export",
+  "plugin.description": "Import/Export data in just few clicks",
 
   "plugin.cta.back-to-options": "Back To Options",
   "plugin.cta.cancel": "Cancel",
@@ -14,6 +15,9 @@
   "plugin.data-format.csv": "CSV [deprecated]",
   "plugin.data-format.json": "JSON [deprecated]",
   "plugin.data-format.json-v2": "JSON (v2)",
+
+  "plugin.page.homepage.section.quick-actions.title": "Quick Actions",
+  "plugin.page.homepage.section.preferences.title": "Preferences",
 
   "plugin.message.export.error.forbidden.title": "Forbidden",
   "plugin.message.export.error.forbidden.message": "You don't have permission to read this data type.",

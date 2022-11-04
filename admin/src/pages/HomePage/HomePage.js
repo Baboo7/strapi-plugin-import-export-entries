@@ -1,0 +1,83 @@
+import { Box } from '@strapi/design-system/Box';
+import { Checkbox } from '@strapi/design-system/Checkbox';
+import { Flex } from '@strapi/design-system/Flex';
+import { ContentLayout } from '@strapi/design-system/Layout';
+import { Option, Select } from '@strapi/design-system/Select';
+import { Typography } from '@strapi/design-system/Typography';
+import range from 'lodash/range';
+import React, { memo, useState } from 'react';
+
+import { Header } from '../../components/Header';
+import { InjectedExportButton } from '../../components/InjectedExportButton';
+import { InjectedImportButton } from '../../components/InjectedImportButton';
+import { useI18n } from '../../hooks/useI18n';
+import { useLocalStorage } from '../../hooks/useLocalStorage';
+
+const HomePage = () => {
+  const { i18n } = useI18n();
+  const { getPreferences, updatePreferences } = useLocalStorage();
+
+  const [preferences, setPreferences] = useState(getPreferences());
+
+  const handleUpdatePreferences = (key, value) => {
+    updatePreferences({ [key]: value });
+    setPreferences(getPreferences());
+  };
+
+  return (
+    <>
+      <Header />
+
+      <ContentLayout>
+        <Flex direction="column" alignItems="start" gap={8}>
+          <Box style={{ alignSelf: 'stretch' }} background="neutral0" padding="32px" hasRadius={true}>
+            <Flex direction="column" alignItems="start" gap={6}>
+              <Typography variant="alpha">{i18n('plugin.page.homepage.section.quick-actions.title', 'Quick Actions')}</Typography>
+
+              <Box>
+                <Flex direction="column" alignItems="start" gap={4}>
+                  <Flex gap={4}>
+                    <InjectedImportButton />
+                    <InjectedExportButton />
+                  </Flex>
+                </Flex>
+              </Box>
+            </Flex>
+          </Box>
+
+          <Box style={{ alignSelf: 'stretch' }} background="neutral0" padding="32px" hasRadius={true}>
+            <Flex direction="column" alignItems="start" gap={6}>
+              <Typography variant="alpha">{i18n('plugin.page.homepage.section.preferences.title', 'Preferences')}</Typography>
+
+              <Box>
+                <Flex direction="column" alignItems="start" gap={4}>
+                  <Flex justifyContent="space-between">
+                    <Checkbox value={preferences.applyFilters} onValueChange={(value) => handleUpdatePreferences('applyFilters', value)}>
+                      <Typography>{i18n('plugin.export.apply-filters-and-sort', 'Apply filters and sort to exported data')}</Typography>
+                    </Checkbox>
+                  </Flex>
+                  <Flex justifyContent="space-between">
+                    <Select
+                      label={i18n('plugin.export.deepness', 'Deepness')}
+                      placeholder={i18n('plugin.export.deepness', 'Deepness')}
+                      value={preferences.deepness}
+                      onChange={(value) => handleUpdatePreferences('deepness', value)}
+                    >
+                      {range(1, 21).map((deepness) => (
+                        <Option key={deepness} value={deepness}>
+                          {deepness}
+                        </Option>
+                      ))}
+                    </Select>
+                  </Flex>
+                </Flex>
+              </Box>
+            </Flex>
+          </Box>
+        </Flex>
+      </ContentLayout>
+    </>
+  );
+};
+
+export default memo(HomePage);
