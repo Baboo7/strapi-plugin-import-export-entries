@@ -1,4 +1,4 @@
-import { useState, useRef } from 'react';
+import { useRef, useState } from 'react';
 import { singletonHook } from 'react-singleton-hook';
 
 const init = { loading: true };

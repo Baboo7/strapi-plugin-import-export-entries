@@ -1,12 +1,12 @@
 import { Box } from '@strapi/design-system/Box';
-import { Select, Option } from '@strapi/design-system/Select';
-import { Tabs, Tab, TabGroup, TabPanels, TabPanel } from '@strapi/design-system/Tabs';
+import { Option, Select } from '@strapi/design-system/Select';
+import { Tab, TabGroup, TabPanel, TabPanels, Tabs } from '@strapi/design-system/Tabs';
 import { Typography } from '@strapi/design-system/Typography';
 import React, { useEffect, useState } from 'react';
 
 import ImportProxy from '../../../../api/importProxy';
-import { Editor } from '../../../Editor/Editor';
 import { useForm } from '../../../../hooks/useForm';
+import { Editor } from '../../../Editor/Editor';
 
 export const ImportEditor = ({ file, data, dataFormat, slug, onDataChanged, onOptionsChanged }) => {
   const [attributeNames, setAttributeNames] = useState([]);

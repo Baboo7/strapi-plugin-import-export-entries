@@ -1,8 +1,8 @@
-import * as monaco from 'monaco-editor/esm/vs/editor/editor.api';
-import EditorLib, { loader } from '@monaco-editor/react';
-import React from 'react';
-
 import './style.css';
+
+import EditorLib, { loader } from '@monaco-editor/react';
+import * as monaco from 'monaco-editor/esm/vs/editor/editor.api';
+import React from 'react';
 
 loader.config({ monaco });
 
