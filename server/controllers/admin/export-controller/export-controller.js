@@ -1,6 +1,8 @@
 'use strict';
 
+const { CustomSlugs } = require('../../../config/constants');
 const { getService } = require('../../../utils');
+const { getAllSlugs } = require('../../../utils/models');
 const { handleAsyncError } = require('../../content-api/utils');
 
 const exportData = async (ctx) => {
@@ -26,9 +28,14 @@ const hasPermissions = (ctx) => {
   let { slug } = ctx.request.body;
   const { userAbility } = ctx.state;
 
-  const permissionChecker = strapi.plugin('content-manager').service('permission-checker').create({ userAbility, model: slug });
+  const slugs = slug === CustomSlugs.WHOLE_DB ? getAllSlugs() : [slug];
 
-  return permissionChecker.can.read();
+  const allowedSlugs = slugs.filter((slug) => {
+    const permissionChecker = strapi.plugin('content-manager').service('permission-checker').create({ userAbility, model: slug });
+    return permissionChecker.can.read();
+  });
+
+  return !!allowedSlugs.length;
 };
 
 module.exports = ({ strapi }) => ({

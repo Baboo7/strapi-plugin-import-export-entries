@@ -32,11 +32,11 @@ const DEFAULT_OPTIONS = {
   deepness: 5,
 };
 
-export const ExportModal = ({ onClose }) => {
+export const ExportModal = ({ availableExportFormats = [dataFormats.CSV, dataFormats.JSON_V2, dataFormats.JSON], onClose }) => {
   const { i18n } = useI18n();
   const { search } = useLocation();
   const { downloadFile, withTimestamp } = useDownloadFile();
-  const { slug } = useSlug();
+  const { slug, isSlugWholeDb } = useSlug();
   const { notify } = useAlerts();
   const { getPreferences } = useLocalStorage();
 
@@ -94,9 +94,14 @@ export const ExportModal = ({ onClose }) => {
     <Portal>
       <ModalLayout onClose={onClose} labelledBy="title">
         <ModalHeader>
-          <Typography fontWeight="bold" textColor="neutral800" as="h2" id="title">
-            {i18n('plugin.cta.export')}
-          </Typography>
+          <Flex gap={2}>
+            <Typography fontWeight="bold" textColor="neutral800" as="h2" id="title">
+              {i18n('plugin.cta.export', 'Export')}
+            </Typography>
+            <Typography textColor="neutral800" id="title">
+              {isSlugWholeDb() ? i18n('plugin.export.whole-database', 'Whole database') : slug}
+            </Typography>
+          </Flex>
         </ModalHeader>
         <ModalBody className="plugin-ie-export_modal_body">
           {fetchingData && (
@@ -118,9 +123,11 @@ export const ExportModal = ({ onClose }) => {
                     value={options.exportFormat}
                     onChange={handleSetOption('exportFormat')}
                   >
-                    <Option value={dataFormats.CSV}>{i18n(`plugin.data-format.${dataFormats.CSV}`)}</Option>
-                    <Option value={dataFormats.JSON_V2}>{i18n(`plugin.data-format.${dataFormats.JSON_V2}`)}</Option>
-                    <Option value={dataFormats.JSON}>{i18n(`plugin.data-format.${dataFormats.JSON}`)}</Option>
+                    {availableExportFormats.map((format) => (
+                      <Option key={format} value={format}>
+                        {i18n(`plugin.data-format.${format}`)}
+                      </Option>
+                    ))}
                   </Select>
                 </GridItem>
               </Grid>

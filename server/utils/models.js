@@ -38,6 +38,12 @@ const { toArray } = require('../../libs/arrays');
  * @property {boolean} [multiple] - Whether there are multiple files.
  */
 
+const getAllSlugs = () => {
+  return Array.from(strapi.db.metadata)
+    .map(([collectionName]) => collectionName)
+    .filter((collectionName) => collectionName.startsWith('api::'));
+};
+
 /**
  * Get a model.
  * @param {string} slug - Slug of the model.
@@ -107,6 +113,7 @@ const isAttributeDynamicZone = (attribute) => {
 };
 
 module.exports = {
+  getAllSlugs,
   getModel,
   getModelConfig,
   getModelAttributes,

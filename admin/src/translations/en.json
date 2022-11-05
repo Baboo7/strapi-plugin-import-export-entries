@@ -34,15 +34,18 @@
   "plugin.message.import.success.imported.message": "Your data has been imported successfully. Refresh your page to see the latest updates.",
   "plugin.message.import.error.imported-partial.title": "Import partially failed",
   "plugin.message.import.error.imported-partial.message": "Some data failed to be imported. See below for detailed information.",
+
   "plugin.import.drag-drop-file": "Drag & drop your file into this area or browse for a file to upload",
   "plugin.import.importing-data": "Importing data...",
   "plugin.import.partially-failed": "Import Partially Failed",
   "plugin.import.detailed-information": "Detailed Information:",
+
   "plugin.export.copied": "Copied",
   "plugin.export.fetching-data": "Fetching data...",
   "plugin.export.export-format": "Export Format",
   "plugin.export.options": "Options",
   "plugin.export.relations-as-id": "Export relations as id.",
   "plugin.export.apply-filters-and-sort": "Apply filters and sort to exported data.",
-  "plugin.export.deepness": "Deepness"
+  "plugin.export.deepness": "Deepness",
+  "plugin.export.whole-database": "Whole database"
 }

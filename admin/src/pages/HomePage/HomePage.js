@@ -12,6 +12,7 @@ import { InjectedExportButton } from '../../components/InjectedExportButton';
 import { InjectedImportButton } from '../../components/InjectedImportButton';
 import { useI18n } from '../../hooks/useI18n';
 import { useLocalStorage } from '../../hooks/useLocalStorage';
+import { dataFormats } from '../../utils/dataFormats';
 
 const HomePage = () => {
   const { i18n } = useI18n();
@@ -38,7 +39,7 @@ const HomePage = () => {
                 <Flex direction="column" alignItems="start" gap={4}>
                   <Flex gap={4}>
                     <InjectedImportButton />
-                    <InjectedExportButton />
+                    <InjectedExportButton availableExportFormats={[dataFormats.JSON_V2]} />
                   </Flex>
                 </Flex>
               </Box>
