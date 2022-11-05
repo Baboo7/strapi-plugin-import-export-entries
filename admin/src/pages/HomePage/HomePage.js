@@ -2,6 +2,7 @@ import { Box } from '@strapi/design-system/Box';
 import { Checkbox } from '@strapi/design-system/Checkbox';
 import { Flex } from '@strapi/design-system/Flex';
 import { ContentLayout } from '@strapi/design-system/Layout';
+import { Link } from '@strapi/design-system/Link';
 import { Option, Select } from '@strapi/design-system/Select';
 import { Typography } from '@strapi/design-system/Typography';
 import range from 'lodash/range';
@@ -70,6 +71,28 @@ const HomePage = () => {
                         </Option>
                       ))}
                     </Select>
+                  </Flex>
+                </Flex>
+              </Box>
+            </Flex>
+          </Box>
+
+          <Box style={{ alignSelf: 'stretch' }} background="neutral0" padding="32px" hasRadius={true}>
+            <Flex direction="column" alignItems="start" gap={6}>
+              <Typography variant="alpha">{i18n('plugin.page.homepage.section.need-help.title', 'Need Help?')}</Typography>
+
+              <Box>
+                <Flex direction="column" alignItems="start" gap={4}>
+                  <Typography>
+                    {i18n('plugin.page.homepage.section.need-help.description', 'A feature to request? A bug to report? Feel free to reach out on discord or github ✌️')}
+                  </Typography>
+                  <Flex gap={4}>
+                    <Link href="https://discord.gg/dcqCAFFdP8" isExternal>
+                      Discord
+                    </Link>
+                    <Link href="https://github.com/Baboo7/strapi-plugin-import-export-entries/issues" isExternal>
+                      GitHub
+                    </Link>
                   </Flex>
                 </Flex>
               </Box>
