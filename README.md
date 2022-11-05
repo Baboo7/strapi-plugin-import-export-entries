@@ -45,6 +45,7 @@ At the moment, dynamic zones and media are not unit tested. Tests will be implem
 - [Installation](#installation)
 - [Rebuild The Admin Panel](#rebuild-the-admin-panel)
 - [Usage](#usage)
+  - [Preferences](#preferences)
   - [Config](#config)
   - [Filtering & Sorting](#filtering-and-sorting)
   - [Services](#services)
@@ -174,11 +175,27 @@ npm run build --clean
 
 # Usage
 
-Once the plugin is installed and setup, the functionnalities are accessible on the content management page of a collection.
+Once the plugin is installed and setup, the functionnalities for a collection are accessible on its content management page.
 
 <p align="center">
   <img src="./doc/scr-usage.png" alt="UI" width="500"/>
 </p>
+
+You can also export the whole database from the home page of the plugin.
+
+<p align="center">
+  <img src="./doc/scr-homepage.png" alt="UI" width="500"/>
+</p>
+
+## Preferences
+
+For a quick and convenient use, you can set your preferences from the home page of the plugin.
+
+<p align="center">
+  <img src="./doc/scr-homepage-preferences.png" alt="UI" width="500"/>
+</p>
+
+Once set, they will be used each time you import/export data.
 
 ## Config
 
