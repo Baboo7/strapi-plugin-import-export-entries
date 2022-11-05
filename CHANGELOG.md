@@ -2,6 +2,37 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+## [1.18.0](https://github.com/Baboo7/strapi-plugin-import-export-entries/compare/v1.17.3...v1.18.0) (2022-11-05)
+
+
+### 🛠 Refacto
+
+* **ExportModal:** Use preferences ([074e19f](https://github.com/Baboo7/strapi-plugin-import-export-entries/commits/074e19f716aac6048980687914a431d9e13506d0))
+* **useSlug:** Get model slug only on collection and single type pages ([323de8d](https://github.com/Baboo7/strapi-plugin-import-export-entries/commits/323de8d5de6cdabfe70afd4f533333b68df8eb81))
+
+
+### 🧪 Tests
+
+* **export-v2:** Should export whole database ([7cab210](https://github.com/Baboo7/strapi-plugin-import-export-entries/commits/7cab210f31a3b9952de4ece2746f19a50812fe05))
+
+
+### 🧹 Chores
+
+* **CHANGELOG.md:** Lint ([cc77582](https://github.com/Baboo7/strapi-plugin-import-export-entries/commits/cc775825c7aea32d3978ac86a2920be79e12196b))
+* **doc:** Explain how to export whole database and setup preferences ([045c17b](https://github.com/Baboo7/strapi-plugin-import-export-entries/commits/045c17be383b8b43120a7f055f79b5e9b82555a5))
+* **doc:** Udpdate known limitations section ([e0e95ff](https://github.com/Baboo7/strapi-plugin-import-export-entries/commits/e0e95ff75b4c49486b0daa463668b1f521d06e14))
+* **eslint:** Sort imports ([140ac0e](https://github.com/Baboo7/strapi-plugin-import-export-entries/commits/140ac0e310f07c57c920e5954628e73bbd93c896))
+* **husky:** Send back to APA ([efbb795](https://github.com/Baboo7/strapi-plugin-import-export-entries/commits/efbb79554b0999c24dfbf9c3ba100dba29b24b90))
+* Lint project ([d4bd0a9](https://github.com/Baboo7/strapi-plugin-import-export-entries/commits/d4bd0a9d20f48dc354b6e6b2e670731ed13a3cf3))
+
+
+### ⚡️ Features
+
+* **admin:** Display plugin homepage ([75b2569](https://github.com/Baboo7/strapi-plugin-import-export-entries/commits/75b25698fca9e119e4616f2157787f8246e799d5))
+* **export-v2:** Export whole database ([31e706a](https://github.com/Baboo7/strapi-plugin-import-export-entries/commits/31e706afcf5e6c7fe9207b22572bb4acfb24a856))
+* **HomePage:** Add help section ([fa08af1](https://github.com/Baboo7/strapi-plugin-import-export-entries/commits/fa08af17078508a374730d1c49bb9b16ee9fd36a))
+* **HomePage:** Setup basic layout ([022b363](https://github.com/Baboo7/strapi-plugin-import-export-entries/commits/022b363323862a778cb89f3b5fed8abef3338158))
+
 ### [1.17.3](https://github.com/Baboo7/strapi-plugin-import-export-entries/compare/v1.17.2...v1.17.3) (2022-10-30)
 
 ### 🧹 Chores
