@@ -1,4 +1,3 @@
-import { last } from 'lodash';
 import { useEffect, useState } from 'react';
 import { useLocation } from 'react-router-dom';
 
@@ -8,8 +7,15 @@ export const useSlug = () => {
   const [slug, setSlug] = useState('');
 
   useEffect(() => {
-    setSlug(last(pathname.split('/')));
-  }, [pathname]);
+    const [kind, slug] = pathname.split('/').slice(-2);
+
+    if (['collectionType', 'singleType'].indexOf(kind) > -1) {
+      setSlug(slug);
+      return;
+    }
+
+    setSlug('');
+  }, [pathname, setSlug]);
 
   return {
     slug,
