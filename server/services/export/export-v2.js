@@ -7,7 +7,7 @@ const { isArraySafe, toArray } = require('../../../libs/arrays');
 
 const { ObjectBuilder, isObjectSafe, mergeObjects } = require('../../../libs/objects');
 const { CustomSlugToSlug, CustomSlugs } = require('../../config/constants');
-const { getModelAttributes } = require('../../utils/models');
+const { getModelAttributes, getAllSlugs } = require('../../utils/models');
 const { convertToJson } = require('./converters-v2');
 
 const dataFormats = {
@@ -33,9 +33,17 @@ const dataConverterConfigs = {
 const exportDataV2 = async ({ slug, search, applySearch, deepness = 5 }) => {
   slug = CustomSlugToSlug[slug] || slug;
 
-  const hierarchy = buildSlugHierarchy(slug, deepness);
-
-  const entries = await findEntriesForHierarchy(slug, hierarchy, deepness, { ...(applySearch ? { search } : {}) });
+  let entries = {};
+  if (slug === CustomSlugs.WHOLE_DB) {
+    for (const slug of getAllSlugs()) {
+      const hierarchy = buildSlugHierarchy(slug, deepness);
+      const slugEntries = await findEntriesForHierarchy(slug, hierarchy, deepness, { ...(applySearch ? { search } : {}) });
+      entries = mergeObjects(entries, slugEntries);
+    }
+  } else {
+    const hierarchy = buildSlugHierarchy(slug, deepness);
+    entries = await findEntriesForHierarchy(slug, hierarchy, deepness, { ...(applySearch ? { search } : {}) });
+  }
 
   const jsoContent = {
     version: 2,

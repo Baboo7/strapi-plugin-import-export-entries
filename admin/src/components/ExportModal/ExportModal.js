@@ -1,41 +1,52 @@
+import './style.css';
+
 import { Button } from '@strapi/design-system/Button';
 import { Checkbox } from '@strapi/design-system/Checkbox';
-import { ModalLayout, ModalBody, ModalHeader, ModalFooter } from '@strapi/design-system/ModalLayout';
 import { Flex } from '@strapi/design-system/Flex';
 import { Grid, GridItem } from '@strapi/design-system/Grid';
 import { Loader } from '@strapi/design-system/Loader';
+import { ModalBody, ModalFooter, ModalHeader, ModalLayout } from '@strapi/design-system/ModalLayout';
 import { Portal } from '@strapi/design-system/Portal';
-import { Select, Option } from '@strapi/design-system/Select';
+import { Option, Select } from '@strapi/design-system/Select';
 import { Typography } from '@strapi/design-system/Typography';
 import pick from 'lodash/pick';
 import range from 'lodash/range';
+import qs from 'qs';
 import React, { useState } from 'react';
 import { useLocation } from 'react-router-dom';
-import qs from 'qs';
 
-import './style.css';
 import ExportProxy from '../../api/exportProxy';
+import { useAlerts } from '../../hooks/useAlerts';
 import { useDownloadFile } from '../../hooks/useDownloadFile';
+import { useI18n } from '../../hooks/useI18n';
+import { useLocalStorage } from '../../hooks/useLocalStorage';
 import { useSlug } from '../../hooks/useSlug';
 import { dataFormatConfigs, dataFormats } from '../../utils/dataFormats';
-import { Editor } from '../Editor';
-import { useAlerts } from '../../hooks/useAlerts';
 import { handleRequestErr } from '../../utils/error';
-import { useI18n } from '../../hooks/useI18n';
+import { Editor } from '../Editor';
 
-export const ExportModal = ({ onClose }) => {
+const DEFAULT_OPTIONS = {
+  exportFormat: dataFormats.JSON_V2,
+  applyFilters: false,
+  relationsAsId: false,
+  deepness: 5,
+};
+
+export const ExportModal = ({ availableExportFormats = [dataFormats.CSV, dataFormats.JSON_V2, dataFormats.JSON], onClose }) => {
   const { i18n } = useI18n();
   const { search } = useLocation();
   const { downloadFile, withTimestamp } = useDownloadFile();
-  const { slug } = useSlug();
+  const { slug, isSlugWholeDb } = useSlug();
   const { notify } = useAlerts();
+  const { getPreferences } = useLocalStorage();
 
-  const [optionExportFormat, setOptionExportFormat] = useState(dataFormats.JSON_V2);
-  const [optionApplyFilters, setOptionApplyFilters] = useState(false);
-  const [optionRelationsAsId, setOptionRelationsAsId] = useState(false);
-  const [optionDeepness, setOptionDeepness] = useState(5);
+  const [options, setOptions] = useState({ ...DEFAULT_OPTIONS, ...getPreferences() });
   const [data, setData] = useState(null);
   const [fetchingData, setFetchingData] = useState(false);
+
+  const handleSetOption = (key) => (value) => {
+    setOptions((previous) => ({ ...previous, [key]: value }));
+  };
 
   const getData = async () => {
     setFetchingData(true);
@@ -43,10 +54,10 @@ export const ExportModal = ({ onClose }) => {
       const res = await ExportProxy.getByContentType({
         slug,
         search: qs.stringify(pick(qs.parse(search), ['filters', 'sort'])),
-        applySearch: optionApplyFilters,
-        exportFormat: optionExportFormat,
-        relationsAsId: optionRelationsAsId,
-        deepness: optionDeepness,
+        applySearch: options.applyFilters,
+        exportFormat: options.exportFormat,
+        relationsAsId: options.relationsAsId,
+        deepness: options.deepness,
       });
       setData(res.data);
     } catch (err) {
@@ -60,9 +71,9 @@ export const ExportModal = ({ onClose }) => {
   };
 
   const writeDataToFile = async () => {
-    const config = dataFormatConfigs[optionExportFormat];
+    const config = dataFormatConfigs[options.exportFormat];
     if (!config) {
-      throw new Error(`File extension ${optionExportFormat} not supported to export data.`);
+      throw new Error(`File extension ${options.exportFormat} not supported to export data.`);
     }
 
     const { fileExt, fileContentType } = config;
@@ -83,9 +94,14 @@ export const ExportModal = ({ onClose }) => {
     <Portal>
       <ModalLayout onClose={onClose} labelledBy="title">
         <ModalHeader>
-          <Typography fontWeight="bold" textColor="neutral800" as="h2" id="title">
-            {i18n('plugin.cta.export')}
-          </Typography>
+          <Flex gap={2}>
+            <Typography fontWeight="bold" textColor="neutral800" as="h2" id="title">
+              {i18n('plugin.cta.export', 'Export')}
+            </Typography>
+            <Typography textColor="neutral800" id="title">
+              {isSlugWholeDb() ? i18n('plugin.export.whole-database', 'Whole database') : slug}
+            </Typography>
+          </Flex>
         </ModalHeader>
         <ModalBody className="plugin-ie-export_modal_body">
           {fetchingData && (
@@ -104,12 +120,14 @@ export const ExportModal = ({ onClose }) => {
                     label={i18n('plugin.export.export-format')}
                     required
                     placeholder={i18n('plugin.export.export-format')}
-                    value={optionExportFormat}
-                    onChange={setOptionExportFormat}
+                    value={options.exportFormat}
+                    onChange={handleSetOption('exportFormat')}
                   >
-                    <Option value={dataFormats.CSV}>{i18n(`plugin.data-format.${dataFormats.CSV}`)}</Option>
-                    <Option value={dataFormats.JSON_V2}>{i18n(`plugin.data-format.${dataFormats.JSON_V2}`)}</Option>
-                    <Option value={dataFormats.JSON}>{i18n(`plugin.data-format.${dataFormats.JSON}`)}</Option>
+                    {availableExportFormats.map((format) => (
+                      <Option key={format} value={format}>
+                        {i18n(`plugin.data-format.${format}`)}
+                      </Option>
+                    ))}
                   </Select>
                 </GridItem>
               </Grid>
@@ -118,13 +136,13 @@ export const ExportModal = ({ onClose }) => {
                 <Typography fontWeight="bold" textColor="neutral800" as="h2">
                   {i18n('plugin.export.options')}
                 </Typography>
-                <Checkbox value={optionRelationsAsId} onValueChange={setOptionRelationsAsId}>
+                <Checkbox value={options.relationsAsId} onValueChange={handleSetOption('relationsAsId')}>
                   {i18n('plugin.export.relations-as-id')}
                 </Checkbox>
-                <Checkbox value={optionApplyFilters} onValueChange={setOptionApplyFilters}>
+                <Checkbox value={options.applyFilters} onValueChange={handleSetOption('applyFilters')}>
                   {i18n('plugin.export.apply-filters-and-sort')}
                 </Checkbox>
-                <Select label={i18n('plugin.export.deepness')} placeholder={i18n('plugin.export.deepness')} value={optionDeepness} onChange={setOptionDeepness}>
+                <Select label={i18n('plugin.export.deepness')} placeholder={i18n('plugin.export.deepness')} value={options.deepness} onChange={handleSetOption('deepness')}>
                   {range(1, 21).map((deepness) => (
                     <Option key={deepness} value={deepness}>
                       {deepness}
@@ -136,7 +154,7 @@ export const ExportModal = ({ onClose }) => {
           )}
           {data && !fetchingData && (
             <>
-              <Editor content={data} language={dataFormatConfigs[optionExportFormat].language} />
+              <Editor content={data} language={dataFormatConfigs[options.exportFormat].language} />
             </>
           )}
         </ModalBody>

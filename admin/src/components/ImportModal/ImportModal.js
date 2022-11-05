@@ -1,9 +1,11 @@
+import './style.css';
+
 import { Button } from '@strapi/design-system/Button';
 import { EmptyStateLayout } from '@strapi/design-system/EmptyStateLayout';
 import { Flex } from '@strapi/design-system/Flex';
 import { Icon } from '@strapi/design-system/Icon';
 import { Loader } from '@strapi/design-system/Loader';
-import { ModalLayout, ModalBody, ModalHeader, ModalFooter } from '@strapi/design-system/ModalLayout';
+import { ModalBody, ModalFooter, ModalHeader, ModalLayout } from '@strapi/design-system/ModalLayout';
 import { Portal } from '@strapi/design-system/Portal';
 import { Typography } from '@strapi/design-system/Typography';
 import CheckCircle from '@strapi/icons/CheckCircle';
@@ -11,14 +13,13 @@ import IconFile from '@strapi/icons/File';
 import React, { useState } from 'react';
 import { useHistory } from 'react-router-dom';
 
-import './style.css';
 import ImportProxy from '../../api/importProxy';
+import { useAlerts } from '../../hooks/useAlerts';
+import { useI18n } from '../../hooks/useI18n';
 import { useSlug } from '../../hooks/useSlug';
 import { dataFormats } from '../../utils/dataFormats';
-import { Editor } from '../Editor/Editor';
-import { useAlerts } from '../../hooks/useAlerts';
 import { handleRequestErr } from '../../utils/error';
-import { useI18n } from '../../hooks/useI18n';
+import { Editor } from '../Editor/Editor';
 import { ImportEditor } from './components/ImportEditor';
 
 const ModalState = {

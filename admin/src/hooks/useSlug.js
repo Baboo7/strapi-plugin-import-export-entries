@@ -1,6 +1,7 @@
-import { last } from 'lodash';
-import { useEffect, useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import { useLocation } from 'react-router-dom';
+
+const SLUG_WHOLE_DB = 'custom:db';
 
 export const useSlug = () => {
   const { pathname } = useLocation();
@@ -8,10 +9,22 @@ export const useSlug = () => {
   const [slug, setSlug] = useState('');
 
   useEffect(() => {
-    setSlug(last(pathname.split('/')));
-  }, [pathname]);
+    const [kind, slug] = pathname.split('/').slice(-2);
+
+    if (['collectionType', 'singleType'].indexOf(kind) > -1) {
+      setSlug(slug);
+      return;
+    }
+
+    setSlug(SLUG_WHOLE_DB);
+  }, [pathname, setSlug]);
+
+  const isSlugWholeDb = useCallback(() => {
+    return slug === SLUG_WHOLE_DB;
+  }, [slug]);
 
   return {
     slug,
+    isSlugWholeDb,
   };
 };

@@ -1,5 +1,6 @@
 const CustomSlugs = {
   MEDIA: 'media',
+  WHOLE_DB: 'custom:db',
 };
 
 const CustomSlugToSlug = {
