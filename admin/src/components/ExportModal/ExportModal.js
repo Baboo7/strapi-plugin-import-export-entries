@@ -19,10 +19,18 @@ import ExportProxy from '../../api/exportProxy';
 import { useAlerts } from '../../hooks/useAlerts';
 import { useDownloadFile } from '../../hooks/useDownloadFile';
 import { useI18n } from '../../hooks/useI18n';
+import { useLocalStorage } from '../../hooks/useLocalStorage';
 import { useSlug } from '../../hooks/useSlug';
 import { dataFormatConfigs, dataFormats } from '../../utils/dataFormats';
 import { handleRequestErr } from '../../utils/error';
 import { Editor } from '../Editor';
+
+const DEFAULT_OPTIONS = {
+  exportFormat: dataFormats.JSON_V2,
+  applyFilters: false,
+  relationsAsId: false,
+  deepness: 5,
+};
 
 export const ExportModal = ({ onClose }) => {
   const { i18n } = useI18n();
@@ -30,13 +38,15 @@ export const ExportModal = ({ onClose }) => {
   const { downloadFile, withTimestamp } = useDownloadFile();
   const { slug } = useSlug();
   const { notify } = useAlerts();
+  const { getPreferences } = useLocalStorage();
 
-  const [optionExportFormat, setOptionExportFormat] = useState(dataFormats.JSON_V2);
-  const [optionApplyFilters, setOptionApplyFilters] = useState(false);
-  const [optionRelationsAsId, setOptionRelationsAsId] = useState(false);
-  const [optionDeepness, setOptionDeepness] = useState(5);
+  const [options, setOptions] = useState({ ...DEFAULT_OPTIONS, ...getPreferences() });
   const [data, setData] = useState(null);
   const [fetchingData, setFetchingData] = useState(false);
+
+  const handleSetOption = (key) => (value) => {
+    setOptions((previous) => ({ ...previous, [key]: value }));
+  };
 
   const getData = async () => {
     setFetchingData(true);
@@ -44,10 +54,10 @@ export const ExportModal = ({ onClose }) => {
       const res = await ExportProxy.getByContentType({
         slug,
         search: qs.stringify(pick(qs.parse(search), ['filters', 'sort'])),
-        applySearch: optionApplyFilters,
-        exportFormat: optionExportFormat,
-        relationsAsId: optionRelationsAsId,
-        deepness: optionDeepness,
+        applySearch: options.applyFilters,
+        exportFormat: options.exportFormat,
+        relationsAsId: options.relationsAsId,
+        deepness: options.deepness,
       });
       setData(res.data);
     } catch (err) {
@@ -61,9 +71,9 @@ export const ExportModal = ({ onClose }) => {
   };
 
   const writeDataToFile = async () => {
-    const config = dataFormatConfigs[optionExportFormat];
+    const config = dataFormatConfigs[options.exportFormat];
     if (!config) {
-      throw new Error(`File extension ${optionExportFormat} not supported to export data.`);
+      throw new Error(`File extension ${options.exportFormat} not supported to export data.`);
     }
 
     const { fileExt, fileContentType } = config;
@@ -105,8 +115,8 @@ export const ExportModal = ({ onClose }) => {
                     label={i18n('plugin.export.export-format')}
                     required
                     placeholder={i18n('plugin.export.export-format')}
-                    value={optionExportFormat}
-                    onChange={setOptionExportFormat}
+                    value={options.exportFormat}
+                    onChange={handleSetOption('exportFormat')}
                   >
                     <Option value={dataFormats.CSV}>{i18n(`plugin.data-format.${dataFormats.CSV}`)}</Option>
                     <Option value={dataFormats.JSON_V2}>{i18n(`plugin.data-format.${dataFormats.JSON_V2}`)}</Option>
@@ -119,13 +129,13 @@ export const ExportModal = ({ onClose }) => {
                 <Typography fontWeight="bold" textColor="neutral800" as="h2">
                   {i18n('plugin.export.options')}
                 </Typography>
-                <Checkbox value={optionRelationsAsId} onValueChange={setOptionRelationsAsId}>
+                <Checkbox value={options.relationsAsId} onValueChange={handleSetOption('relationsAsId')}>
                   {i18n('plugin.export.relations-as-id')}
                 </Checkbox>
-                <Checkbox value={optionApplyFilters} onValueChange={setOptionApplyFilters}>
+                <Checkbox value={options.applyFilters} onValueChange={handleSetOption('applyFilters')}>
                   {i18n('plugin.export.apply-filters-and-sort')}
                 </Checkbox>
-                <Select label={i18n('plugin.export.deepness')} placeholder={i18n('plugin.export.deepness')} value={optionDeepness} onChange={setOptionDeepness}>
+                <Select label={i18n('plugin.export.deepness')} placeholder={i18n('plugin.export.deepness')} value={options.deepness} onChange={handleSetOption('deepness')}>
                   {range(1, 21).map((deepness) => (
                     <Option key={deepness} value={deepness}>
                       {deepness}
@@ -137,7 +147,7 @@ export const ExportModal = ({ onClose }) => {
           )}
           {data && !fetchingData && (
             <>
-              <Editor content={data} language={dataFormatConfigs[optionExportFormat].language} />
+              <Editor content={data} language={dataFormatConfigs[options.exportFormat].language} />
             </>
           )}
         </ModalBody>
