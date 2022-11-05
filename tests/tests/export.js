@@ -261,5 +261,32 @@ describe('export service', () => {
         });
       });
     });
+
+    it('should export whole database', async () => {
+      const CONFIG = {
+        [SLUGS.SINGLE_TYPE_SIMPLE]: [generateData(SLUGS.SINGLE_TYPE_SIMPLE, { id: 1 })],
+        [SLUGS.COLLECTION_TYPE_SIMPLE]: [generateData(SLUGS.COLLECTION_TYPE_SIMPLE, { id: 1 }), generateData(SLUGS.COLLECTION_TYPE_SIMPLE, { id: 2 })],
+      };
+
+      for (const slug of Object.keys(CONFIG)) {
+        await Promise.all(CONFIG[slug].map((datum) => strapi.entityService.create(slug, { data: datum })));
+      }
+
+      const dataRaw = await getService('export').exportDataV2({ slug: 'custom:db' });
+      const { data } = JSON.parse(dataRaw);
+
+      for (const slug of Object.keys(CONFIG)) {
+        const slugData = data[slug];
+        const slugConfig = CONFIG[slug];
+        expect(Object.keys(slugData).length).toBe(slugConfig.length);
+        Object.keys(slugData).forEach((id) => {
+          const data = slugData[id];
+          const config = slugConfig.find((config) => config.id === parseInt(id, 10));
+          for (const attribute of Object.keys(config)) {
+            expect(data[attribute]).toBe(config[attribute]);
+          }
+        });
+      }
+    });
   });
 });
