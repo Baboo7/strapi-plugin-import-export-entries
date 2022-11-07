@@ -5,8 +5,10 @@ const trim = require('lodash/trim');
 const os = require('os');
 const path = require('path');
 const request = require('request');
+const crypto = require('crypto');
 
 const { isObjectSafe } = require('../../../../libs/objects');
+const { getConfig } = require('../../../utils/getConfig');
 
 /**
  * Find or import a file.
@@ -191,6 +193,7 @@ const isValidFileUrl = (url, allowedFileTypes) => {
 };
 
 const isExtensionAllowed = (ext, allowedFileTypes) => {
+  if (getConfig('ignoreExtensionCheck')) return true;
   const checkers = allowedFileTypes.map(getFileTypeChecker);
   return checkers.some((checker) => checker(ext));
 };
@@ -218,10 +221,19 @@ const getFileTypeChecker = (type) => {
 
 const getFileDataFromRawUrl = (rawUrl) => {
   const parsedUrl = new URL(decodeURIComponent(rawUrl));
+  const pathname = parsedUrl.pathname;
 
-  const name = trim(parsedUrl.pathname, '/').replace(/\//g, '-');
-  const extension = parsedUrl.pathname.split('.').pop().toLowerCase();
-  const hash = last(parsedUrl.pathname.split('/')).slice(0, -(extension.length + 1));
+  const hash = crypto.createHash('sha512').update(pathname).digest('hex');
+  const extension = pathname.split('.').pop().toLowerCase();
+  let name = trim(pathname, '/').replace(/\//g, '-');
+
+  // truncate name if too long for db
+  // https://github.com/strapi/strapi/pull/13097
+  if (name.length > 200) {
+    if (extension.length < 5)
+      name = `${hash}.${extension}`;
+    else name = hash;
+  }
 
   return {
     hash,
