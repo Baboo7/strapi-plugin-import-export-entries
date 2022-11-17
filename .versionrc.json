@@ -3,7 +3,7 @@
     { "type": "feat", "section": "⚡️ Features" },
     { "type": "fix", "section": "🐞 Bug Fixes" },
     { "type": "test", "section": "🧪 Tests" },
-    { "type": "refacto", "section": "🛠 Refacto" },
+    { "type": "refactor", "section": "🛠 Refacto" },
     { "type": "chore", "section": "🧹 Chores" },
     { "type": "docs", "hidden": true },
     { "type": "style", "hidden": true },
