@@ -20,7 +20,7 @@ it('strapi should be defined', () => {
   expect(strapi).toBeDefined();
 });
 
-const testFolder = `${__dirname}/tests`;
+const testFolder = `${__dirname}/specs`;
 const testFiles = readdirSync(testFolder);
 for (const testFile of testFiles) {
   require(`${testFolder}/${testFile}`);
