@@ -158,6 +158,83 @@ const importOtherSlug = async (data, { slug, user, idField, importStage }) => {
   };
 };
 
+const getComponentData = (model, datum) => {
+  let componentData = {};
+
+  for (const [key, value] of Object.entries(datum)) {
+    if (!value) {
+      continue;
+    }
+    if (model.attributes[key]?.type === 'component') {
+      if (!model.attributes[key].repeatable) {
+        if (importDataV2.components[model.attributes[key].component].length === 0) {
+          continue;
+        }
+        const { id, ...payload } = importDataV2.components[model.attributes[key].component].filter((item) => {
+          return item.id === value;
+        })[0];
+
+        componentData[key] = {
+          __component: model.attributes[key].component,
+          ...payload,
+        };
+
+        for (const [k, v] of Object.entries(payload)) {
+          if (!v) {
+            continue;
+          }
+          if (getModel(model.attributes[key].component).attributes[k].type === 'component') {
+            componentData[key] = getComponentData(getModel(model.attributes[key].component), {
+              ...payload,
+              [k]: v,
+            });
+          }
+        }
+      }
+
+      if (model.attributes[key].repeatable) {
+        if (importDataV2.components[model.attributes[key].component].length === 0) {
+          continue;
+        }
+
+        const payload = [];
+
+        for (const componentId of value) {
+          let { id, ...itemPayload } = importDataV2.components[model.attributes[key].component].filter((item) => {
+            return item.id === componentId;
+          })[0];
+
+          for (const [k, v] of Object.entries(itemPayload)) {
+            if (!v) {
+              continue;
+            }
+            if (getModel(model.attributes[key].component).attributes[k].type === 'component') {
+              itemPayload = getComponentData(getModel(model.attributes[key].component), {
+                ...itemPayload,
+                [k]: v,
+              });
+            }
+          }
+
+          payload.push({
+            __component: model.attributes[key].component,
+            ...itemPayload,
+          });
+        }
+
+        componentData[key] = payload;
+      }
+    }
+  }
+
+  if (Object.keys(componentData).length) {
+    const { id, ...result } = { ...datum, ...componentData };
+    return result;
+  }
+
+  return null;
+};
+
 /**
  * Update or create entries for a given model.
  * @param {Object} user - User importing the data.
@@ -189,6 +266,19 @@ const updateOrCreate = async (user, slug, datum, idField = 'id', { importStage }
   }
 
   const model = getModel(slug);
+
+  const componentData = getComponentData(model, datum);
+
+  if (componentData) {
+    const entry = await strapi.entityService.findOne(model.uid, datum.id);
+    if (entry) {
+      await strapi.entityService.update(model.uid, datum.id, {
+        data: componentData,
+      });
+      return;
+    }
+  }
+
   if (model.kind === 'singleType') {
     await updateOrCreateSingleType(user, slug, datum, { importStage });
   } else {
