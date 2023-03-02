@@ -30,6 +30,16 @@ const { findOrImportFile } = require('./utils/file');
  */
 const importDataV2 = async (fileContent, { slug, user, idField }) => {
   const { data } = fileContent;
+  const components = {};
+
+  for (const [key, value] of Object.entries(data)) {
+    if (getModel(key).modelType === 'component') {
+      components[key] = Object.values(value);
+    }
+  }
+
+  // Sorry, dudes, I'm tipsy.
+  importDataV2.components = components;
 
   const slugs = Object.keys(data);
   let failures = [];
