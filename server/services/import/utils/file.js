@@ -4,7 +4,7 @@ const last = require('lodash/last');
 const trim = require('lodash/trim');
 const os = require('os');
 const path = require('path');
-const request = require('request');
+const fetch = require('node-fetch');
 
 const { isObjectSafe } = require('../../../../libs/objects');
 
@@ -118,33 +118,25 @@ const importFile = async ({ id, url, name, alternativeText, caption }, user) => 
   }
 };
 
-const fetchFile = (url) => {
-  return new Promise((resolve, reject) => {
-    request({ url: encodeURI(url), method: 'GET', encoding: null }, async (err, res, body) => {
-      if (err) {
-        reject(err);
-        return;
-      }
-
-      if (res.statusCode < 200 || 300 <= res.statusCode) {
-        reject(new Error(`Tried to fetch file from url ${url} but failed with status code ${res.statusCode}`));
-      }
-
-      const type = res.headers['content-type'].split(';').shift();
-      const size = parseInt(res.headers['content-length']) | 0;
-
-      const fileData = getFileDataFromRawUrl(url);
-      const filePath = await writeFile(fileData.name, body);
-
-      resolve({
-        name: fileData.name,
-        type,
-        size,
-        path: filePath,
-      });
-    });
-  });
+const fetchFile = async (url) => {
+  try {
+    const response = await fetch(url);
+    const contentType = response.headers.get('content-type').split(';')[0];
+    const contentLength = parseInt(response.headers.get('content-length')) || 0;
+    const buffer = await response.buffer();
+    const fileData = getFileDataFromRawUrl(url);
+    const filePath = await writeFile(fileData.name, buffer);
+    return {
+      name: fileData.name,
+      type: contentType,
+      size: contentLength,
+      path: filePath
+    };
+  } catch (error) {
+    throw new Error(`Tried to fetch file from url ${url} but failed with error: ${error.message}`);
+  }
 };
+
 
 const writeFile = async (name, content) => {
   const tmpWorkingDirectory = await fse.mkdtemp(path.join(os.tmpdir(), 'strapi-upload-'));
