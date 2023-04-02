@@ -20,6 +20,7 @@
     "build": "tsc --build",
     "test": "jest --forceExit --detectOpenHandles --runInBand",
     "test:watch": "jest --forceExit --detectOpenHandles --runInBand --watch",
+    "prepublishOnly": "npm run build",
     "release": "standard-version",
     "release:patch": "standard-version --release-as patch",
     "release:minor": "standard-version --release-as minor",
