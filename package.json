@@ -18,6 +18,8 @@
   ],
   "scripts": {
     "build": "tsc --build",
+    "lint:check": "eslint ./src ./admin && yarn prettier --check ./src ./admin",
+    "lint:fix": "eslint ./src ./admin --fix && yarn prettier --write ./src ./admin",
     "test": "jest --forceExit --detectOpenHandles --runInBand",
     "test:watch": "jest --forceExit --detectOpenHandles --runInBand --watch",
     "prepublishOnly": "npm run build",
