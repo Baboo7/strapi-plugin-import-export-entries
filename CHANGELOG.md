@@ -4,22 +4,19 @@ All notable changes to this project will be documented in this file. See [standa
 
 ### [1.18.1](https://github.com/Baboo7/strapi-plugin-import-export-entries/compare/v1.18.0...v1.18.1) (2023-04-02)
 
-
 ### 🐞 Bug Fixes
 
-* back to node-fetch v2 ([aa018cc](https://github.com/Baboo7/strapi-plugin-import-export-entries/commits/aa018cc5028e8f36d10adcae75193a7e068557c5))
-* **import:** change deprecated request by node-fetch module ([f1e63bb](https://github.com/Baboo7/strapi-plugin-import-export-entries/commits/f1e63bb27095e2922e7eae9395e1f2e79f6b4056))
-
+- back to node-fetch v2 ([aa018cc](https://github.com/Baboo7/strapi-plugin-import-export-entries/commits/aa018cc5028e8f36d10adcae75193a7e068557c5))
+- **import:** change deprecated request by node-fetch module ([f1e63bb](https://github.com/Baboo7/strapi-plugin-import-export-entries/commits/f1e63bb27095e2922e7eae9395e1f2e79f6b4056))
 
 ### 🛠 Refacto
 
-* **tests:** Move tests to specs folder ([6f0f85c](https://github.com/Baboo7/strapi-plugin-import-export-entries/commits/6f0f85c73999e38bde82765b418b32789cf27876))
-
+- **tests:** Move tests to specs folder ([6f0f85c](https://github.com/Baboo7/strapi-plugin-import-export-entries/commits/6f0f85c73999e38bde82765b418b32789cf27876))
 
 ### 🧹 Chores
 
-* **.versionrc.json:** Update commit keyword ([e7e35af](https://github.com/Baboo7/strapi-plugin-import-export-entries/commits/e7e35af98903643463896303ba5438e4713a1f29))
-* **package-lock.json:** Fix dependencies vulnerabilities ([d9bd8bc](https://github.com/Baboo7/strapi-plugin-import-export-entries/commits/d9bd8bc3ba429e5242169639d3b019014ca641eb))
+- **.versionrc.json:** Update commit keyword ([e7e35af](https://github.com/Baboo7/strapi-plugin-import-export-entries/commits/e7e35af98903643463896303ba5438e4713a1f29))
+- **package-lock.json:** Fix dependencies vulnerabilities ([d9bd8bc](https://github.com/Baboo7/strapi-plugin-import-export-entries/commits/d9bd8bc3ba429e5242169639d3b019014ca641eb))
 
 ## [1.18.0](https://github.com/Baboo7/strapi-plugin-import-export-entries/compare/v1.17.3...v1.18.0) (2022-11-05)
 

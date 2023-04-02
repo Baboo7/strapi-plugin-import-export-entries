@@ -11,7 +11,5 @@ jobs:
           node-version: '16.14.0'
       - name: Install modules
         run: yarn install
-      - name: Run lint
+      - name: Check linting
         run: yarn run lint:check
-      - name: Run prettier
-        run: yarn run prettier:check

@@ -17,10 +17,8 @@
     "server/"
   ],
   "scripts": {
-    "lint:check": "eslint .",
-    "lint:write": "eslint . --fix",
-    "prettier:check": "yarn prettier --check .",
-    "prettier:write": "yarn prettier --write .",
+    "lint:check": "eslint . && yarn prettier --check .",
+    "lint:fix": "eslint . --fix && yarn prettier --write .",
     "test": "jest --forceExit --detectOpenHandles --runInBand",
     "test:watch": "jest --forceExit --detectOpenHandles --runInBand --watch",
     "release": "standard-version",

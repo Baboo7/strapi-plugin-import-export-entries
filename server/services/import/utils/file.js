@@ -130,13 +130,12 @@ const fetchFile = async (url) => {
       name: fileData.name,
       type: contentType,
       size: contentLength,
-      path: filePath
+      path: filePath,
     };
   } catch (error) {
     throw new Error(`Tried to fetch file from url ${url} but failed with error: ${error.message}`);
   }
 };
-
 
 const writeFile = async (name, content) => {
   const tmpWorkingDirectory = await fse.mkdtemp(path.join(os.tmpdir(), 'strapi-upload-'));
