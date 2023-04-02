@@ -2349,7 +2349,7 @@
     react-intl "6.3.2"
     yup "^0.32.9"
 
-"@strapi/plugin-i18n@^4.3.6":
+"@strapi/plugin-i18n@^4.9.0":
   version "4.9.0"
   resolved "https://registry.yarnpkg.com/@strapi/plugin-i18n/-/plugin-i18n-4.9.0.tgz#f076e21d79de86d60cae01500861380d75bb05e3"
   integrity sha512-W/xbnOezK3DvtKqhznKmH6j1OwsNevtvHPh7cNPt0Vp+Tp8l8gSEUzWsWJ/JifzLXRW0OdiQmYnmHlDQaXKL7A==
@@ -2369,7 +2369,7 @@
     redux "^4.2.1"
     yup "^0.32.9"
 
-"@strapi/plugin-seo@^1.7.4":
+"@strapi/plugin-seo@^1.8.0":
   version "1.8.0"
   resolved "https://registry.yarnpkg.com/@strapi/plugin-seo/-/plugin-seo-1.8.0.tgz#cd6d9e3d00d3c15577d8d533cc7ef9206ab47040"
   integrity sha512-o3llsICF9gjTALQV7D9k/Q4XblYGlsI3Z+QRsM0tsaU890ROZqAjeloZ4sxfPaX7NlrGPuSslDMPxlnywz3jow==
@@ -2412,7 +2412,7 @@
     sharp "0.31.1"
     yup "^0.32.9"
 
-"@strapi/plugin-users-permissions@^4.3.6":
+"@strapi/plugin-users-permissions@^4.9.0":
   version "4.9.0"
   resolved "https://registry.yarnpkg.com/@strapi/plugin-users-permissions/-/plugin-users-permissions-4.9.0.tgz#b3c103aeb800700ef13384559c5ccdd41c16a969"
   integrity sha512-YATyToNc48bOodn+MxSGeVbN0ORoewctInfzwHzGoND2Q9IrkhNwZDIpksNNJFCqtLiFWKziaZBqPu/eOE/FmA==
@@ -2460,7 +2460,7 @@
     "@strapi/utils" "4.9.0"
     fs-extra "10.0.0"
 
-"@strapi/strapi@4.9.0", "@strapi/strapi@^4.3.6":
+"@strapi/strapi@4.9.0", "@strapi/strapi@^4.9.0":
   version "4.9.0"
   resolved "https://registry.yarnpkg.com/@strapi/strapi/-/strapi-4.9.0.tgz#e7460e24b7af626129106539dbd85d9c48a71fe1"
   integrity sha512-Aei28ALvdEzeeagL9EmIZjVR3Gyr1Xa4r82vXt0hyfdeKq8cDgUxiuMNkeWzQij8aZJub+Qq7PK0g1AZT66yGg==
