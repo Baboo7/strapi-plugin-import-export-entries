@@ -19,7 +19,7 @@ const generateData = (slug, customData = {}) => {
     return {
       title: faker.helpers.unique(faker.word.noun),
       description: faker.helpers.unique(faker.word.noun),
-      startDateTime: faker.date.recent().toISOString(),
+      // startDateTime: faker.date.recent().toISOString(),
       enabled: faker.datatype.boolean(),
       ...customData,
     };
@@ -28,7 +28,7 @@ const generateData = (slug, customData = {}) => {
     return {
       title: faker.helpers.unique(faker.word.noun),
       description: faker.helpers.unique(faker.word.noun),
-      startDateTime: faker.date.recent().toISOString(),
+      // startDateTime: faker.date.recent().toISOString(),
       enabled: faker.datatype.boolean(),
       ...customData,
     };

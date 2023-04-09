@@ -59,14 +59,17 @@ async function setupDatabase() {
 async function cleanupDatabase(options = {}) {
   if (CLEANUP_DB_ENABLED) {
     const cleaningCollections = Array.from(strapi.db.metadata)
-      .map(([collectionName]) => collectionName)
       .filter(shouldCleanCollection(options))
-      .map((collectionName) =>
-        strapi.db.query(collectionName).deleteMany({
-          where: {
-            id: { $gte: 0 },
-          },
-        }),
+      .map(([collectionName, { tableName }]) =>
+        Promise.all([
+          strapi.db.query(collectionName).deleteMany({
+            where: {
+              id: { $gte: 0 },
+            },
+          }),
+          // Reset auto increment sequence
+          strapi.db.connection.raw(`DELETE FROM "sqlite_sequence" WHERE "name" = '${tableName}'`),
+        ]),
       );
 
     await Promise.all(cleaningCollections);
@@ -74,7 +77,7 @@ async function cleanupDatabase(options = {}) {
 }
 
 const shouldCleanCollection = ({ broadCleaning = false } = {}) => {
-  return (collectionName) => {
+  return ([collectionName]) => {
     if (broadCleaning) {
       return collectionName.startsWith('admin::') || collectionName.startsWith('api::') || collectionName.startsWith('plugin::') || isComponent(collectionName);
     }

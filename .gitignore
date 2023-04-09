@@ -132,3 +132,8 @@ dist
 .DS_Store
 .strapi-updater.json
 data.sqlite
+
+# Build folders
+/libs/
+/server/
+/types/

@@ -12,4 +12,8 @@ jobs:
       - name: Install modules
         run: yarn install
       - name: Check linting
-        run: yarn run lint:check
+        run: yarn lint:check
+      - name: Build
+        run: yarn build
+      - name: Test
+        run: yarn test
