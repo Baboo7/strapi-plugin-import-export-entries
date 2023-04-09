@@ -17,7 +17,7 @@
     "server/"
   ],
   "scripts": {
-    "build": "tsc --build",
+    "dev": "nodemon --exec yarn build",
     "lint:check": "eslint ./src ./admin && yarn prettier --check ./src ./admin",
     "lint:fix": "eslint ./src ./admin --fix && yarn prettier --write ./src ./admin",
     "test": "jest --forceExit --detectOpenHandles --runInBand",
@@ -53,6 +53,7 @@
     "eslint-plugin-react": "^7.30.1",
     "eslint-plugin-simple-import-sort": "^8.0.0",
     "jest": "^29.0.2",
+    "nodemon": "^2.0.22",
     "prettier": "^2.7.1",
     "sqlite3": "^5.0.11",
     "standard-version": "^9.5.0",
