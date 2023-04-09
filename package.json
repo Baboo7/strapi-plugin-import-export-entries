@@ -17,6 +17,7 @@
     "server/"
   ],
   "scripts": {
+    "build": "rm -rf libs server types && tsc --build",
     "dev": "nodemon --exec yarn build",
     "lint:check": "eslint ./src ./admin && yarn prettier --check ./src ./admin",
     "lint:fix": "eslint ./src ./admin --fix && yarn prettier --write ./src ./admin",
