@@ -1,7 +1,7 @@
 /**
  * Check if value is an array.
  */
-const isArraySafe = <T>(val: T | T[]): val is T[] => {
+export const isArraySafe = <T>(val: T | T[]): val is T[] => {
   return val && Array.isArray(val);
 };
 
@@ -10,7 +10,7 @@ const isArraySafe = <T>(val: T | T[]): val is T[] => {
  * @param {*} val
  * @returns {Array<*>}
  */
-const toArray = <T>(val: T | T[]): T[] => {
+export const toArray = <T>(val: T | T[]): T[] => {
   return isArraySafe(val) ? val : [val];
 };
 
