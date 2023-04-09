@@ -120,10 +120,10 @@ type ExportDataSlugEntries = {
  * Export data.
  */
 const exportDataV2 = async ({ slug, search, applySearch, deepness = 5 }: { slug: SchemaUID; search: string; applySearch: boolean; deepness: number }): Promise<string> => {
-  slug = slug === CustomSlugs.WHOLE_DB ? getAllSlugs() : toArray(CustomSlugToSlug[slug] || slug);
+  const slugsToExport: SchemaUID[] = slug === CustomSlugs.WHOLE_DB ? getAllSlugs() : toArray(CustomSlugToSlug[slug] || slug);
 
   let entries: ExportData = {};
-  for (const slug of getAllSlugs()) {
+  for (const slug of slugsToExport) {
     const hierarchy = buildSlugHierarchy(slug, deepness);
     const slugEntries = await findEntriesForHierarchy(slug, hierarchy, deepness, { ...(applySearch ? { search } : {}) });
     entries = mergeObjects(entries, slugEntries);
