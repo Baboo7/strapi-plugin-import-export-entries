@@ -17,13 +17,14 @@
     "server/"
   ],
   "scripts": {
-    "build": "rm -rf libs server types && tsc --build",
+    "build": "tsc --build",
+    "build:clean": "rm -rf libs server types",
     "dev": "nodemon --exec yarn build",
     "lint:check": "eslint ./src ./admin && yarn prettier --check ./src ./admin",
     "lint:fix": "eslint ./src ./admin --fix && yarn prettier --write ./src ./admin",
     "test": "jest --forceExit --detectOpenHandles --runInBand",
     "test:watch": "jest --forceExit --detectOpenHandles --runInBand --watch",
-    "prepublishOnly": "npm run build",
+    "prepublishOnly": "yarn build:clean && yarn build",
     "release": "standard-version",
     "release:patch": "standard-version --release-as patch",
     "release:minor": "standard-version --release-as minor",
