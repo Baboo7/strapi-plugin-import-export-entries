@@ -6,7 +6,6 @@ import { AttributeType } from '@strapi/strapi';
 export {
   getAllSlugs,
   getModel,
-  getModelConfig,
   getModelFromSlugOrModel,
   getModelAttributes,
   isComponentAttribute,
@@ -21,7 +20,6 @@ export {
 module.exports = {
   getAllSlugs,
   getModel,
-  getModelConfig,
   getModelFromSlugOrModel,
   getModelAttributes,
   isComponentAttribute,
@@ -39,14 +37,6 @@ function getAllSlugs(): SchemaUID[] {
 
 function getModel(slug: SchemaUID): Schema {
   return strapi.getModel(slug);
-}
-
-function getModelConfig(modelOrSlug: SchemaUID | Schema): { isLocalized: boolean } {
-  const model = getModelFromSlugOrModel(modelOrSlug);
-
-  return {
-    isLocalized: !!model.pluginOptions?.i18n?.localized,
-  };
 }
 
 function getModelFromSlugOrModel(modelOrSlug: SchemaUID | Schema): Schema {
@@ -76,28 +66,20 @@ function getModelAttributes(
      * Remove attributes matching the specified target(s).
      */
     filterOutTarget?: SchemaUID | SchemaUID[];
-    /**
-     * Add `id` in the returned attributes.
-     */
-    addIdAttribute?: boolean;
   } = {},
-): ((Attribute & { name: string }) | { name: 'id' })[] {
+): (Attribute & { name: string })[] {
   const typesToKeep = options.filterType ? toArray(options.filterType) : [];
   const typesToFilterOut = options.filterOutType ? toArray(options.filterOutType) : [];
   const targetsToFilterOut = toArray(options.filterOutTarget || []);
 
   const attributesObj = getModel(slug).attributes;
-  let attributes: ((Attribute & { name: string }) | { name: 'id' })[] = Object.keys(attributesObj)
-    .reduce((acc, key) => acc.concat({ ...(attributesObj[key] as Attribute), name: key as string }), [] as ((Attribute & { name: string }) | { name: 'id' })[])
+  let attributes: (Attribute & { name: string })[] = Object.keys(attributesObj)
+    .reduce((acc, key) => acc.concat({ ...(attributesObj[key] as Attribute), name: key as string }), [] as (Attribute & { name: string })[])
     .filter((attr) => !typesToFilterOut.includes((attr as any).type))
     .filter((attr) => !targetsToFilterOut.includes((attr as any).target));
 
   if (typesToKeep.length) {
     attributes = attributes.filter((attr) => typesToKeep.includes((attr as any).type));
-  }
-
-  if (options.addIdAttribute) {
-    attributes.unshift({ name: 'id' });
   }
 
   return attributes;

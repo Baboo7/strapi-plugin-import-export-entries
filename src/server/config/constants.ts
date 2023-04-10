@@ -9,10 +9,6 @@ export const CustomSlugToSlug = {
   [CustomSlugs.MEDIA]: 'plugin::upload.file',
 } as const;
 
-export const getSlugFromCustomSlug = (slug: SchemaUID): SchemaUID => {
-  return CustomSlugToSlug[slug] || slug;
-};
-
 export const isCustomSlug = (slug: SchemaUID): boolean => {
   return !!CustomSlugToSlug[slug];
 };
@@ -20,6 +16,5 @@ export const isCustomSlug = (slug: SchemaUID): boolean => {
 module.exports = {
   CustomSlugs,
   CustomSlugToSlug,
-  getSlugFromCustomSlug,
   isCustomSlug,
 };
