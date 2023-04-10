@@ -185,7 +185,7 @@ const updateOrCreateRelation = async (user, rel, relData) => {
     relData = rel.multiple ? relData : relData.slice(0, 1);
     const entryIds = [];
     for (const relDatum of relData) {
-      const media = await findOrImportFile(relDatum, user, { allowedFileTypes: rel.allowedTypes });
+      const media = await findOrImportFile(relDatum, user, { allowedFileTypes: rel.allowedTypes ?? ['any'] });
       if (media?.id) {
         entryIds.push(media.id);
       }
