@@ -7,6 +7,7 @@ import {
   DynamicZoneAttribute as StrapiDynamicZoneAttribute,
   DynamicZoneValue as StrapiDynamicZoneValue,
   MediaAttribute as StrapiMediaAttribute,
+  MediaValue as StrapiMediaValue,
   RelationAttribute as StrapiRelationAttribute,
   RelationValue as StrapiRelationValue,
 } from '@strapi/strapi';
@@ -22,12 +23,16 @@ export type {
   EntryId,
   ComponentEntry,
   DynamicZoneEntry,
+  MediaEntry,
   RelationEntry,
   Schema,
   CollectionTypeSchema,
   SingleTypeSchema,
   ComponentSchema,
+  User,
 };
+
+type User = any;
 
 type BaseAttribute = { name: string };
 type Attribute = ComponentAttribute | DynamicZoneAttribute | MediaAttribute | RelationAttribute;
@@ -51,6 +56,7 @@ type RelationAttribute = BaseAttribute &
 type Entry = ComponentEntry | DynamicZoneEntry | RelationEntry;
 type ComponentEntry = (WithI18n<StrapiComponentValue<'own-component', true>> & EntryBase) | (WithI18n<StrapiComponentValue<'own-component', false>> & EntryBase);
 type DynamicZoneEntry = WithI18n<UnwrapArray<StrapiDynamicZoneValue<['own-component']>>> & EntryBase;
+type MediaEntry = StrapiMediaValue;
 type RelationEntry =
   | (WithI18n<StrapiRelationValue<'oneToOne', 'own-collection-type' | 'own-single-type'>> & EntryBase)
   | (WithI18n<StrapiRelationValue<'oneToMany', 'own-collection-type' | 'own-single-type'>> & EntryBase)
