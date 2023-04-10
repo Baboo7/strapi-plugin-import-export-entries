@@ -1,55 +1,56 @@
-const fs = require('fs');
-const fse = require('fs-extra');
-const last = require('lodash/last');
-const trim = require('lodash/trim');
-const os = require('os');
-const path = require('path');
-const fetch = require('node-fetch');
+import { Entry, MediaEntry, User } from '../../../types';
+import { FileEntry } from '../types';
+import fs from 'fs';
+import fse from 'fs-extra';
+import last from 'lodash/last';
+import trim from 'lodash/trim';
+import os from 'os';
+import path from 'path';
+import fetch from 'node-fetch';
+import { isObjectSafe } from '../../../../libs/objects';
 
-const { isObjectSafe } = require('../../../../libs/objects');
+export { findOrImportFile };
 
-/**
- * Find or import a file.
- * @param {*} fileData - Strapi file data.
- * @param {*} user - Strapi user.
- * @param {Object} options
- * @param {Array<string>} options.allowedFileTypes - File types the file should match (see Strapi file allowedTypes).
- * @returns
- */
-const findOrImportFile = async (fileData, user, { allowedFileTypes }) => {
-  let obj = {};
-  if (typeof fileData === 'number') {
-    obj.id = fileData;
-  } else if (typeof fileData === 'string') {
-    obj.url = fileData;
-  } else if (isObjectSafe(fileData)) {
-    obj = fileData;
+module.exports = {
+  findOrImportFile,
+};
+
+type AllowedMediaTypes = keyof typeof fileTypeCheckers;
+type FileEntryMedia = {
+  id: string;
+  hash: string;
+  name: string;
+  url: string;
+  alternativeText: string;
+  caption: string;
+};
+
+async function findOrImportFile(fileEntry: FileEntry, user: User, { allowedFileTypes }: { allowedFileTypes: AllowedMediaTypes[] }): Promise<Entry | null> {
+  let obj: Partial<FileEntryMedia> = {};
+  if (typeof fileEntry === 'number') {
+    obj.id = fileEntry;
+  } else if (typeof fileEntry === 'string') {
+    obj.url = fileEntry;
+  } else if (isObjectSafe(fileEntry)) {
+    obj = fileEntry;
   } else {
-    throw new Error(`Invalid data format '${typeof fileData}' to import media. Only 'string', 'number', 'object' are accepted.`);
+    throw new Error(`Invalid data format '${typeof fileEntry}' to import media. Only 'string', 'number', 'object' are accepted.`);
   }
 
-  let file = await findFile(obj, user, allowedFileTypes);
+  let file: MediaEntry | null = await findFile(obj, user, allowedFileTypes);
 
   if (file && !isExtensionAllowed(file.ext.substring(1), allowedFileTypes)) {
     file = null;
   }
 
   return file;
-};
+}
 
-/**
- * Find a file.
- * @param {Object} filters
- * @param {number} [filters.id] - File id.
- * @param {string} [filters.hash] - File hash.
- * @param {string} [filters.name] - File name.
- * @param {string} [filters.url]
- * @param {string} [filters.alternativeText]
- * @param {string} [filters.caption]
- * @param {Object} user
- * @returns
- */
-const findFile = async ({ id, hash, name, url, alternativeText, caption }, user, allowedFileTypes) => {
+const findFile = async (
+  { id, hash, name, url, alternativeText, caption }: Partial<FileEntryMedia>,
+  user: User,
+  allowedFileTypes: AllowedMediaTypes[],
+): Promise<MediaEntry | null> => {
   let file = null;
 
   if (!file && id) {
@@ -67,7 +68,7 @@ const findFile = async ({ id, hash, name, url, alternativeText, caption }, user,
       file = await findFile({ hash: checkResult.fileData.hash, name: checkResult.fileData.fileName }, user, allowedFileTypes);
 
       if (!file) {
-        file = await importFile({ id, url: checkResult.fileData.rawUrl, name, alternativeText, caption }, user);
+        file = await importFile({ id: id!, url: checkResult.fileData.rawUrl, name: name!, alternativeText: alternativeText!, caption: caption! }, user);
       }
     }
   }
@@ -75,7 +76,10 @@ const findFile = async ({ id, hash, name, url, alternativeText, caption }, user,
   return file;
 };
 
-const importFile = async ({ id, url, name, alternativeText, caption }, user) => {
+const importFile = async (
+  { id, url, name, alternativeText, caption }: { id: string; url: string; name: string; alternativeText: string; caption: string },
+  user: User,
+): Promise<MediaEntry> => {
   let file;
   try {
     file = await fetchFile(url);
@@ -114,15 +118,24 @@ const importFile = async ({ id, url, name, alternativeText, caption }, user) => 
     strapi.log.error(err);
     throw err;
   } finally {
-    deleteFileIfExists(file?.path);
+    if (file?.path) {
+      deleteFileIfExists(file?.path);
+    }
   }
 };
 
-const fetchFile = async (url) => {
+const fetchFile = async (
+  url: string,
+): Promise<{
+  name: string;
+  type: string;
+  size: number;
+  path: string;
+}> => {
   try {
     const response = await fetch(url);
-    const contentType = response.headers.get('content-type').split(';')[0];
-    const contentLength = parseInt(response.headers.get('content-length')) || 0;
+    const contentType = response.headers.get('content-type')?.split(';')?.[0] || '';
+    const contentLength = parseInt(response.headers.get('content-length') || '0', 10) || 0;
     const buffer = await response.buffer();
     const fileData = getFileDataFromRawUrl(url);
     const filePath = await writeFile(fileData.name, buffer);
@@ -132,12 +145,12 @@ const fetchFile = async (url) => {
       size: contentLength,
       path: filePath,
     };
-  } catch (error) {
+  } catch (error: any) {
     throw new Error(`Tried to fetch file from url ${url} but failed with error: ${error.message}`);
   }
 };
 
-const writeFile = async (name, content) => {
+const writeFile = async (name: string, content: Buffer): Promise<string> => {
   const tmpWorkingDirectory = await fse.mkdtemp(path.join(os.tmpdir(), 'strapi-upload-'));
 
   const filePath = path.join(tmpWorkingDirectory, name);
@@ -150,13 +163,23 @@ const writeFile = async (name, content) => {
   }
 };
 
-const deleteFileIfExists = (filePath) => {
+const deleteFileIfExists = (filePath: string): void => {
   if (filePath && fs.existsSync(filePath)) {
     fs.rmSync(filePath);
   }
 };
 
-const isValidFileUrl = (url, allowedFileTypes) => {
+const isValidFileUrl = (
+  url: string,
+  allowedFileTypes: AllowedMediaTypes[],
+): {
+  isValid: boolean;
+  fileData: {
+    hash: string;
+    fileName: string;
+    rawUrl: string;
+  };
+} => {
   try {
     const fileData = getFileDataFromRawUrl(url);
 
@@ -181,7 +204,7 @@ const isValidFileUrl = (url, allowedFileTypes) => {
   }
 };
 
-const isExtensionAllowed = (ext, allowedFileTypes) => {
+const isExtensionAllowed = (ext: string, allowedFileTypes: AllowedMediaTypes[]) => {
   const checkers = allowedFileTypes.map(getFileTypeChecker);
   return checkers.some((checker) => checker(ext));
 };
@@ -192,14 +215,14 @@ const ALLOWED_VIDEOS = ['mp4', 'avi'];
 
 /** See Strapi file allowedTypes for object keys. */
 const fileTypeCheckers = {
-  any: (ext) => true,
-  audios: (ext) => ALLOWED_AUDIOS.includes(ext),
-  files: (ext) => true,
-  images: (ext) => ALLOWED_IMAGES.includes(ext),
-  videos: (ext) => ALLOWED_VIDEOS.includes(ext),
-};
+  any: (ext: string) => true,
+  audios: (ext: string) => ALLOWED_AUDIOS.includes(ext),
+  files: (ext: string) => true,
+  images: (ext: string) => ALLOWED_IMAGES.includes(ext),
+  videos: (ext: string) => ALLOWED_VIDEOS.includes(ext),
+} as const;
 
-const getFileTypeChecker = (type) => {
+const getFileTypeChecker = (type: AllowedMediaTypes) => {
   const checker = fileTypeCheckers[type];
   if (!checker) {
     throw new Error(`Strapi file type ${type} not handled.`);
@@ -207,20 +230,22 @@ const getFileTypeChecker = (type) => {
   return checker;
 };
 
-const getFileDataFromRawUrl = (rawUrl) => {
+const getFileDataFromRawUrl = (
+  rawUrl: string,
+): {
+  hash: string;
+  name: string;
+  extension: string;
+} => {
   const parsedUrl = new URL(decodeURIComponent(rawUrl));
 
   const name = trim(parsedUrl.pathname, '/').replace(/\//g, '-');
-  const extension = parsedUrl.pathname.split('.').pop().toLowerCase();
-  const hash = last(parsedUrl.pathname.split('/')).slice(0, -(extension.length + 1));
+  const extension = parsedUrl.pathname.split('.').pop()?.toLowerCase() || '';
+  const hash = last(parsedUrl.pathname.split('/'))?.slice(0, -(extension!.length + 1)) || '';
 
   return {
     hash,
     name,
     extension,
   };
-};
-
-module.exports = {
-  findOrImportFile,
 };
