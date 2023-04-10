@@ -1,98 +1,26 @@
-import {
-  CollectionTypeSchema as StrapiCollectionTypeSchema,
-  ComponentSchema as StrapiComponentSchema,
-  SingleTypeSchema as StrapiSingleTypeSchema,
-  Attribute as StrapiAttribute,
-  AttributeType as StrapiAttributeType,
-  ComponentAttribute as StrapiComponentAttribute,
-  ComponentValue as StrapiComponentValue,
-  ContentTypeSchema as StrapiContentTypeSchema,
-  DynamicZoneAttribute as StrapiDynamicZoneAttribute,
-  DynamicZoneValue as StrapiDynamicZoneValue,
-  MediaAttribute as StrapiMediaAttribute,
-  RelationAttribute as StrapiRelationAttribute,
-  RelationValue as StrapiRelationValue,
-} from '@strapi/strapi';
-import { EnumValues } from '../../../types';
-const cloneDeep = require('lodash/cloneDeep');
-const fromPairs = require('lodash/fromPairs');
-const { isEmpty, merge } = require('lodash/fp');
-const qs = require('qs');
+import { Attribute, ComponentAttribute, ComponentEntry, DynamicZoneAttribute, DynamicZoneEntry, Entry, EntryId, MediaAttribute, RelationAttribute, Schema } from '../../types';
+import cloneDeep from 'lodash/cloneDeep';
+import fromPairs from 'lodash/fromPairs';
+import { isEmpty, merge } from 'lodash/fp';
+import qs from 'qs';
 import { isArraySafe, toArray } from '../../../libs/arrays';
 import { CustomSlugToSlug, CustomSlugs } from '../../config/constants';
 import { SchemaUID } from '@strapi/strapi/lib/types/utils';
 import { ObjectBuilder, isObjectSafe, mergeObjects } from '../../../libs/objects';
-const { getModelAttributes, getAllSlugs } = require('../../utils/models');
+import { EnumValues } from '../../../types';
+import {
+  getModelAttributes,
+  getAllSlugs,
+  isComponentAttribute,
+  isDynamicZoneAttribute,
+  isMediaAttribute,
+  isRelationAttribute,
+  getModel,
+  deleteEntryProp,
+  setEntryProp,
+  getEntryProp,
+} from '../../utils/models';
 const { convertToJson } = require('./converters-v2');
-
-type BaseAttribute = { name: string };
-type Attribute = ComponentAttribute | DynamicZoneAttribute | MediaAttribute | RelationAttribute;
-type ComponentAttribute = BaseAttribute & (StrapiComponentAttribute<'own-component', true> | StrapiComponentAttribute<'own-component', false>);
-type DynamicZoneAttribute = BaseAttribute & StrapiDynamicZoneAttribute<['own-component']>;
-type MediaAttribute = BaseAttribute & StrapiMediaAttribute<'audios' | 'files' | 'images' | 'videos'>;
-type RelationAttribute = BaseAttribute &
-  (
-    | StrapiRelationAttribute<'own-collection-type' | 'own-single-type', 'oneToOne'>
-    | StrapiRelationAttribute<'own-collection-type' | 'own-single-type', 'oneToMany'>
-    | StrapiRelationAttribute<'own-collection-type' | 'own-single-type', 'manyToOne'>
-    | StrapiRelationAttribute<'own-collection-type' | 'own-single-type', 'manyToMany'>
-  );
-// TODO: filter out polymorphic relations
-// | StrapiRelationAttribute<'own-collection-type' | 'own-single-type', 'morphOne'>
-// | StrapiRelationAttribute<'own-collection-type' | 'own-single-type', 'morphMany'>
-// | StrapiRelationAttribute<'own-collection-type' | 'own-single-type', 'morphToOne'>
-// | StrapiRelationAttribute<'own-collection-type' | 'own-single-type', 'morphToMany'>
-
-// Media are not included in type because equals any atm.
-type Entry = ComponentEntry | DynamicZoneEntry | RelationEntry;
-type ComponentEntry = (WithI18n<StrapiComponentValue<'own-component', true>> & EntryBase) | (WithI18n<StrapiComponentValue<'own-component', false>> & EntryBase);
-type DynamicZoneEntry = WithI18n<UnwrapArray<StrapiDynamicZoneValue<['own-component']>>> & EntryBase;
-type RelationEntry =
-  | (WithI18n<StrapiRelationValue<'oneToOne', 'own-collection-type' | 'own-single-type'>> & EntryBase)
-  | (WithI18n<StrapiRelationValue<'oneToMany', 'own-collection-type' | 'own-single-type'>> & EntryBase)
-  | (WithI18n<StrapiRelationValue<'manyToOne', 'own-collection-type' | 'own-single-type'>> & EntryBase)
-  | (WithI18n<StrapiRelationValue<'manyToMany', 'own-collection-type' | 'own-single-type'>> & EntryBase);
-// TODO: filter out polymorphic relations
-// | (WithI18n<StrapiRelationValue<'morphOne', 'own-collection-type' | 'own-single-type'>> & EntryBase)
-// | (WithI18n<StrapiRelationValue<'morphMany', 'own-collection-type' | 'own-single-type'>> & EntryBase)
-// | (WithI18n<StrapiRelationValue<'morphToOne', 'own-collection-type' | 'own-single-type'>> & EntryBase)
-// | (WithI18n<StrapiRelationValue<'morphToMany', 'own-collection-type' | 'own-single-type'>> & EntryBase);
-type EntryBase = { id: EntryId };
-type EntryId = number | string;
-type WithI18n<T> = UnwrapArray<T> & {
-  localizations?: UnwrapArray<T>[];
-  locale?: string;
-};
-type UnwrapArray<T> = T extends Array<infer U> ? U : T;
-
-type Schema = CollectionTypeSchema | SingleTypeSchema | ComponentSchema;
-type CollectionTypeSchema = StrapiCollectionTypeSchema & SchemaPluginOptions;
-type SingleTypeSchema = StrapiSingleTypeSchema & SchemaPluginOptions;
-type ComponentSchema = StrapiComponentSchema & { uid: SchemaUID } & SchemaPluginOptions;
-type SchemaPluginOptions = {
-  pluginOptions?: {
-    'content-manager'?: {
-      visible?: boolean;
-    };
-    'content-type-builder'?: {
-      visible?: boolean;
-    };
-    i18n?: {
-      localized?: true;
-    };
-  };
-};
-
-const getSchema = (slug: SchemaUID): Schema => strapi.getModel(slug);
-const getEntryProp = (entry: Entry, prop: string): any => {
-  return (entry as any)[prop];
-};
-const setEntryProp = (entry: Entry, prop: string, value: any): void => {
-  (entry as any)[prop] = value;
-};
-const deleteEntryProp = (entry: Entry, prop: string): void => {
-  delete (entry as any)[prop];
-};
 
 const dataFormats = {
   JSON: 'json',
@@ -116,6 +44,7 @@ type ExportDataSlugEntries = {
     };
   };
 };
+
 /**
  * Export data.
  */
@@ -145,7 +74,7 @@ const findEntriesForHierarchy = async (
   deepness: number,
   { search, ids }: { search?: string; ids?: EntryId[] },
 ): Promise<ExportDataSlugEntries> => {
-  const schema = getSchema(slug);
+  const schema = getModel(slug);
 
   if (schema.uid === 'admin::user') {
     return {};
@@ -216,7 +145,7 @@ const findEntriesForHierarchy = async (
     };
 
     const flattenEntry = (entry: Entry, slug: SchemaUID) => {
-      const attributes: Attribute[] = getModelAttributes(slug, { filterType: ['component', 'dynamiczone', 'media', 'relation'] });
+      const attributes: Attribute[] = getModelAttributes(slug, { filterType: ['component', 'dynamiczone', 'media', 'relation'] }) as Attribute[];
 
       for (const attribute of attributes) {
         setEntryProp(entry, attribute.name, flattenProperty(attribute, getEntryProp(entry, attribute.name)));
@@ -233,7 +162,7 @@ const findEntriesForHierarchy = async (
   // Skip admin::user slug.
   const filterOutUnwantedRelations = () => {
     const UNWANTED_RELATIONS: SchemaUID[] = ['admin::user'];
-    const attributes: RelationAttribute[] = getModelAttributes(slug, { filterType: ['relation'] });
+    const attributes: RelationAttribute[] = getModelAttributes(slug, { filterType: ['relation'] }) as RelationAttribute[];
 
     return entries.map((entry) => {
       attributes.forEach((attribute) => {
@@ -247,7 +176,7 @@ const findEntriesForHierarchy = async (
   filterOutUnwantedRelations();
 
   const findAndFlattenComponentAttributes = async () => {
-    let attributes: ComponentAttribute[] = getModelAttributes(slug, { filterType: ['component'] });
+    let attributes: ComponentAttribute[] = getModelAttributes(slug, { filterType: ['component'] }) as ComponentAttribute[];
     for (const attribute of attributes) {
       if (!hierarchy[attribute.name]?.__slug) {
         continue;
@@ -266,7 +195,7 @@ const findEntriesForHierarchy = async (
   await findAndFlattenComponentAttributes();
 
   const findAndFlattenDynamicZoneAttributes = async () => {
-    let attributes: DynamicZoneAttribute[] = getModelAttributes(slug, { filterType: ['dynamiczone'] });
+    let attributes: DynamicZoneAttribute[] = getModelAttributes(slug, { filterType: ['dynamiczone'] }) as DynamicZoneAttribute[];
     for (const attribute of attributes) {
       for (const componentSlug of attribute.components) {
         const componentHierarchy = hierarchy[attribute.name]?.[componentSlug];
@@ -288,7 +217,7 @@ const findEntriesForHierarchy = async (
   await findAndFlattenDynamicZoneAttributes();
 
   const findAndFlattenMediaAttributes = async () => {
-    let attributes: MediaAttribute[] = getModelAttributes(slug, { filterType: ['media'] });
+    let attributes: MediaAttribute[] = getModelAttributes(slug, { filterType: ['media'] }) as MediaAttribute[];
     for (const attribute of attributes) {
       if (!hierarchy[attribute.name]?.__slug) {
         continue;
@@ -307,7 +236,7 @@ const findEntriesForHierarchy = async (
   await findAndFlattenMediaAttributes();
 
   const findAndFlattenRelationAttributes = async () => {
-    let attributes = getModelAttributes(slug, { filterType: ['relation'] });
+    let attributes: RelationAttribute[] = getModelAttributes(slug, { filterType: ['relation'] }) as RelationAttribute[];
     for (const attribute of attributes) {
       if (!hierarchy[attribute.name]?.__slug) {
         continue;
@@ -353,7 +282,8 @@ const findEntries = async (slug: string, deepness: number, { search, ids }: { se
 const buildFilterQuery = (search = '') => {
   let { filters, sort: sortRaw } = qs.parse(search);
 
-  const [attr, value] = sortRaw?.split(':') || [];
+  // TODO: improve query parsing
+  const [attr, value] = (sortRaw as string)?.split(':') || [];
   const sort: Record<string, string> = {};
   if (attr && value) {
     sort[attr] = value.toLowerCase();
@@ -433,13 +363,13 @@ const getPopulateFromSchema = (slug: string, deepness = 5): Populate | true | un
   return isEmpty(populate) ? true : { populate };
 };
 
-// TODO
+// TODO: type hierarchy
 type Hierarchy = any;
 // type Hierarchy = {
 //   [key: string]: Hierarchy | string;
 // };
 
-const buildSlugHierarchy = (slug: string, deepness = 5): Hierarchy => {
+const buildSlugHierarchy = (slug: SchemaUID, deepness = 5): Hierarchy => {
   slug = CustomSlugToSlug[slug] || slug;
 
   if (deepness <= 1) {
@@ -450,8 +380,8 @@ const buildSlugHierarchy = (slug: string, deepness = 5): Hierarchy => {
     __slug: slug,
   };
 
-  const model: StrapiContentTypeSchema = strapi.getModel(slug);
-  for (const [attributeName, attribute] of Object.entries(getModelPopulationAttributes(model)) as [string, StrapiAttribute][]) {
+  const model = getModel(slug);
+  for (const [attributeName, attribute] of Object.entries(getModelPopulationAttributes(model)) as [string, Attribute][]) {
     if (!attribute) {
       continue;
     }
@@ -466,30 +396,15 @@ const buildSlugHierarchy = (slug: string, deepness = 5): Hierarchy => {
         hierarchy[attributeName] = relationHierarchy;
       }
     } else if (isMediaAttribute(attribute)) {
-      hierarchy[attributeName] = buildSlugHierarchy(CustomSlugs.MEDIA, deepness - 1);
+      // TODO: remove casting
+      hierarchy[attributeName] = buildSlugHierarchy(CustomSlugs.MEDIA as SchemaUID, deepness - 1);
     }
   }
 
   return hierarchy;
 };
 
-const isComponentAttribute = (attribute: any): attribute is ComponentAttribute => {
-  return (attribute as { type: StrapiAttributeType }).type === 'component';
-};
-
-const isDynamicZoneAttribute = (attribute: any): attribute is DynamicZoneAttribute => {
-  return (attribute as { type: StrapiAttributeType }).type === 'dynamiczone';
-};
-
-const isMediaAttribute = (attribute: any): attribute is MediaAttribute => {
-  return (attribute as { type: StrapiAttributeType }).type === 'media';
-};
-
-const isRelationAttribute = (attribute: any): attribute is RelationAttribute => {
-  return (attribute as { type: StrapiAttributeType }).type === 'relation';
-};
-
-const getModelPopulationAttributes = (model: StrapiContentTypeSchema) => {
+const getModelPopulationAttributes = (model: Schema) => {
   if (model.uid === 'plugin::upload.file') {
     const { related, ...attributes } = model.attributes;
     return attributes;

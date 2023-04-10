@@ -1,75 +1,97 @@
-const cloneDeep = require('lodash/cloneDeep');
-const isEmpty = require('lodash/isEmpty');
-const omit = require('lodash/omit');
-const pick = require('lodash/pick');
-const { isArraySafe } = require('../../../libs/arrays');
-
-const { ObjectBuilder } = require('../../../libs/objects');
-const { CustomSlugs, CustomSlugToSlug } = require('../../config/constants');
-const { getModel, getModelAttributes, getModelConfig } = require('../../utils/models');
+import cloneDeep from 'lodash/cloneDeep';
+import isEmpty from 'lodash/isEmpty';
+import omit from 'lodash/omit';
+import pick from 'lodash/pick';
+import { toArray } from '../../../libs/arrays';
+import { ObjectBuilder } from '../../../libs/objects';
+import { getEntryProp, getModel, getModelAttributes } from '../../utils/models';
+import { SchemaUID } from '@strapi/strapi/lib/types/utils';
+import { Entry, EntryId } from '../../types';
 const { findOrImportFile } = require('./utils/file');
 
-/**
- * @typedef {Object} ImportDataRes
- * @property {Array<ImportDataFailures>} failures
- */
-/**
- * Represents failed imports.
- * @typedef {Object} ImportDataFailures
- * @property {Error} error - Error raised.
- * @property {Object} data - Data for which import failed.
- */
+type Import = {
+  version: 2;
+  data: ImportData;
+};
+type ImportData = ImportDataSlugEntries;
+type ImportDataSlugEntries = {
+  [slug in SchemaUID]: {
+    [key: string]: {
+      [attribute: string]: string | number | string[] | number[] | null;
+    };
+  };
+};
+
+type ImportFailures = {
+  /** Error raised. */
+  error: Error;
+  /** Data for which import failed. */
+  data: any;
+};
+
+type User = any;
+
 /**
  * Import data.
- * @param {Object} fileContent - Content of the import file.
- * @param {Object} options
- * @param {string} options.slug - Slug of the imported model.
- * @param {Object} options.user - User importing the data.
- * @param {Object} options.idField - Field used as unique identifier.
  * @returns {Promise<ImportDataRes>}
  */
-const importDataV2 = async (fileContent, { slug, user, idField }) => {
+const importDataV2 = async (
+  fileContent: Import,
+  {
+    slug,
+    user,
+    idField,
+  }: {
+    slug: SchemaUID;
+    /** User importing the data. */
+    user: User;
+    /** Field used as unique identifier. */
+    idField: string;
+  },
+) => {
   const { data } = fileContent;
 
-  const slugs = Object.keys(data);
-  let failures = [];
+  const slugs: SchemaUID[] = Object.keys(data) as SchemaUID[];
+  let failures: ImportFailures[] = [];
   // Import without setting relations.
   for (const slugFromFile of slugs) {
-    let slugFailures = [];
-    if (slugFromFile === CustomSlugToSlug[CustomSlugs.MEDIA]) {
-      slugFailures = await importMedia(Object.values(data[slugFromFile]), { user }).then((res) => res.slugFailures);
+    if (slugFromFile === 'plugin::upload.file') {
+      const res = await importMedia(Object.values(data[slugFromFile]) as unknown as Entry[], { user });
+      failures.push(...res.failures);
     } else {
-      slugFailures = await importOtherSlug(Object.values(data[slugFromFile]), {
+      const res = await importOtherSlug(Object.values(data[slugFromFile]) as unknown as Entry[], {
         slug: slugFromFile,
         user,
         // Keep behavior of `idField` of version 1.
         ...(slugFromFile === slug ? { idField } : {}),
         importStage: 'simpleAttributes',
-      }).then((res) => res.failures);
+      });
+      failures.push(...res.failures);
     }
-    failures = [...failures, ...(slugFailures || [])];
   }
 
   // Set relations relations.
   for (const slugFromFile of slugs) {
-    let slugFailures = [];
-    if (slugFromFile === CustomSlugToSlug[CustomSlugs.MEDIA]) {
-      slugFailures = await importMedia(Object.values(data[slugFromFile]), { user }).then((res) => res.slugFailures);
+    if (slugFromFile === 'plugin::upload.file') {
+      // TODO: are media imported twice?
+      const res = await importMedia(Object.values(data[slugFromFile]) as unknown as Entry[], { user });
+      failures.push(...res.failures);
     } else {
-      slugFailures = await importOtherSlug(Object.values(data[slugFromFile]), {
+      const res = await importOtherSlug(Object.values(data[slugFromFile]) as unknown as Entry[], {
         slug: slugFromFile,
         user,
         // Keep behavior of `idField` of version 1.
         ...(slugFromFile === slug ? { idField } : {}),
         importStage: 'relationAttributes',
-      }).then((res) => res.failures);
+      });
+      failures.push(...res.failures);
     }
-    failures = [...failures, ...(slugFailures || [])];
   }
 
   // Sync primary key sequence for postgres databases.
   // See https://github.com/strapi/strapi/issues/12493.
-  if (strapi.db.config.connection.client === 'postgres') {
+  // TODO: improve strapi typing
+  if ((strapi.db as any).config.connection.client === 'postgres') {
     for (const slugFromFile of slugs) {
       const model = getModel(slugFromFile);
       await strapi.db.connection.raw(`SELECT SETVAL((SELECT PG_GET_SERIAL_SEQUENCE('${model.collectionName}', 'id')), (SELECT MAX(id) FROM ${model.collectionName}) + 1, FALSE);`);
@@ -79,39 +101,34 @@ const importDataV2 = async (fileContent, { slug, user, idField }) => {
   return { failures };
 };
 
-const importMedia = async (fileData, { user }) => {
-  const processed = [];
+const importMedia = async (fileData: Entry[], { user }: { user: User }): Promise<{ failures: ImportFailures[] }> => {
+  const failures: ImportFailures[] = [];
   for (let fileDatum of fileData) {
     let res;
     try {
       await findOrImportFile(fileDatum, user, { allowedFileTypes: ['any'] });
-      res = { success: true };
-    } catch (err) {
+    } catch (err: any) {
       strapi.log.error(err);
-      res = { success: false, error: err.message, args: [fileDatum] };
+      failures.push({ error: err.message, data: fileDatum });
     }
-    processed.push(res);
   }
-
-  const failures = processed.filter((p) => !p.success).map((f) => ({ error: f.error, data: f.args[0] }));
 
   return {
     failures,
   };
 };
 
-/**
- * Import data.
- * @param {Array<Object>} data
- * @param {Object} importOptions
- * @param {('simpleAttributes'|'relationAttributes')} [importOptions.importStage]
- */
-const importOtherSlug = async (data, { slug, user, idField, importStage }) => {
-  // Sort localized data with default locale first.
-  await (async () => {
-    const { isLocalized } = getModelConfig(slug);
+type ImportStage = 'simpleAttributes' | 'relationAttributes';
 
-    if (isLocalized) {
+const importOtherSlug = async (
+  data: Entry[],
+  { slug, user, idField, importStage }: { slug: SchemaUID; user: User; idField?: string; importStage: ImportStage },
+): Promise<{ failures: ImportFailures[] }> => {
+  // Sort localized data with default locale first.
+  const sortDataByLocale = async () => {
+    const schema = getModel(slug);
+
+    if (schema.pluginOptions?.i18n?.localized) {
       const defaultLocale = await strapi.plugin('i18n').service('locales').getDefaultLocale();
       data = data.sort((dataA, dataB) => {
         if (dataA?.locale === defaultLocale && dataB?.locale === defaultLocale) {
@@ -122,79 +139,58 @@ const importOtherSlug = async (data, { slug, user, idField, importStage }) => {
         return 1;
       });
     }
-  })();
+  };
+  await sortDataByLocale();
 
-  const processed = [];
+  const failures: ImportFailures[] = [];
   for (let datum of data) {
-    let res;
     try {
       await updateOrCreate(user, slug, datum, idField, { importStage });
-      res = { success: true };
-    } catch (err) {
+    } catch (err: any) {
       strapi.log.error(err);
-      res = { success: false, error: err.message, args: [datum] };
+      failures.push({ error: err.message, data: datum });
     }
-    processed.push(res);
   }
-
-  const failures = processed.filter((p) => !p.success).map((f) => ({ error: f.error, data: f.args[0] }));
 
   return {
     failures,
   };
 };
 
-/**
- * Update or create entries for a given model.
- * @param {Object} user - User importing the data.
- * @param {string} slug - Slug of the model.
- * @param {Object} datum - Data to update/create entries from.
- * @param {string} idField - Field used as unique identifier.
- * @param {Object} importOptions
- * @param {('simpleAttributes'|'relationAttributes')} [importOptions.importStage]
- */
-const updateOrCreate = async (user, slug, datum, idField = 'id', { importStage }) => {
-  datum = cloneDeep(datum);
+const updateOrCreate = async (user: User, slug: SchemaUID, datumArg: Entry, idField = 'id', { importStage }: { importStage: ImportStage }) => {
+  const schema = getModel(slug);
+  let datum = cloneDeep(datumArg);
 
   if (importStage == 'simpleAttributes') {
-    const attributeNames = getModelAttributes(slug, { filterOutType: ['component', 'dynamiczone', 'media', 'relation'], addIdAttribute: true })
+    const attributeNames = getModelAttributes(slug, { filterOutType: ['component', 'dynamiczone', 'media', 'relation'] })
       .map(({ name }) => name)
-      .concat('localizations', 'locale');
-    datum = pick(datum, attributeNames);
+      .concat('id', 'localizations', 'locale');
+    datum = pick(datum, attributeNames) as Entry;
   } else if (importStage === 'relationAttributes') {
-    const attributeNames = getModelAttributes(slug, { filterType: ['component', 'dynamiczone', 'media', 'relation'], addIdAttribute: true })
+    const attributeNames = getModelAttributes(slug, { filterType: ['component', 'dynamiczone', 'media', 'relation'] })
       .map(({ name }) => name)
-      .concat('localizations', 'locale');
-    datum = pick(datum, attributeNames);
+      .concat('id', 'localizations', 'locale');
+    datum = pick(datum, attributeNames) as Entry;
   }
 
-  const model = getModel(slug);
-  if (model.kind === 'singleType') {
-    await updateOrCreateSingleType(user, slug, datum, { importStage });
+  // TODO: handle components create or update?
+  if (schema.modelType === 'contentType' && schema.kind === 'singleType') {
+    await updateOrCreateSingleTypeEntry(user, slug, datum, { importStage });
   } else {
-    await updateOrCreateCollectionType(user, slug, datum, { idField, importStage });
+    await updateOrCreateEntry(user, slug, datum, { idField, importStage });
   }
 };
 
-/**
- * Update or create entries for a given model.
- * @param {Object} user - User importing the data.
- * @param {string} slug - Slug of the model.
- * @param {Object} datum - Data to update/create entries from.
- * @param {Object} importOptions
- * @param {string} [importOptions.idField] - Field used as unique identifier.
- * @param {('simpleAttributes'|'relationAttributes')} [importOptions.importStage]
- */
-const updateOrCreateCollectionType = async (user, slug, datum, { idField, importStage }) => {
-  const { isLocalized } = getModelConfig(slug);
+const updateOrCreateEntry = async (user: User, slug: SchemaUID, datum: Entry, { idField, importStage }: { idField: string; importStage: ImportStage }) => {
+  const schema = getModel(slug);
 
   const whereBuilder = new ObjectBuilder();
-  if (datum[idField]) {
-    whereBuilder.extend({ [idField]: datum[idField] });
+  if (getEntryProp(datum, idField)) {
+    whereBuilder.extend({ [idField]: getEntryProp(datum, idField) });
   }
   const where = whereBuilder.get();
 
-  if (!isLocalized) {
+  if (!schema.pluginOptions?.i18n?.localized) {
     let entry = await strapi.db.query(slug).findOne({ where });
 
     if (!entry) {
@@ -256,24 +252,24 @@ const updateOrCreateCollectionType = async (user, slug, datum, { idField, import
         throw new Error(`Could not find default locale entry to import localization for slug ${slug} (data ${JSON.stringify(datum)})`);
       }
 
-      datum = omit({ ...datum }, ['id']);
-
       if (!entry) {
-        const createHandler = strapi.plugin('i18n').service('core-api').createCreateLocalizationHandler(getModel(slug));
-        await createHandler({ id: entryDefaultLocale.id, data: datum });
+        const insertLocalizedEntry = strapi.plugin('i18n').service('core-api').createCreateLocalizationHandler(getModel(slug));
+        await insertLocalizedEntry({ id: entryDefaultLocale.id, data: omit({ ...datum }, ['id']) });
       } else {
-        await strapi.entityService.update(slug, entry.id, { data: datum });
+        await strapi.entityService.update(slug, entry.id, { data: omit({ ...datum }, ['id']) });
       }
     }
   }
 };
 
-const updateOrCreateSingleType = async (user, slug, datum, { importStage }) => {
-  const { isLocalized } = getModelConfig(slug);
+const updateOrCreateSingleTypeEntry = async (user: User, slug: SchemaUID, datum: Entry, { importStage }: { importStage: ImportStage }) => {
+  const schema = getModel(slug);
 
-  if (!isLocalized) {
-    let entry = await strapi.db.query(slug).findMany();
-    entry = isArraySafe(entry) ? entry[0] : entry;
+  if (!schema.pluginOptions?.i18n?.localized) {
+    let entry: Entry = await strapi.db
+      .query(slug)
+      .findMany({})
+      .then((entries) => toArray(entries)?.[0]);
 
     if (!entry) {
       await strapi.entityService.create(slug, { data: datum });
@@ -306,19 +302,17 @@ const updateOrCreateSingleType = async (user, slug, datum, { importStage }) => {
 
       await strapi.db.query(slug).delete({ where: { locale: datum.locale } });
 
-      const createHandler = strapi.plugin('i18n').service('core-api').createCreateLocalizationHandler(getModel(slug));
-      await createHandler({ id: entryDefaultLocale.id, data: datumLocale });
+      const insertLocalizedEntry = strapi.plugin('i18n').service('core-api').createCreateLocalizationHandler(getModel(slug));
+      await insertLocalizedEntry({ id: entryDefaultLocale.id, data: datumLocale });
     }
   }
 };
 
-const updateEntry = async (slug, id, datum, { importStage }) => {
-  datum = omit(datum, ['id']);
-
+const updateEntry = async (slug: SchemaUID, id: EntryId, datum: Entry, { importStage }: { importStage: ImportStage }) => {
   if (importStage === 'simpleAttributes') {
-    await strapi.entityService.update(slug, id, { data: datum });
+    await strapi.entityService.update(slug, id, { data: omit(datum, ['id']) });
   } else if (importStage === 'relationAttributes') {
-    await strapi.db.query(slug).update({ where: { id }, data: datum });
+    await strapi.db.query(slug).update({ where: { id }, data: omit(datum, ['id']) });
   }
 };
 
