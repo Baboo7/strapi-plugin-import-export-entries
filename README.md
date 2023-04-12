@@ -366,7 +366,7 @@ type RouteParams = {
    * */
   data: string | Object | Object[];
   /** Format of the passed data to import. */
-  format: 'csv' | 'json';
+  format: 'csv' | 'json' | 'json-v2';
   /** Name of the field to use as a unique identifier for entries. Default: "id" */
   idField?: string;
 };
@@ -393,7 +393,7 @@ type RouteParams = {
   /** Slug of the model to export. */
   slug: string;
   /** Format to use to export the data. */
-  exportFormat: 'csv' | 'json';
+  exportFormat: 'csv' | 'json' | 'json-v2';
   /** Search query used to select the entries to export. The package `qs` is used to parse the query. Default: "" */
   search?: string;
   /** Whether to apply the search query. Default: false */
