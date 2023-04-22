@@ -9,6 +9,7 @@ import range from 'lodash/range';
 import React, { memo, useState } from 'react';
 
 import { Header } from '../../components/Header';
+import { Alerts } from '../../components/Injected/Alerts';
 import { InjectedExportButton } from '../../components/InjectedExportButton';
 import { InjectedImportButton } from '../../components/InjectedImportButton';
 import { useI18n } from '../../hooks/useI18n';
@@ -100,6 +101,8 @@ const HomePage = () => {
           </Box>
         </Flex>
       </ContentLayout>
+
+      <Alerts />
     </>
   );
 };
