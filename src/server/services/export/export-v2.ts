@@ -180,7 +180,8 @@ async function findEntriesForHierarchy(
   const findAndFlattenComponentAttributes = async () => {
     let attributes: ComponentAttribute[] = getModelAttributes(slug, { filterType: ['component'] }) as ComponentAttribute[];
     for (const attribute of attributes) {
-      if (!hierarchy[attribute.name]?.__slug) {
+      const attributeSlug: SchemaUID | undefined = hierarchy[attribute.name]?.__slug;
+      if (!attributeSlug) {
         continue;
       }
 
@@ -189,9 +190,9 @@ async function findEntriesForHierarchy(
         .flatMap((entry) => getEntryProp(entry, attribute.name) as ComponentEntry | ComponentEntry[])
         .filter((entry) => !!entry.id)
         .map((entry) => entry.id)
-        .filter((id) => typeof store?.[slug]?.[`${id}`] === 'undefined');
+        .filter((id) => typeof store?.[attributeSlug]?.[`${id}`] === 'undefined');
 
-      const dataToStore = await findEntriesForHierarchy(store, hierarchy[attribute.name].__slug, hierarchy[attribute.name], deepness - 1, { ids });
+      const dataToStore = await findEntriesForHierarchy(store, attributeSlug, hierarchy[attribute.name], deepness - 1, { ids });
       store = mergeObjects(dataToStore, store);
     }
   };
@@ -200,20 +201,21 @@ async function findEntriesForHierarchy(
   const findAndFlattenDynamicZoneAttributes = async () => {
     let attributes: DynamicZoneAttribute[] = getModelAttributes(slug, { filterType: ['dynamiczone'] }) as DynamicZoneAttribute[];
     for (const attribute of attributes) {
-      for (const slug of attribute.components) {
-        const componentHierarchy = hierarchy[attribute.name]?.[slug];
-        if (!componentHierarchy?.__slug) {
+      for (const slugFromAttribute of attribute.components) {
+        const componentHierarchy = hierarchy[attribute.name]?.[slugFromAttribute];
+        const componentSlug: SchemaUID | undefined = componentHierarchy?.__slug;
+        if (!componentSlug) {
           continue;
         }
 
         const ids = entries
           .filter((entry) => !!getEntryProp(entry, attribute.name))
           .flatMap((entry) => getEntryProp(entry, attribute.name))
-          .filter((entry: DynamicZoneEntry) => entry?.__component === slug)
+          .filter((entry: DynamicZoneEntry) => entry?.__component === slugFromAttribute)
           .map((entry) => entry.id)
-          .filter((id) => typeof store?.[slug]?.[`${id}`] === 'undefined');
+          .filter((id) => typeof store?.[componentSlug]?.[`${id}`] === 'undefined');
 
-        const dataToStore = await findEntriesForHierarchy(store, componentHierarchy.__slug, componentHierarchy, deepness - 1, { ids });
+        const dataToStore = await findEntriesForHierarchy(store, componentSlug, componentHierarchy, deepness - 1, { ids });
         store = mergeObjects(dataToStore, store);
       }
     }
@@ -223,7 +225,8 @@ async function findEntriesForHierarchy(
   const findAndFlattenMediaAttributes = async () => {
     let attributes: MediaAttribute[] = getModelAttributes(slug, { filterType: ['media'] }) as MediaAttribute[];
     for (const attribute of attributes) {
-      if (!hierarchy[attribute.name]?.__slug) {
+      const attributeSlug: SchemaUID | undefined = hierarchy[attribute.name]?.__slug;
+      if (!attributeSlug) {
         continue;
       }
 
@@ -232,9 +235,9 @@ async function findEntriesForHierarchy(
         .flatMap((entry) => getEntryProp(entry, attribute.name))
         .filter((entry) => !!entry.id)
         .map((entry) => entry.id)
-        .filter((id) => typeof store?.[slug]?.[`${id}`] === 'undefined');
+        .filter((id) => typeof store?.[attributeSlug]?.[`${id}`] === 'undefined');
 
-      const dataToStore = await findEntriesForHierarchy(store, hierarchy[attribute.name].__slug, hierarchy[attribute.name], deepness - 1, { ids });
+      const dataToStore = await findEntriesForHierarchy(store, attributeSlug, hierarchy[attribute.name], deepness - 1, { ids });
       store = mergeObjects(dataToStore, store);
     }
   };
@@ -243,7 +246,8 @@ async function findEntriesForHierarchy(
   const findAndFlattenRelationAttributes = async () => {
     let attributes: RelationAttribute[] = getModelAttributes(slug, { filterType: ['relation'] }) as RelationAttribute[];
     for (const attribute of attributes) {
-      if (!hierarchy[attribute.name]?.__slug) {
+      const attributeSlug: SchemaUID | undefined = hierarchy[attribute.name]?.__slug;
+      if (!attributeSlug) {
         continue;
       }
 
@@ -252,9 +256,9 @@ async function findEntriesForHierarchy(
         .flatMap((entry) => getEntryProp(entry, attribute.name))
         .filter((entry) => !!entry.id)
         .map((entry) => entry.id)
-        .filter((id) => typeof store?.[slug]?.[`${id}`] === 'undefined');
+        .filter((id) => typeof store?.[attributeSlug]?.[`${id}`] === 'undefined');
 
-      const dataToStore = await findEntriesForHierarchy(store, hierarchy[attribute.name].__slug, hierarchy[attribute.name], deepness - 1, { ids });
+      const dataToStore = await findEntriesForHierarchy(store, attributeSlug, hierarchy[attribute.name], deepness - 1, { ids });
       store = mergeObjects(dataToStore, store);
     }
   };
