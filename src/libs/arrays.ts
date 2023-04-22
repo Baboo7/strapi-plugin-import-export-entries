@@ -1,7 +1,8 @@
-export { extract, isArraySafe, toArray };
+export { extract, filterOutDuplicates, isArraySafe, toArray };
 
 module.exports = {
   extract,
+  filterOutDuplicates,
   isArraySafe,
   toArray,
 };
@@ -27,4 +28,10 @@ function extract<T>(arr: T[], predicate: (item: T, index: number, arr: T[]) => b
   // Modify `arr` in place.
   arr.splice(0, arr.length, ...arr.filter((v, i, a) => !predicate(v, i, a)));
   return extractedValues;
+}
+
+function filterOutDuplicates<T>(predicate?: (valueA: T, valueB: T) => boolean) {
+  const isStrictlyEqual = (valueA: T, valueB: T) => valueA === valueB;
+  const findIndexPredicate = predicate || isStrictlyEqual;
+  return (value: T, index: number, array: T[]): boolean => array.findIndex((v) => findIndexPredicate(v, value)) === index;
 }
