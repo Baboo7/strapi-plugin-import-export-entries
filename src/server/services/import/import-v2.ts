@@ -2,13 +2,13 @@ import cloneDeep from 'lodash/cloneDeep';
 import isEmpty from 'lodash/isEmpty';
 import omit from 'lodash/omit';
 import pick from 'lodash/pick';
-import { toArray } from '../../../libs/arrays';
+import { extract, toArray } from '../../../libs/arrays';
 import { ObjectBuilder } from '../../../libs/objects';
-import { getModel, getModelAttributes } from '../../utils/models';
+import { getModel, getModelAttributes, isComponentAttribute, isDynamicZoneAttribute, isMediaAttribute, isRelationAttribute } from '../../utils/models';
 import { SchemaUID } from '@strapi/strapi/lib/types/utils';
-import { Entry, EntryId, User } from '../../types';
+import { Entry, EntryId, Schema, User } from '../../types';
 import { toPairs } from 'lodash';
-import { FileEntry, FileId } from './types';
+import { FileEntry, FileEntryDynamicZone, FileId } from './types';
 import { findOrImportFile } from './utils/file';
 
 type Import = {
@@ -53,7 +53,7 @@ class IdMapper {
 const importDataV2 = async (
   fileContent: Import,
   {
-    slug,
+    slug: slugArg,
     user,
     idField,
   }: {
@@ -70,43 +70,43 @@ const importDataV2 = async (
   let failures: ImportFailures[] = [];
   const fileIdToDbId = new IdMapper();
 
-  // Import without setting relations.
-  for (const slugFromFile of slugs) {
-    if (slugFromFile === 'plugin::upload.file') {
-      const res = await importMedia(data[slugFromFile], { user, fileIdToDbId });
-      failures.push(...res.failures);
-    } else {
-      const res = await importOtherSlug(data[slugFromFile], {
-        slug: slugFromFile,
-        user,
-        // Keep behavior of `idField` of version 1.
-        ...(slugFromFile === slug ? { idField } : {}),
-        importStage: 'simpleAttributes',
-        fileIdToDbId,
-      });
-      failures.push(...res.failures);
-    }
+  const { componentSlugs, mediaSlugs, contentTypeSlugs } = splitSlugs(slugs);
+  const componentsDataStore: Partial<Record<SchemaUID, SlugEntries>> = {};
+  for (const slug of componentSlugs) {
+    componentsDataStore[slug] = data[slug];
   }
 
-  // Set relations relations.
-  // TODO: prevent importing media twice
-  // const SLUGS_TO_SKIP: SchemaUID[] = ['plugin::upload.file'];
-  // for (const slugFromFile of slugs.filter(slug => !SLUGS_TO_SKIP.includes(slug))) {
-  for (const slugFromFile of slugs) {
-    if (slugFromFile === 'plugin::upload.file') {
-      const res = await importMedia(data[slugFromFile], { user, fileIdToDbId });
-      failures.push(...res.failures);
-    } else {
-      const res = await importOtherSlug(data[slugFromFile], {
-        slug: slugFromFile,
-        user,
-        // Keep behavior of `idField` of version 1.
-        ...(slugFromFile === slug ? { idField } : {}),
-        importStage: 'relationAttributes',
-        fileIdToDbId,
-      });
-      failures.push(...res.failures);
-    }
+  for (const slug of mediaSlugs) {
+    const res = await importMedia(data[slug], { user, fileIdToDbId });
+    failures.push(...res.failures);
+  }
+
+  // Import content types without setting relations.
+  for (const slug of contentTypeSlugs) {
+    const res = await importContentTypeSlug(data[slug], {
+      slug: slug,
+      user,
+      // Keep behavior of `idField` of version 1.
+      ...(slug === slugArg ? { idField } : {}),
+      importStage: 'simpleAttributes',
+      fileIdToDbId,
+      componentsDataStore,
+    });
+    failures.push(...res.failures);
+  }
+
+  // Set relations of content types.
+  for (const slug of contentTypeSlugs) {
+    const res = await importContentTypeSlug(data[slug], {
+      slug: slug,
+      user,
+      // Keep behavior of `idField` of version 1.
+      ...(slug === slugArg ? { idField } : {}),
+      importStage: 'relationAttributes',
+      fileIdToDbId,
+      componentsDataStore,
+    });
+    failures.push(...res.failures);
   }
 
   // Sync primary key sequence for postgres databases.
@@ -115,12 +115,25 @@ const importDataV2 = async (
   if ((strapi.db as any).config.connection.client === 'postgres') {
     for (const slugFromFile of slugs) {
       const model = getModel(slugFromFile);
+      // TODO: handle case when `id` is not a number;
       await strapi.db.connection.raw(`SELECT SETVAL((SELECT PG_GET_SERIAL_SEQUENCE('${model.collectionName}', 'id')), (SELECT MAX(id) FROM ${model.collectionName}) + 1, FALSE);`);
     }
   }
 
   return { failures };
 };
+
+function splitSlugs(slugs: SchemaUID[]) {
+  const slugsToProcess = [...slugs];
+  const componentSlugs = extract(slugsToProcess, (slug) => getModel(slug).modelType === 'component');
+  const mediaSlugs = extract(slugsToProcess, (slug) => ['plugin::upload.file'].includes(slug));
+  const contentTypeSlugs = extract(slugsToProcess, (slug) => getModel(slug).modelType === 'contentType');
+  return {
+    componentSlugs,
+    mediaSlugs,
+    contentTypeSlugs,
+  };
+}
 
 const importMedia = async (slugEntries: SlugEntries, { user, fileIdToDbId }: { user: User; fileIdToDbId: IdMapper }): Promise<{ failures: ImportFailures[] }> => {
   const failures: ImportFailures[] = [];
@@ -135,7 +148,7 @@ const importMedia = async (slugEntries: SlugEntries, { user, fileIdToDbId }: { u
       }
     } catch (err: any) {
       strapi.log.error(err);
-      failures.push({ error: err.message, data: fileEntry });
+      failures.push({ error: err, data: fileEntry });
     }
   }
 
@@ -146,9 +159,16 @@ const importMedia = async (slugEntries: SlugEntries, { user, fileIdToDbId }: { u
 
 type ImportStage = 'simpleAttributes' | 'relationAttributes';
 
-const importOtherSlug = async (
+const importContentTypeSlug = async (
   slugEntries: SlugEntries,
-  { slug, user, idField, importStage, fileIdToDbId }: { slug: SchemaUID; user: User; idField?: string; importStage: ImportStage; fileIdToDbId: IdMapper },
+  {
+    slug,
+    user,
+    idField,
+    importStage,
+    fileIdToDbId,
+    componentsDataStore,
+  }: { slug: SchemaUID; user: User; idField?: string; importStage: ImportStage; fileIdToDbId: IdMapper; componentsDataStore: Partial<Record<SchemaUID, SlugEntries>> },
 ): Promise<{ failures: ImportFailures[] }> => {
   let fileEntries = toPairs(slugEntries);
 
@@ -173,10 +193,10 @@ const importOtherSlug = async (
   const failures: ImportFailures[] = [];
   for (let [fileId, fileEntry] of fileEntries) {
     try {
-      await updateOrCreate(user, slug, fileId, fileEntry, idField, { importStage, fileIdToDbId });
+      await updateOrCreate(user, slug, fileId, fileEntry, idField, { importStage, fileIdToDbId, componentsDataStore });
     } catch (err: any) {
       strapi.log.error(err);
-      failures.push({ error: err.message, data: fileEntry });
+      failures.push({ error: err, data: fileEntry });
     }
   }
 
@@ -191,39 +211,142 @@ const updateOrCreate = async (
   fileId: FileId,
   fileEntryArg: FileEntry,
   idField = 'id',
-  { importStage, fileIdToDbId }: { importStage: ImportStage; fileIdToDbId: IdMapper },
+  { importStage, fileIdToDbId, componentsDataStore }: { importStage: ImportStage; fileIdToDbId: IdMapper; componentsDataStore: Partial<Record<SchemaUID, SlugEntries>> },
 ) => {
   const schema = getModel(slug);
   let fileEntry = cloneDeep(fileEntryArg);
 
   if (importStage == 'simpleAttributes') {
-    const attributeNames = getModelAttributes(slug, { filterOutType: ['component', 'dynamiczone', 'media', 'relation'] })
+    fileEntry = removeComponents(schema, fileEntry);
+    const attributeNames = getModelAttributes(slug, { filterOutType: ['media', 'relation'] })
       .map(({ name }) => name)
       .concat('id', 'localizations', 'locale');
     fileEntry = pick(fileEntry, attributeNames);
   } else if (importStage === 'relationAttributes') {
+    fileEntry = setComponents(schema, fileEntry, { fileIdToDbId, componentsDataStore });
     const attributeNames = getModelAttributes(slug, { filterType: ['component', 'dynamiczone', 'media', 'relation'] })
       .map(({ name }) => name)
       .concat('id', 'localizations', 'locale');
     fileEntry = pick(fileEntry, attributeNames);
-
-    // TODO: update ids using mapping file id => db id, once components PR merged
   }
 
+  let dbEntry: Entry | null = null;
   if (schema.modelType === 'contentType' && schema.kind === 'singleType') {
-    await updateOrCreateSingleTypeEntry(user, slug, fileId, fileEntry, { importStage, fileIdToDbId });
+    dbEntry = await updateOrCreateSingleTypeEntry(user, slug, fileId, fileEntry, { importStage, fileIdToDbId });
   } else {
-    await updateOrCreateEntry(user, slug, fileId, fileEntry, { idField, importStage, fileIdToDbId });
+    dbEntry = await updateOrCreateCollectionTypeEntry(user, slug, fileId, fileEntry, { idField, importStage, fileIdToDbId });
+  }
+  if (dbEntry) {
+    fileIdToDbId.setMapping(slug, fileId, dbEntry.id);
   }
 };
 
-const updateOrCreateEntry = async (
+function removeComponents(schema: Schema, fileEntry: FileEntry) {
+  const store: Record<string, any> = {};
+  for (const [attributeName, attribute] of Object.entries(schema.attributes)) {
+    // Do not reset an attribute component that is not imported.
+    if (typeof fileEntry[attributeName] === 'undefined') {
+      continue;
+    }
+
+    if (isComponentAttribute(attribute)) {
+      if (attribute.repeatable) {
+        store[attributeName] = [];
+      } else {
+        store[attributeName] = null;
+      }
+    } else if (isDynamicZoneAttribute(attribute)) {
+      store[attributeName] = [];
+    }
+  }
+
+  return { ...fileEntry, ...(store || {}) };
+}
+
+function setComponents(
+  schema: Schema,
+  fileEntry: FileEntry,
+  { fileIdToDbId, componentsDataStore }: { fileIdToDbId: IdMapper; componentsDataStore: Partial<Record<SchemaUID, SlugEntries>> },
+) {
+  const store: Record<string, any> = {};
+  for (const [attributeName, attribute] of Object.entries(schema.attributes)) {
+    const attributeValue = fileEntry[attributeName];
+    if (attributeValue == null) {
+      continue;
+    } else if (isComponentAttribute(attribute)) {
+      if (attribute.repeatable) {
+        store[attributeName] = (attributeValue as (number | string)[]).map((componentFileId) =>
+          getComponentData(attribute.component, `${componentFileId}`, { fileIdToDbId, componentsDataStore }),
+        );
+      } else {
+        store[attributeName] = getComponentData(attribute.component, `${attributeValue as number | string}`, { fileIdToDbId, componentsDataStore });
+      }
+    } else if (isDynamicZoneAttribute(attribute)) {
+      store[attributeName] = (attributeValue as FileEntryDynamicZone[]).map(({ __component, id }) => getComponentData(__component, `${id}`, { fileIdToDbId, componentsDataStore }));
+    }
+  }
+
+  return { ...fileEntry, ...(store || {}) };
+}
+
+function getComponentData(
+  /** Slug of the component. */
+  slug: SchemaUID,
+  /** File id of the component. */
+  fileId: FileId,
+  { fileIdToDbId, componentsDataStore }: { fileIdToDbId: IdMapper; componentsDataStore: Partial<Record<SchemaUID, SlugEntries>> },
+): Record<string, any> | null {
+  const schema = getModel(slug);
+  const fileEntry = componentsDataStore[slug]![`${fileId}`];
+
+  if (fileEntry == null) {
+    return null;
+  }
+
+  const store: Record<string, any> = { ...omit(fileEntry, ['id']), __component: slug };
+
+  for (const [attributeName, attribute] of Object.entries(schema.attributes)) {
+    const attributeValue = fileEntry[attributeName];
+    if (attributeValue == null) {
+      store[attributeName] = null;
+      continue;
+    }
+
+    if (isComponentAttribute(attribute)) {
+      if (attribute.repeatable) {
+        store[attributeName] = (attributeValue as (number | string)[]).map((componentFileId) =>
+          getComponentData(attribute.component, `${componentFileId}`, { fileIdToDbId, componentsDataStore }),
+        );
+      } else {
+        store[attributeName] = getComponentData(attribute.component, `${attributeValue as number | string}`, { fileIdToDbId, componentsDataStore });
+      }
+    } else if (isDynamicZoneAttribute(attribute)) {
+      store[attributeName] = (attributeValue as FileEntryDynamicZone[]).map(({ __component, id }) => getComponentData(__component, `${id}`, { fileIdToDbId, componentsDataStore }));
+    } else if (isMediaAttribute(attribute)) {
+      if (attribute.multiple) {
+        store[attributeName] = (attributeValue as (number | string)[]).map((id) => fileIdToDbId.getMapping('plugin::upload.file', id));
+      } else {
+        store[attributeName] = fileIdToDbId.getMapping('plugin::upload.file', attributeValue as number | string);
+      }
+    } else if (isRelationAttribute(attribute)) {
+      if (attribute.relation.endsWith('Many')) {
+        store[attributeName] = (attributeValue as (number | string)[]).map((id) => fileIdToDbId.getMapping(attribute.target, id));
+      } else {
+        store[attributeName] = fileIdToDbId.getMapping(attribute.target, attributeValue as number | string);
+      }
+    }
+  }
+
+  return store;
+}
+
+const updateOrCreateCollectionTypeEntry = async (
   user: User,
   slug: SchemaUID,
   fileId: FileId,
   fileEntry: FileEntry,
   { idField, importStage, fileIdToDbId }: { idField: string; importStage: ImportStage; fileIdToDbId: IdMapper },
-) => {
+): Promise<Entry | null> => {
   const schema = getModel(slug);
 
   const whereBuilder = new ObjectBuilder();
@@ -238,11 +361,10 @@ const updateOrCreateEntry = async (
     let dbEntry: Entry = await strapi.db.query(slug).findOne({ where });
 
     if (!dbEntry) {
-      dbEntry = await strapi.entityService.create(slug, { data: fileEntry });
+      return strapi.entityService.create(slug, { data: fileEntry });
     } else {
-      dbEntry = await updateEntry(slug, dbEntry.id, fileEntry, { importStage });
+      return strapi.entityService.update(slug, dbEntry.id, { data: omit(fileEntry, ['id']) });
     }
-    fileIdToDbId.setMapping(slug, fileId, dbEntry.id);
   } else {
     if (!fileEntry.locale) {
       throw new Error(`No locale set to import entry for slug ${slug} (data ${JSON.stringify(fileEntry)})`);
@@ -283,16 +405,14 @@ const updateOrCreateEntry = async (
 
     fileEntry = omit(fileEntry, ['localizations']);
     if (isEmpty(omit(fileEntry, ['id']))) {
-      return;
+      return null;
     }
 
     if (isDatumInDefaultLocale) {
       if (!dbEntryDefaultLocaleId) {
-        const createdEntry = await strapi.entityService.create(slug, { data: fileEntry });
-        fileIdToDbId.setMapping(slug, fileId, createdEntry.id);
+        return strapi.entityService.create(slug, { data: fileEntry });
       } else {
-        const updatedEntry = await strapi.entityService.update(slug, dbEntryDefaultLocaleId, { data: omit({ ...fileEntry }, ['id']) });
-        fileIdToDbId.setMapping(slug, fileId, updatedEntry.id);
+        return strapi.entityService.update(slug, dbEntryDefaultLocaleId, { data: omit({ ...fileEntry }, ['id']) });
       }
     } else {
       if (!dbEntryDefaultLocaleId) {
@@ -301,11 +421,9 @@ const updateOrCreateEntry = async (
 
       if (!dbEntry) {
         const insertLocalizedEntry = strapi.plugin('i18n').service('core-api').createCreateLocalizationHandler(getModel(slug));
-        const createdEntry: Entry = await insertLocalizedEntry({ id: dbEntryDefaultLocaleId, data: omit({ ...fileEntry }, ['id']) });
-        fileIdToDbId.setMapping(slug, fileId, createdEntry.id);
+        return insertLocalizedEntry({ id: dbEntryDefaultLocaleId, data: omit({ ...fileEntry }, ['id']) });
       } else {
-        const updatedEntry = await strapi.entityService.update(slug, dbEntry.id, { data: omit({ ...fileEntry }, ['id']) });
-        fileIdToDbId.setMapping(slug, fileId, updatedEntry.id);
+        return strapi.entityService.update(slug, dbEntry.id, { data: omit({ ...fileEntry }, ['id']) });
       }
     }
   }
@@ -317,7 +435,7 @@ const updateOrCreateSingleTypeEntry = async (
   fileId: FileId,
   fileEntry: FileEntry,
   { importStage, fileIdToDbId }: { importStage: ImportStage; fileIdToDbId: IdMapper },
-) => {
+): Promise<Entry | null> => {
   const schema = getModel(slug);
 
   if (!schema.pluginOptions?.i18n?.localized) {
@@ -327,11 +445,9 @@ const updateOrCreateSingleTypeEntry = async (
       .then((entries) => toArray(entries)?.[0]);
 
     if (!dbEntry) {
-      const createdEntry = await strapi.entityService.create(slug, { data: fileEntry });
-      fileIdToDbId.setMapping(slug, fileId, createdEntry.id);
+      return strapi.entityService.create(slug, { data: fileEntry });
     } else {
-      const updatedEntry = await updateEntry(slug, dbEntry.id, fileEntry, { importStage });
-      fileIdToDbId.setMapping(slug, fileId, updatedEntry.id);
+      return strapi.entityService.update(slug, dbEntry.id, { data: omit(fileEntry, ['id']) });
     }
   } else {
     const defaultLocale = await strapi.plugin('i18n').service('locales').getDefaultLocale();
@@ -339,7 +455,7 @@ const updateOrCreateSingleTypeEntry = async (
 
     fileEntry = omit(fileEntry, ['localizations']);
     if (isEmpty(omit(fileEntry, ['id']))) {
-      return;
+      return null;
     }
 
     let entryDefaultLocale = await strapi.db.query(slug).findOne({ where: { locale: defaultLocale } });
@@ -349,11 +465,9 @@ const updateOrCreateSingleTypeEntry = async (
 
     if (isDatumInDefaultLocale) {
       if (!entryDefaultLocale) {
-        const createdEntry: Entry = await strapi.entityService.create(slug, { data: fileEntry });
-        fileIdToDbId.setMapping(slug, fileId, createdEntry.id);
+        return strapi.entityService.create(slug, { data: fileEntry });
       } else {
-        const updatedEntry: Entry = await strapi.entityService.update(slug, entryDefaultLocale.id, { data: fileEntry });
-        fileIdToDbId.setMapping(slug, fileId, updatedEntry.id);
+        return strapi.entityService.update(slug, entryDefaultLocale.id, { data: fileEntry });
       }
     } else {
       const entryLocale = await strapi.db.query(slug).findOne({ where: { locale: fileEntry.locale } });
@@ -362,21 +476,9 @@ const updateOrCreateSingleTypeEntry = async (
       await strapi.db.query(slug).delete({ where: { locale: fileEntry.locale } });
 
       const insertLocalizedEntry = strapi.plugin('i18n').service('core-api').createCreateLocalizationHandler(getModel(slug));
-      const createdEntry: Entry = await insertLocalizedEntry({ id: entryDefaultLocale.id, data: datumLocale });
-      fileIdToDbId.setMapping(slug, fileId, createdEntry.id);
+      return insertLocalizedEntry({ id: entryDefaultLocale.id, data: datumLocale });
     }
   }
-};
-
-const updateEntry = async (slug: SchemaUID, dbId: EntryId, fileEntry: FileEntry, { importStage }: { importStage: ImportStage }): Promise<Entry> => {
-  if (importStage === 'simpleAttributes') {
-    // Use entity service to validate values of attributes
-    return strapi.entityService.update(slug, dbId, { data: omit(fileEntry, ['id']) });
-  } else if (importStage === 'relationAttributes') {
-    return strapi.db.query(slug).update({ where: { id: dbId }, data: omit(fileEntry, ['id']) });
-  }
-
-  throw new Error(`Unhandled importStage ${importStage}`);
 };
 
 module.exports = {

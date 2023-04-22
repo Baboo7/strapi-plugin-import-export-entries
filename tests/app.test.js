@@ -8,11 +8,10 @@ beforeAll(async () => {
 });
 
 afterAll(async () => {
-  await cleanupDatabase({ broadCleaning: true });
   await cleanupStrapi();
 });
 
-afterEach(async () => {
+beforeEach(async () => {
   await cleanupDatabase();
 });
 

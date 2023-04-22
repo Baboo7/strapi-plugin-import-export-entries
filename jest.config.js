@@ -1,5 +1,5 @@
 module.exports = {
-  testRegex: '(/__tests__/.*|(\\.|/)(spec))\\.[jt]sx?$',
+  testRegex: '(/__tests__/.*|(\\.|/)(test))\\.[jt]sx?$',
   fakeTimers: {
     enableGlobally: true,
     now: new Date('2022-09-01T09:00:00.000+00:00').getTime(),

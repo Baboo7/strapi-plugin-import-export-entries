@@ -1,8 +1,12 @@
 const Strapi = require('@strapi/strapi');
 const fs = require('fs');
 
-const DELETE_DB_ENABLED = false;
-const CLEANUP_DB_ENABLED = true;
+const ENABLE_DELETE_DB_BEFORE_SETUP = true;
+const ENABLE_DELETE_DB_AFTER_ALL = false;
+
+const ENABLE_CLEANUP_DB = true;
+
+const PATH_TO_DB_FILE = `${__dirname}/test-app/data/data.sqlite`;
 
 const LOCALES = [
   { code: 'fr', name: 'French (fr)' },
@@ -12,6 +16,10 @@ const LOCALES = [
 let instance;
 
 async function setupStrapi() {
+  if (ENABLE_DELETE_DB_BEFORE_SETUP) {
+    deleteDatabaseFile(PATH_TO_DB_FILE);
+  }
+
   if (!instance) {
     await Strapi({
       appDir: `${__dirname}/test-app`,
@@ -22,6 +30,7 @@ async function setupStrapi() {
 
     await instance.server.mount();
   }
+
   return instance;
 }
 
@@ -29,16 +38,20 @@ async function cleanupStrapi() {
   //close server to release the db-file
   await strapi.server.httpServer.close();
 
-  //delete test database after all tests have completed
-  const dbSettings = strapi.config.get('database.connection.connection');
-  if (DELETE_DB_ENABLED && dbSettings && dbSettings.filename) {
-    const tmpDbFile = dbSettings.filename;
-    if (fs.existsSync(tmpDbFile)) {
-      fs.unlinkSync(tmpDbFile);
-    }
+  if (ENABLE_DELETE_DB_AFTER_ALL) {
+    deleteDatabaseFile(PATH_TO_DB_FILE);
   }
+
   // close the connection to the database
   await strapi.db.connection.destroy();
+}
+
+function deleteDatabaseFile(pathToDbFile) {
+  if (pathToDbFile) {
+    if (fs.existsSync(pathToDbFile)) {
+      fs.unlinkSync(pathToDbFile);
+    }
+  }
 }
 
 async function setupDatabase() {
@@ -57,7 +70,7 @@ async function setupDatabase() {
  * @param {boolean} options.broadCleaning
  */
 async function cleanupDatabase(options = {}) {
-  if (CLEANUP_DB_ENABLED) {
+  if (ENABLE_CLEANUP_DB) {
     const cleaningCollections = Array.from(strapi.db.metadata)
       .filter(shouldCleanCollection(options))
       .map(([collectionName, { tableName }]) =>
