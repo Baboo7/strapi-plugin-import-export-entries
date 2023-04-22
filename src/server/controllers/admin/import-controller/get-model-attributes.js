@@ -9,6 +9,8 @@ const getModelAttributesEndpoint = async (ctx) => {
     .filter(filterAttribute)
     .map((attr) => attr.name);
 
+  attributeNames.unshift('id');
+
   ctx.body = {
     data: {
       attribute_names: attributeNames,
