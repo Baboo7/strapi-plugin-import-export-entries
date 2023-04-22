@@ -217,17 +217,17 @@ const updateOrCreate = async (
   let fileEntry = cloneDeep(fileEntryArg);
 
   if (importStage == 'simpleAttributes') {
-    const attributeNames = getModelAttributes(slug, { filterOutType: ['component', 'dynamiczone', 'media', 'relation'] })
+    fileEntry = removeComponents(schema, fileEntry);
+    const attributeNames = getModelAttributes(slug, { filterOutType: ['media', 'relation'] })
       .map(({ name }) => name)
       .concat('id', 'localizations', 'locale');
     fileEntry = pick(fileEntry, attributeNames);
-    fileEntry = removeComponents(schema, fileEntry);
   } else if (importStage === 'relationAttributes') {
+    fileEntry = setComponents(schema, fileEntry, { fileIdToDbId, componentsDataStore });
     const attributeNames = getModelAttributes(slug, { filterType: ['component', 'dynamiczone', 'media', 'relation'] })
       .map(({ name }) => name)
       .concat('id', 'localizations', 'locale');
     fileEntry = pick(fileEntry, attributeNames);
-    fileEntry = setComponents(schema, fileEntry, { fileIdToDbId, componentsDataStore });
   }
 
   if (schema.modelType === 'contentType' && schema.kind === 'singleType') {
@@ -240,6 +240,11 @@ const updateOrCreate = async (
 function removeComponents(schema: Schema, fileEntry: FileEntry) {
   const store: Record<string, any> = {};
   for (const [attributeName, attribute] of Object.entries(schema.attributes)) {
+    // Do not reset an attribute component that is not imported.
+    if (typeof fileEntry[attributeName] === 'undefined') {
+      continue;
+    }
+
     if (isComponentAttribute(attribute)) {
       if (attribute.repeatable) {
         store[attributeName] = [];
