@@ -4,71 +4,66 @@ All notable changes to this project will be documented in this file. See [standa
 
 ## [1.19.0](https://github.com/Baboo7/strapi-plugin-import-export-entries/compare/v1.18.1...v1.19.0) (2023-04-22)
 
-
 ### 🧪 Tests
 
-* **import:** Remove irrelevant tests ([ef0f97a](https://github.com/Baboo7/strapi-plugin-import-export-entries/commits/ef0f97a37fca494612e499977587bbb800be6ec9))
-* **package.json:** Update dependencies ([fb89c4e](https://github.com/Baboo7/strapi-plugin-import-export-entries/commits/fb89c4efcbfd58f80392d630ceff857c080739c4))
-
+- **import:** Remove irrelevant tests ([ef0f97a](https://github.com/Baboo7/strapi-plugin-import-export-entries/commits/ef0f97a37fca494612e499977587bbb800be6ec9))
+- **package.json:** Update dependencies ([fb89c4e](https://github.com/Baboo7/strapi-plugin-import-export-entries/commits/fb89c4efcbfd58f80392d630ceff857c080739c4))
 
 ### 🧹 Chores
 
-* **.nvmrc:** Use lowest acceptable node version ([d1f43f1](https://github.com/Baboo7/strapi-plugin-import-export-entries/commits/d1f43f1b117a5b58d3c7c61bc148561fb4e9c1e7))
-* Clean project before rebuild ([bdf5d8d](https://github.com/Baboo7/strapi-plugin-import-export-entries/commits/bdf5d8da04403117620c1b9a9d14a2601f34c67e))
-* **github:** Run CI for pull request ([b66bb6d](https://github.com/Baboo7/strapi-plugin-import-export-entries/commits/b66bb6d6553634ad3e6b79f83e91352c1b7380fe))
-* **github:** Update CI ([099880d](https://github.com/Baboo7/strapi-plugin-import-export-entries/commits/099880d04bea25f2b1fb562ff3c57b25762ebb6c))
-* **jest:** Increase test timeout ([f68c45a](https://github.com/Baboo7/strapi-plugin-import-export-entries/commits/f68c45a7f76c1a8382d768b49408e96b69af1389))
-* Lint project ([47eec1c](https://github.com/Baboo7/strapi-plugin-import-export-entries/commits/47eec1c7057ead26ca2bec37db66d1eca2bc16d7))
-* **package.json:** Build lib before publishing ([f30d054](https://github.com/Baboo7/strapi-plugin-import-export-entries/commits/f30d054f4863fd3bcb71e8f87f3c8b477e8775d2))
-* **package.json:** Update scripts ([29e3334](https://github.com/Baboo7/strapi-plugin-import-export-entries/commits/29e3334475c1466a68673110bf8a971fb16f66da))
-* **parsers.js:** Delete file ([96438b1](https://github.com/Baboo7/strapi-plugin-import-export-entries/commits/96438b11888ddb35a1f333066deb4e511531e0c5))
-* Remove and ignore build folders ([f5b649a](https://github.com/Baboo7/strapi-plugin-import-export-entries/commits/f5b649a4287b60eb1f85f3b4c3b6b62929f399bf))
-* Setup nodemon to hot rebuild ([982841f](https://github.com/Baboo7/strapi-plugin-import-export-entries/commits/982841f49c5563de3c1eb5379442aa23f6a446a0))
-* Setup typescript for server ([375a341](https://github.com/Baboo7/strapi-plugin-import-export-entries/commits/375a341aacd0a8844948f11439ad191509a8e85c))
-* Switch to yarn ([4531386](https://github.com/Baboo7/strapi-plugin-import-export-entries/commits/4531386c6f96b65d74279b256fb935b6da4112d6))
-* **test:** Tweak config to debugging ([de4300a](https://github.com/Baboo7/strapi-plugin-import-export-entries/commits/de4300ae1d730cc9374857b2236ed288b0d4b727))
-* **tsconfig:** Update module import ([69cd79b](https://github.com/Baboo7/strapi-plugin-import-export-entries/commits/69cd79bc8b80b97f6da7e30d9e7339e9cab21727))
-* **vscode:** Recommend extensions ([d5fb201](https://github.com/Baboo7/strapi-plugin-import-export-entries/commits/d5fb2016e202fb318a38f8b77b763bfa9e132bb2))
-
+- **.nvmrc:** Use lowest acceptable node version ([d1f43f1](https://github.com/Baboo7/strapi-plugin-import-export-entries/commits/d1f43f1b117a5b58d3c7c61bc148561fb4e9c1e7))
+- Clean project before rebuild ([bdf5d8d](https://github.com/Baboo7/strapi-plugin-import-export-entries/commits/bdf5d8da04403117620c1b9a9d14a2601f34c67e))
+- **github:** Run CI for pull request ([b66bb6d](https://github.com/Baboo7/strapi-plugin-import-export-entries/commits/b66bb6d6553634ad3e6b79f83e91352c1b7380fe))
+- **github:** Update CI ([099880d](https://github.com/Baboo7/strapi-plugin-import-export-entries/commits/099880d04bea25f2b1fb562ff3c57b25762ebb6c))
+- **jest:** Increase test timeout ([f68c45a](https://github.com/Baboo7/strapi-plugin-import-export-entries/commits/f68c45a7f76c1a8382d768b49408e96b69af1389))
+- Lint project ([47eec1c](https://github.com/Baboo7/strapi-plugin-import-export-entries/commits/47eec1c7057ead26ca2bec37db66d1eca2bc16d7))
+- **package.json:** Build lib before publishing ([f30d054](https://github.com/Baboo7/strapi-plugin-import-export-entries/commits/f30d054f4863fd3bcb71e8f87f3c8b477e8775d2))
+- **package.json:** Update scripts ([29e3334](https://github.com/Baboo7/strapi-plugin-import-export-entries/commits/29e3334475c1466a68673110bf8a971fb16f66da))
+- **parsers.js:** Delete file ([96438b1](https://github.com/Baboo7/strapi-plugin-import-export-entries/commits/96438b11888ddb35a1f333066deb4e511531e0c5))
+- Remove and ignore build folders ([f5b649a](https://github.com/Baboo7/strapi-plugin-import-export-entries/commits/f5b649a4287b60eb1f85f3b4c3b6b62929f399bf))
+- Setup nodemon to hot rebuild ([982841f](https://github.com/Baboo7/strapi-plugin-import-export-entries/commits/982841f49c5563de3c1eb5379442aa23f6a446a0))
+- Setup typescript for server ([375a341](https://github.com/Baboo7/strapi-plugin-import-export-entries/commits/375a341aacd0a8844948f11439ad191509a8e85c))
+- Switch to yarn ([4531386](https://github.com/Baboo7/strapi-plugin-import-export-entries/commits/4531386c6f96b65d74279b256fb935b6da4112d6))
+- **test:** Tweak config to debugging ([de4300a](https://github.com/Baboo7/strapi-plugin-import-export-entries/commits/de4300ae1d730cc9374857b2236ed288b0d4b727))
+- **tsconfig:** Update module import ([69cd79b](https://github.com/Baboo7/strapi-plugin-import-export-entries/commits/69cd79bc8b80b97f6da7e30d9e7339e9cab21727))
+- **vscode:** Recommend extensions ([d5fb201](https://github.com/Baboo7/strapi-plugin-import-export-entries/commits/d5fb2016e202fb318a38f8b77b763bfa9e132bb2))
 
 ### 🐞 Bug Fixes
 
-* **export-v2:** Export selected slugs ([a9482bd](https://github.com/Baboo7/strapi-plugin-import-export-entries/commits/a9482bd24286a190df4d73f9a5f0416eb6c027dd))
-* **export-v2:** Filter out ids using attribute slug ([4e6e4e7](https://github.com/Baboo7/strapi-plugin-import-export-entries/commits/4e6e4e77c3aa63b223a67902ad99c3baacf99835))
-* **export-v2:** Remove duplicated components in dynamic zones ([eb7ce26](https://github.com/Baboo7/strapi-plugin-import-export-entries/commits/eb7ce26c8fd10b2d418ea1e117248db479656f71))
-* **gitignore:** Ignore only folders at project root ([8a172ab](https://github.com/Baboo7/strapi-plugin-import-export-entries/commits/8a172ab0540e379606b8a89495534b7b4532d1b3))
-* **HomePage:** Display alerts ([8b55716](https://github.com/Baboo7/strapi-plugin-import-export-entries/commits/8b557162a1f183e15b9d3fc53e346ef94986dbba))
-* **import-data:** Check content permissions when import whole database ([c5c8727](https://github.com/Baboo7/strapi-plugin-import-export-entries/commits/c5c8727285f12f8b086300f1807038611ee53474))
-* **import-v2:** Import components and dynamic zones for not localized content types ([378a7e3](https://github.com/Baboo7/strapi-plugin-import-export-entries/commits/378a7e37627c8e1451eadac28ae0b5c431308442))
-* **import:** fallback to any when media field is missing allowedTypes ([0cce657](https://github.com/Baboo7/strapi-plugin-import-export-entries/commits/0cce657d322ac39d737c74e0b7fc1897bab79b49))
-* **package:** Only clean build folders on publish ([97e84cb](https://github.com/Baboo7/strapi-plugin-import-export-entries/commits/97e84cb734ed98908e8af162a686c95d3576f0bb))
-* **tests:** Comment date tests temporarily for CI ([6f5128c](https://github.com/Baboo7/strapi-plugin-import-export-entries/commits/6f5128c76f48592d8c974eab31e3d8cb589503fe))
-* **tests:** Reset auto increment sequence ([6ca9fbb](https://github.com/Baboo7/strapi-plugin-import-export-entries/commits/6ca9fbb425767b090563ea798a2139a527bf7c5e))
-
+- **export-v2:** Export selected slugs ([a9482bd](https://github.com/Baboo7/strapi-plugin-import-export-entries/commits/a9482bd24286a190df4d73f9a5f0416eb6c027dd))
+- **export-v2:** Filter out ids using attribute slug ([4e6e4e7](https://github.com/Baboo7/strapi-plugin-import-export-entries/commits/4e6e4e77c3aa63b223a67902ad99c3baacf99835))
+- **export-v2:** Remove duplicated components in dynamic zones ([eb7ce26](https://github.com/Baboo7/strapi-plugin-import-export-entries/commits/eb7ce26c8fd10b2d418ea1e117248db479656f71))
+- **gitignore:** Ignore only folders at project root ([8a172ab](https://github.com/Baboo7/strapi-plugin-import-export-entries/commits/8a172ab0540e379606b8a89495534b7b4532d1b3))
+- **HomePage:** Display alerts ([8b55716](https://github.com/Baboo7/strapi-plugin-import-export-entries/commits/8b557162a1f183e15b9d3fc53e346ef94986dbba))
+- **import-data:** Check content permissions when import whole database ([c5c8727](https://github.com/Baboo7/strapi-plugin-import-export-entries/commits/c5c8727285f12f8b086300f1807038611ee53474))
+- **import-v2:** Import components and dynamic zones for not localized content types ([378a7e3](https://github.com/Baboo7/strapi-plugin-import-export-entries/commits/378a7e37627c8e1451eadac28ae0b5c431308442))
+- **import:** fallback to any when media field is missing allowedTypes ([0cce657](https://github.com/Baboo7/strapi-plugin-import-export-entries/commits/0cce657d322ac39d737c74e0b7fc1897bab79b49))
+- **package:** Only clean build folders on publish ([97e84cb](https://github.com/Baboo7/strapi-plugin-import-export-entries/commits/97e84cb734ed98908e8af162a686c95d3576f0bb))
+- **tests:** Comment date tests temporarily for CI ([6f5128c](https://github.com/Baboo7/strapi-plugin-import-export-entries/commits/6f5128c76f48592d8c974eab31e3d8cb589503fe))
+- **tests:** Reset auto increment sequence ([6ca9fbb](https://github.com/Baboo7/strapi-plugin-import-export-entries/commits/6ca9fbb425767b090563ea798a2139a527bf7c5e))
 
 ### 🛠 Refacto
 
-* **export-v2:** Move to ts ([69e86a5](https://github.com/Baboo7/strapi-plugin-import-export-entries/commits/69e86a5ef74d862e0b7d6e8d2bb1d64e66a5da3c))
-* **import-v2:** Map file ids to database ids ([e0b9383](https://github.com/Baboo7/strapi-plugin-import-export-entries/commits/e0b9383c344a3328383bf8c562513041f703baa0))
-* **import-v2:** Move to ts ([f492927](https://github.com/Baboo7/strapi-plugin-import-export-entries/commits/f492927d2f83c08466e6f38899f20bfdf2adf051))
-* **ImportEditor:** Translate component ([52b0303](https://github.com/Baboo7/strapi-plugin-import-export-entries/commits/52b0303e39057836cecf5ccd7b9615a3f1906406))
-* **models:** Move to ts ([c9dadef](https://github.com/Baboo7/strapi-plugin-import-export-entries/commits/c9dadef6ac4d511f3e8927b99d340ec0cecedcfb))
-* **test:** Rename test files ([5e9f695](https://github.com/Baboo7/strapi-plugin-import-export-entries/commits/5e9f69566028e47de09f90d2a2d88cc4c71dcc49))
-
+- **export-v2:** Move to ts ([69e86a5](https://github.com/Baboo7/strapi-plugin-import-export-entries/commits/69e86a5ef74d862e0b7d6e8d2bb1d64e66a5da3c))
+- **import-v2:** Map file ids to database ids ([e0b9383](https://github.com/Baboo7/strapi-plugin-import-export-entries/commits/e0b9383c344a3328383bf8c562513041f703baa0))
+- **import-v2:** Move to ts ([f492927](https://github.com/Baboo7/strapi-plugin-import-export-entries/commits/f492927d2f83c08466e6f38899f20bfdf2adf051))
+- **ImportEditor:** Translate component ([52b0303](https://github.com/Baboo7/strapi-plugin-import-export-entries/commits/52b0303e39057836cecf5ccd7b9615a3f1906406))
+- **models:** Move to ts ([c9dadef](https://github.com/Baboo7/strapi-plugin-import-export-entries/commits/c9dadef6ac4d511f3e8927b99d340ec0cecedcfb))
+- **test:** Rename test files ([5e9f695](https://github.com/Baboo7/strapi-plugin-import-export-entries/commits/5e9f69566028e47de09f90d2a2d88cc4c71dcc49))
 
 ### ⚡️ Features
 
-* **get-model-attributes:** Add id field as option ([e0eabbd](https://github.com/Baboo7/strapi-plugin-import-export-entries/commits/e0eabbd567cc2d09f5be4c7d12039efec018de59))
-* **i18n:** Shorten translation ([abfbba3](https://github.com/Baboo7/strapi-plugin-import-export-entries/commits/abfbba307847ff8fa1c2c9b0a1976e614eeaab87))
-* **import-data:** Support jso format ([e4774fe](https://github.com/Baboo7/strapi-plugin-import-export-entries/commits/e4774fe7b81dd796c9278b07db5f7e6afc2435cd))
-* **import-v2:** Import components and dynamic zones ([d93961d](https://github.com/Baboo7/strapi-plugin-import-export-entries/commits/d93961dc97820c69128b82acf8e3dfba62b5185b))
-* **import-v2:** Improve error understanding ([a9d576a](https://github.com/Baboo7/strapi-plugin-import-export-entries/commits/a9d576abd44f09cc32fd8ca16544cff77912fed4))
-* **import-v2:** Support different id field per collection ([5c7da99](https://github.com/Baboo7/strapi-plugin-import-export-entries/commits/5c7da999baba93ecc014deb484150c909540fd29))
-* **import-v2:** Support partial import for components and dynamic zones ([40fd687](https://github.com/Baboo7/strapi-plugin-import-export-entries/commits/40fd68773fac81e2bca1920e824274bbc7bdc4fd))
-* **ImportModal:** Add code editor as data source ([d4347d4](https://github.com/Baboo7/strapi-plugin-import-export-entries/commits/d4347d4c4bec9e576b67de72f4d8a113437acc2d))
-* **README:** Explain use of idField per collection ([6222f5b](https://github.com/Baboo7/strapi-plugin-import-export-entries/commits/6222f5bf40acc15816fe5f6f9d87f9aa7c6e3548))
-* **README:** Improve ([560d06a](https://github.com/Baboo7/strapi-plugin-import-export-entries/commits/560d06a474ef2c656ce25ea59a7b88b6b79e1c77))
-* **README:** Update illustration ([396b9cb](https://github.com/Baboo7/strapi-plugin-import-export-entries/commits/396b9cb8e0405b00e2d2dbc997d7705ddbffb1c3))
+- **get-model-attributes:** Add id field as option ([e0eabbd](https://github.com/Baboo7/strapi-plugin-import-export-entries/commits/e0eabbd567cc2d09f5be4c7d12039efec018de59))
+- **i18n:** Shorten translation ([abfbba3](https://github.com/Baboo7/strapi-plugin-import-export-entries/commits/abfbba307847ff8fa1c2c9b0a1976e614eeaab87))
+- **import-data:** Support jso format ([e4774fe](https://github.com/Baboo7/strapi-plugin-import-export-entries/commits/e4774fe7b81dd796c9278b07db5f7e6afc2435cd))
+- **import-v2:** Import components and dynamic zones ([d93961d](https://github.com/Baboo7/strapi-plugin-import-export-entries/commits/d93961dc97820c69128b82acf8e3dfba62b5185b))
+- **import-v2:** Improve error understanding ([a9d576a](https://github.com/Baboo7/strapi-plugin-import-export-entries/commits/a9d576abd44f09cc32fd8ca16544cff77912fed4))
+- **import-v2:** Support different id field per collection ([5c7da99](https://github.com/Baboo7/strapi-plugin-import-export-entries/commits/5c7da999baba93ecc014deb484150c909540fd29))
+- **import-v2:** Support partial import for components and dynamic zones ([40fd687](https://github.com/Baboo7/strapi-plugin-import-export-entries/commits/40fd68773fac81e2bca1920e824274bbc7bdc4fd))
+- **ImportModal:** Add code editor as data source ([d4347d4](https://github.com/Baboo7/strapi-plugin-import-export-entries/commits/d4347d4c4bec9e576b67de72f4d8a113437acc2d))
+- **README:** Explain use of idField per collection ([6222f5b](https://github.com/Baboo7/strapi-plugin-import-export-entries/commits/6222f5bf40acc15816fe5f6f9d87f9aa7c6e3548))
+- **README:** Improve ([560d06a](https://github.com/Baboo7/strapi-plugin-import-export-entries/commits/560d06a474ef2c656ce25ea59a7b88b6b79e1c77))
+- **README:** Update illustration ([396b9cb](https://github.com/Baboo7/strapi-plugin-import-export-entries/commits/396b9cb8e0405b00e2d2dbc997d7705ddbffb1c3))
 
 ### [1.18.1](https://github.com/Baboo7/strapi-plugin-import-export-entries/compare/v1.18.0...v1.18.1) (2023-04-02)
 
