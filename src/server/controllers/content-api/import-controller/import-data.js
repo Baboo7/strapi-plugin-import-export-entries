@@ -1,6 +1,8 @@
 'use strict';
 
-const Joi = require('joi');
+import Joi from 'joi';
+
+import { InputFormats } from '../../../services/import/parsers';
 
 const { getService } = require('../../../utils');
 const { checkParams, handleAsyncError } = require('../utils');
@@ -8,7 +10,9 @@ const { checkParams, handleAsyncError } = require('../utils');
 const bodySchema = Joi.object({
   slug: Joi.string().required(),
   data: Joi.any().required(),
-  format: Joi.string().valid('csv', 'json').required(),
+  format: Joi.string()
+    .valid(...InputFormats)
+    .required(),
   idField: Joi.string(),
 });
 
