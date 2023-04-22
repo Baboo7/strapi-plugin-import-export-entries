@@ -5,17 +5,20 @@ import { getModelAttributes } from '../../utils/models';
 import { SchemaUID } from '@strapi/strapi/lib/types/utils';
 import { EnumValues } from '../../../types';
 
-export { parseInputData };
-
-module.exports = {
-  parseInputData,
-};
-
 const inputFormatToParser = {
   csv: parseCsv,
   jso: parseJso,
   json: parseJson,
 } as const;
+
+const InputFormats = Object.keys(inputFormatToParser) as InputFormat[];
+
+export { InputFormats, parseInputData };
+
+module.exports = {
+  InputFormats,
+  parseInputData,
+};
 
 type InputFormat = keyof typeof inputFormatToParser;
 type InputDataRaw = Parameters<EnumValues<typeof inputFormatToParser>>[0];
