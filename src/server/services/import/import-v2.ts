@@ -148,7 +148,7 @@ const importMedia = async (slugEntries: SlugEntries, { user, fileIdToDbId }: { u
       }
     } catch (err: any) {
       strapi.log.error(err);
-      failures.push({ error: err.message, data: fileEntry });
+      failures.push({ error: err, data: fileEntry });
     }
   }
 
@@ -196,7 +196,7 @@ const importContentTypeSlug = async (
       await updateOrCreate(user, slug, fileId, fileEntry, idField, { importStage, fileIdToDbId, componentsDataStore });
     } catch (err: any) {
       strapi.log.error(err);
-      failures.push({ error: err.message, data: fileEntry });
+      failures.push({ error: err, data: fileEntry });
     }
   }
 
