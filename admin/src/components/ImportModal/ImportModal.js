@@ -9,6 +9,7 @@ import { ModalBody, ModalFooter, ModalHeader, ModalLayout } from '@strapi/design
 import { Portal } from '@strapi/design-system/Portal';
 import { Typography } from '@strapi/design-system/Typography';
 import CheckCircle from '@strapi/icons/CheckCircle';
+import IconCode from '@strapi/icons/Code';
 import IconFile from '@strapi/icons/File';
 import React, { useState } from 'react';
 import { useHistory } from 'react-router-dom';
@@ -74,8 +75,15 @@ export const ImportModal = ({ onClose }) => {
     reader.readAsText(file);
   };
 
-  const removeFile = () => {
+  const openCodeEditor = () => {
+    setData('{\n\t\n}');
+    setDataFormat(dataFormats.JSON);
+  };
+
+  const resetDataSource = () => {
     setData('');
+    setDataFormat(dataFormats.CSV);
+    setFile({});
   };
 
   const uploadData = async () => {
@@ -161,17 +169,36 @@ export const ImportModal = ({ onClose }) => {
         </ModalHeader>
         <ModalBody className="plugin-ie-import_modal_body">
           {showFileDragAndDrop && (
-            <Flex>
-              <label className={labelClassNames} onDragEnter={handleDragEnter} onDragLeave={handleDragLeave} onDragOver={handleDragOver} onDrop={handleDrop}>
-                <span style={{ fontSize: 80 }}>
-                  <IconFile />
-                </span>
-                <Typography style={{ fontSize: '1rem', fontWeight: 500 }} textColor="neutral600" as="p">
-                  {i18n('plugin.import.drag-drop-file')}
-                </Typography>
-                <input type="file" accept=".csv,.json" hidden="" onChange={onReadFile} />
-              </label>
-            </Flex>
+            <>
+              <Typography textColor="neutral800" fontWeight="bold" as="h2">
+                {i18n('plugin.import.data-source-step.title')}
+              </Typography>
+              <Flex gap={4}>
+                <label
+                  className={`plugin-ie-import_modal_label ${labelClassNames}`}
+                  onDragEnter={handleDragEnter}
+                  onDragLeave={handleDragLeave}
+                  onDragOver={handleDragOver}
+                  onDrop={handleDrop}
+                >
+                  <span className="plugin-ie-import_modal_label-icon-wrapper">
+                    <IconFile />
+                  </span>
+                  <Typography style={{ fontSize: '1rem', fontWeight: 500 }} textColor="neutral600" as="p">
+                    {i18n('plugin.import.drag-drop-file')}
+                  </Typography>
+                  <input type="file" accept=".csv,.json" hidden="" onChange={onReadFile} />
+                </label>
+                <label className="plugin-ie-import_modal_label plugin-ie-import_modal_button-label" onClick={openCodeEditor}>
+                  <span className="plugin-ie-import_modal_label-icon-wrapper">
+                    <IconCode />
+                  </span>
+                  <Typography style={{ fontSize: '1rem', fontWeight: 500 }} textColor="neutral600" as="p">
+                    {i18n('plugin.import.use-code-editor')}
+                  </Typography>
+                </label>
+              </Flex>
+            </>
           )}
           {showLoader && (
             <>
@@ -210,8 +237,8 @@ export const ImportModal = ({ onClose }) => {
           startActions={
             <>
               {showRemoveFileButton && (
-                <Button onClick={removeFile} variant="tertiary">
-                  {i18n('plugin.cta.remove-file')}
+                <Button onClick={resetDataSource} variant="tertiary">
+                  {i18n('plugin.cta.back-to-data-sources')}
                 </Button>
               )}
             </>
