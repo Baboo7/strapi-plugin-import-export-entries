@@ -33,7 +33,7 @@
   "plugin.message.import.error.unexpected.message": "An unexpected error occured while importing your data.",
   "plugin.message.import.success.imported-successfully": "Your data has been imported successfully.",
   "plugin.message.import.success.imported.title": "Import successful",
-  "plugin.message.import.success.imported.message": "Your data has been imported successfully. Refresh your page to see the latest updates.",
+  "plugin.message.import.success.imported.message": "Your data has been imported successfully.",
   "plugin.message.import.error.imported-partial.title": "Import partially failed",
   "plugin.message.import.error.imported-partial.message": "Some data failed to be imported. See below for detailed information.",
 
