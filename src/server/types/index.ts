@@ -90,5 +90,8 @@ type SchemaPluginOptions = {
     i18n?: {
       localized?: true;
     };
+    'import-export-entries'?: {
+      idField?: string;
+    };
   };
 };

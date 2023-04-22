@@ -47,6 +47,9 @@ At the moment, dynamic zones and media are not unit tested. Tests will be implem
 - [Usage](#usage)
   - [Preferences](#preferences)
   - [Config](#config)
+    - [Available Options](#available-options)
+    - [`idField` Per Collection](#idfield-per-collection)
+    - [Importing Large Files](#importing-large-files)
   - [Filtering & Sorting](#filtering-and-sorting)
   - [Services](#services)
   - [Content API](#content-api)
@@ -68,7 +71,7 @@ Strapi v4 is required.
   <img src="./doc/discord-logo.png" alt="UI" width="100"/>
 </p>
 
-Join the [Discord Community](https://discord.gg/dcqCAFFdP8) to give your feedback.
+Join the [Discord Community](https://discord.gg/dcqCAFFdP8) to give your feedback 📣 and get some help from the community ⛑️
 
 ## Contribute
 
@@ -199,9 +202,11 @@ Once set, they will be used each time you import/export data.
 
 ## Config
 
+### Available Options
+
 In `config/plugins.js`:
 
-```js
+```ts
 module.exports = ({ env }) => ({
   //...
   'import-export-entries': {
@@ -219,6 +224,132 @@ module.exports = ({ env }) => ({
   //...
 });
 ```
+
+In any collection schema `schema.json`:
+
+```ts
+{
+  "collectionName": "my-awesome-collection",
+  "info": {
+    "displayName": "My Awesome Collection",
+  },
+  "pluginOptions": {
+    "import-export-entries": {
+      /**
+       * Define the `idField` used to find an entry of the collection
+       * when importing data.
+       *
+       * `idField` must match the name of an attribute.
+       * See section _Specifying `idField` Per Collection_ for more details
+       */
+      "idField": "name"
+    }
+  },
+  "attributes": {
+    /**
+     * In this example, `name` will be used to find an entry
+     * of this collection when importing data.
+     */
+    "name": {
+      "type": "string",
+      "unique": true
+    },
+  }
+}
+```
+
+<a id='idfield-per-collection'></a>
+
+### Specifying `idField` Per Collection
+
+Importing data will either create entries if they don't exist, or update them otherwise.
+
+When transfering data from a database to another, relying on the `id` of an entry is not reliable. For example, if you are transfering data on hospitals with this schema:
+
+```ts
+interface Hospital {
+  id: number;
+  name: string;
+  employees: Employee[];
+  patients: Patient[];
+}
+```
+
+You will have something similar in your source and target databases:
+
+```ts
+// data in source database
+{
+  id: 1,
+  name: "Pitié Salpêtrière",
+  employees: [2, 3],
+  patients: [4, 5],
+}
+
+// data in target database
+{
+  id: 11,
+  name: "Pitié Salpêtrière",
+  employees: [12, 13],
+  patients: [14, 15],
+}
+```
+
+_Different databases, different `id`s._ 🫠
+
+That's why we need a way to define the field used to find an entry in a collection. This field is called an `idField`.
+
+To define the `idField` of a collection, add it in the `pluginOptions` of the collection, under the property `import-export-entries`. Using the example above, this is how we would define the `idField` of the collection `hospital`:
+
+```ts
+{
+  "collectionName": "hospitals",
+  "info": {
+    "displayName": "Hospital",
+  },
+  "options": {},
+  /**
+   * In the property `pluginOptions`, define the `idField` under the property `import-export-entries`.
+   *
+   * `idField` must match the name of an attribute.
+   */
+  "pluginOptions": {
+    "import-export-entries": {
+      "idField": "name"
+    }
+  },
+  "attributes": {
+    "name": { // 👈 `name` will be used to find a hospital when importing data.
+      "type": "string",
+      "unique": true
+    },
+    "employees": {
+      "type": "relation",
+      "relation": "oneToMany",
+      "target": "api::employees.employees"
+    },
+    "patients": {
+      "type": "relation",
+      "relation": "oneToMany",
+      "target": "api::patients.patients"
+    },
+  }
+}
+```
+
+For each collection of your application, you can define a different `idField`. For example, you can set the `name` attribute as the `idField` of the collection `hospital`, and for the collection `patients` use the attribute `ssn` (I really hope you're not storing uncyphered SSNs in your database 😬).
+
+> How does the search behave if I don't define explicitly the `idField` of a collection?
+
+By default, the `idField` of a collection is the `id` attribute. We can imagine in a near future to automatically detect unique scalar fields of a collection and use them by default, but it's not the case at the moment.
+
+> How does the search behave when I specify the `idField` from the strapi admin UI?
+
+The `idField` specified from the import modal of the admin UI takes precedence over the one defined in the `pluginOptions` of the collection.
+
+This default behavior could change in the future if user feedback shows it's cumbersome to set it manually on each import. You tell me.
+
+### Importing Large Files
 
 When importing data, imported file size may exceed the file size limit of the server. To lift up the limit, configure the [Strapi middleware `body`](https://docs.strapi.io/developer-docs/latest/setup-deployment-guides/configurations/required/middlewares.html#body):
 
@@ -422,7 +553,7 @@ JSON v2 introduces a new supported file structure. Data is flattened and depende
 
 Here is an example:
 
-```json
+```js
 {
   "version": 2, // required for the import to work properly.
   "data": {
