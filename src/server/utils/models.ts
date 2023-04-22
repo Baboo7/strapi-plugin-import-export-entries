@@ -68,13 +68,17 @@ function getModelAttributes(
     filterOutTarget?: SchemaUID | SchemaUID[];
   } = {},
 ): (Attribute & { name: string })[] {
+  const schema = getModel(slug);
+  if (!schema) {
+    return [];
+  }
+
   const typesToKeep = options.filterType ? toArray(options.filterType) : [];
   const typesToFilterOut = options.filterOutType ? toArray(options.filterOutType) : [];
   const targetsToFilterOut = toArray(options.filterOutTarget || []);
 
-  const attributesObj = getModel(slug).attributes;
-  let attributes: (Attribute & { name: string })[] = Object.keys(attributesObj)
-    .reduce((acc, key) => acc.concat({ ...(attributesObj[key] as Attribute), name: key as string }), [] as (Attribute & { name: string })[])
+  let attributes: (Attribute & { name: string })[] = Object.keys(schema.attributes)
+    .reduce((acc, key) => acc.concat({ ...(schema.attributes[key] as Attribute), name: key as string }), [] as (Attribute & { name: string })[])
     .filter((attr) => !typesToFilterOut.includes((attr as any).type))
     .filter((attr) => !targetsToFilterOut.includes((attr as any).target));
 
