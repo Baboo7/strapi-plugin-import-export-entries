@@ -230,10 +230,14 @@ const updateOrCreate = async (
     fileEntry = pick(fileEntry, attributeNames);
   }
 
+  let dbEntry: Entry | null = null;
   if (schema.modelType === 'contentType' && schema.kind === 'singleType') {
-    await updateOrCreateSingleTypeEntry(user, slug, fileId, fileEntry, { importStage, fileIdToDbId });
+    dbEntry = await updateOrCreateSingleTypeEntry(user, slug, fileId, fileEntry, { importStage, fileIdToDbId });
   } else {
-    await updateOrCreateCollectionTypeEntry(user, slug, fileId, fileEntry, { idField, importStage, fileIdToDbId });
+    dbEntry = await updateOrCreateCollectionTypeEntry(user, slug, fileId, fileEntry, { idField, importStage, fileIdToDbId });
+  }
+  if (dbEntry) {
+    fileIdToDbId.setMapping(slug, fileId, dbEntry.id);
   }
 };
 
@@ -342,7 +346,7 @@ const updateOrCreateCollectionTypeEntry = async (
   fileId: FileId,
   fileEntry: FileEntry,
   { idField, importStage, fileIdToDbId }: { idField: string; importStage: ImportStage; fileIdToDbId: IdMapper },
-) => {
+): Promise<Entry | null> => {
   const schema = getModel(slug);
 
   const whereBuilder = new ObjectBuilder();
@@ -357,11 +361,10 @@ const updateOrCreateCollectionTypeEntry = async (
     let dbEntry: Entry = await strapi.db.query(slug).findOne({ where });
 
     if (!dbEntry) {
-      dbEntry = await strapi.entityService.create(slug, { data: fileEntry });
+      return strapi.entityService.create(slug, { data: fileEntry });
     } else {
-      dbEntry = await updateEntry(slug, dbEntry.id, fileEntry, { importStage });
+      return strapi.entityService.update(slug, dbEntry.id, { data: omit(fileEntry, ['id']) });
     }
-    fileIdToDbId.setMapping(slug, fileId, dbEntry.id);
   } else {
     if (!fileEntry.locale) {
       throw new Error(`No locale set to import entry for slug ${slug} (data ${JSON.stringify(fileEntry)})`);
@@ -402,16 +405,14 @@ const updateOrCreateCollectionTypeEntry = async (
 
     fileEntry = omit(fileEntry, ['localizations']);
     if (isEmpty(omit(fileEntry, ['id']))) {
-      return;
+      return null;
     }
 
     if (isDatumInDefaultLocale) {
       if (!dbEntryDefaultLocaleId) {
-        const createdEntry = await strapi.entityService.create(slug, { data: fileEntry });
-        fileIdToDbId.setMapping(slug, fileId, createdEntry.id);
+        return strapi.entityService.create(slug, { data: fileEntry });
       } else {
-        const updatedEntry = await strapi.entityService.update(slug, dbEntryDefaultLocaleId, { data: omit({ ...fileEntry }, ['id']) });
-        fileIdToDbId.setMapping(slug, fileId, updatedEntry.id);
+        return strapi.entityService.update(slug, dbEntryDefaultLocaleId, { data: omit({ ...fileEntry }, ['id']) });
       }
     } else {
       if (!dbEntryDefaultLocaleId) {
@@ -420,11 +421,9 @@ const updateOrCreateCollectionTypeEntry = async (
 
       if (!dbEntry) {
         const insertLocalizedEntry = strapi.plugin('i18n').service('core-api').createCreateLocalizationHandler(getModel(slug));
-        const createdEntry: Entry = await insertLocalizedEntry({ id: dbEntryDefaultLocaleId, data: omit({ ...fileEntry }, ['id']) });
-        fileIdToDbId.setMapping(slug, fileId, createdEntry.id);
+        return insertLocalizedEntry({ id: dbEntryDefaultLocaleId, data: omit({ ...fileEntry }, ['id']) });
       } else {
-        const updatedEntry = await strapi.entityService.update(slug, dbEntry.id, { data: omit({ ...fileEntry }, ['id']) });
-        fileIdToDbId.setMapping(slug, fileId, updatedEntry.id);
+        return strapi.entityService.update(slug, dbEntry.id, { data: omit({ ...fileEntry }, ['id']) });
       }
     }
   }
@@ -436,7 +435,7 @@ const updateOrCreateSingleTypeEntry = async (
   fileId: FileId,
   fileEntry: FileEntry,
   { importStage, fileIdToDbId }: { importStage: ImportStage; fileIdToDbId: IdMapper },
-) => {
+): Promise<Entry | null> => {
   const schema = getModel(slug);
 
   if (!schema.pluginOptions?.i18n?.localized) {
@@ -446,11 +445,9 @@ const updateOrCreateSingleTypeEntry = async (
       .then((entries) => toArray(entries)?.[0]);
 
     if (!dbEntry) {
-      const createdEntry = await strapi.entityService.create(slug, { data: fileEntry });
-      fileIdToDbId.setMapping(slug, fileId, createdEntry.id);
+      return strapi.entityService.create(slug, { data: fileEntry });
     } else {
-      const updatedEntry = await updateEntry(slug, dbEntry.id, fileEntry, { importStage });
-      fileIdToDbId.setMapping(slug, fileId, updatedEntry.id);
+      return strapi.entityService.update(slug, dbEntry.id, { data: omit(fileEntry, ['id']) });
     }
   } else {
     const defaultLocale = await strapi.plugin('i18n').service('locales').getDefaultLocale();
@@ -458,7 +455,7 @@ const updateOrCreateSingleTypeEntry = async (
 
     fileEntry = omit(fileEntry, ['localizations']);
     if (isEmpty(omit(fileEntry, ['id']))) {
-      return;
+      return null;
     }
 
     let entryDefaultLocale = await strapi.db.query(slug).findOne({ where: { locale: defaultLocale } });
@@ -468,11 +465,9 @@ const updateOrCreateSingleTypeEntry = async (
 
     if (isDatumInDefaultLocale) {
       if (!entryDefaultLocale) {
-        const createdEntry: Entry = await strapi.entityService.create(slug, { data: fileEntry });
-        fileIdToDbId.setMapping(slug, fileId, createdEntry.id);
+        return strapi.entityService.create(slug, { data: fileEntry });
       } else {
-        const updatedEntry: Entry = await strapi.entityService.update(slug, entryDefaultLocale.id, { data: fileEntry });
-        fileIdToDbId.setMapping(slug, fileId, updatedEntry.id);
+        return strapi.entityService.update(slug, entryDefaultLocale.id, { data: fileEntry });
       }
     } else {
       const entryLocale = await strapi.db.query(slug).findOne({ where: { locale: fileEntry.locale } });
@@ -481,21 +476,9 @@ const updateOrCreateSingleTypeEntry = async (
       await strapi.db.query(slug).delete({ where: { locale: fileEntry.locale } });
 
       const insertLocalizedEntry = strapi.plugin('i18n').service('core-api').createCreateLocalizationHandler(getModel(slug));
-      const createdEntry: Entry = await insertLocalizedEntry({ id: entryDefaultLocale.id, data: datumLocale });
-      fileIdToDbId.setMapping(slug, fileId, createdEntry.id);
+      return insertLocalizedEntry({ id: entryDefaultLocale.id, data: datumLocale });
     }
   }
-};
-
-const updateEntry = async (slug: SchemaUID, dbId: EntryId, fileEntry: FileEntry, { importStage }: { importStage: ImportStage }): Promise<Entry> => {
-  if (importStage === 'simpleAttributes') {
-    // Use entity service to validate values of attributes
-    return strapi.entityService.update(slug, dbId, { data: omit(fileEntry, ['id']) });
-  } else if (importStage === 'relationAttributes') {
-    return strapi.db.query(slug).update({ where: { id: dbId }, data: omit(fileEntry, ['id']) });
-  }
-
-  throw new Error(`Unhandled importStage ${importStage}`);
 };
 
 module.exports = {
