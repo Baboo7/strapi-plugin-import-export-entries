@@ -2,6 +2,7 @@
   "plugin.name": "Import Export",
   "plugin.description": "Import/Export data in just few clicks",
 
+  "plugin.cta.back-to-data-sources": "Back To Data Sources",
   "plugin.cta.back-to-options": "Back To Options",
   "plugin.cta.cancel": "Cancel",
   "plugin.cta.close": "Close",
@@ -10,11 +11,13 @@
   "plugin.cta.get-data": "Fetch Data",
   "plugin.cta.export": "Export",
   "plugin.cta.import": "Import",
-  "plugin.cta.remove-file": "Remove File",
 
   "plugin.data-format.csv": "CSV [deprecated]",
   "plugin.data-format.json": "JSON [deprecated]",
   "plugin.data-format.json-v2": "JSON (v2)",
+
+  "plugin.form.field.id-field.hint": "Choose the field used as a unique identifier",
+  "plugin.form.field.id-field.label": "Id Field",
 
   "plugin.page.homepage.section.quick-actions.title": "Quick Actions",
   "plugin.page.homepage.section.preferences.title": "Preferences",
@@ -37,10 +40,15 @@
   "plugin.message.import.error.imported-partial.title": "Import partially failed",
   "plugin.message.import.error.imported-partial.message": "Some data failed to be imported. See below for detailed information.",
 
+  "plugin.import.data-source-step.title": "Select a Data Source",
   "plugin.import.drag-drop-file": "Drag & drop your file into this area or browse for a file to upload",
+  "plugin.import.file-name": "File name",
   "plugin.import.importing-data": "Importing data...",
   "plugin.import.partially-failed": "Import Partially Failed",
   "plugin.import.detailed-information": "Detailed Information:",
+  "plugin.import.use-code-editor": "Use code editor",
+  "plugin.import.tab.file": "File",
+  "plugin.import.tab.options": "Options",
 
   "plugin.export.copied": "Copied",
   "plugin.export.fetching-data": "Fetching data...",
