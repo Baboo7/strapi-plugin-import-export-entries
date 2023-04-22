@@ -210,10 +210,12 @@ const updateOrCreate = async (
   slug: SchemaUID,
   fileId: FileId,
   fileEntryArg: FileEntry,
-  idField = 'id',
+  idFieldArg: string | undefined,
   { importStage, fileIdToDbId, componentsDataStore }: { importStage: ImportStage; fileIdToDbId: IdMapper; componentsDataStore: Partial<Record<SchemaUID, SlugEntries>> },
 ) => {
   const schema = getModel(slug);
+  const idField = idFieldArg || schema?.pluginOptions?.['import-export-entries']?.idField || 'id';
+
   let fileEntry = cloneDeep(fileEntryArg);
 
   if (importStage == 'simpleAttributes') {
