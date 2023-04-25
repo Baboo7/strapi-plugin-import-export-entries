@@ -125,9 +125,14 @@ const importDataV2 = async (
 
 function splitSlugs(slugs: SchemaUID[]) {
   const slugsToProcess = [...slugs];
-  const componentSlugs = extract(slugsToProcess, (slug) => getModel(slug).modelType === 'component');
+  const componentSlugs = extract(slugsToProcess, (slug) => getModel(slug)?.modelType === 'component');
   const mediaSlugs = extract(slugsToProcess, (slug) => ['plugin::upload.file'].includes(slug));
-  const contentTypeSlugs = extract(slugsToProcess, (slug) => getModel(slug).modelType === 'contentType');
+  const contentTypeSlugs = extract(slugsToProcess, (slug) => getModel(slug)?.modelType === 'contentType');
+
+  if (slugsToProcess.length > 0) {
+    strapi.log.warn(`Some slugs won't be imported: ${slugsToProcess.join(', ')}`);
+  }
+
   return {
     componentSlugs,
     mediaSlugs,
@@ -233,7 +238,7 @@ const updateOrCreate = async (
   }
 
   let dbEntry: Entry | null = null;
-  if (schema.modelType === 'contentType' && schema.kind === 'singleType') {
+  if (schema?.modelType === 'contentType' && schema?.kind === 'singleType') {
     dbEntry = await updateOrCreateSingleTypeEntry(user, slug, fileId, fileEntry, { importStage, fileIdToDbId });
   } else {
     dbEntry = await updateOrCreateCollectionTypeEntry(user, slug, fileId, fileEntry, { idField, importStage, fileIdToDbId });
