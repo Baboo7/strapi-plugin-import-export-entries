@@ -2,6 +2,18 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [1.19.1](https://github.com/Baboo7/strapi-plugin-import-export-entries/compare/v1.19.0...v1.19.1) (2023-04-25)
+
+
+### 🧹 Chores
+
+* Lint CHANGELOG ([4c5afab](https://github.com/Baboo7/strapi-plugin-import-export-entries/commits/4c5afabd4f20af0506dc3233d699e820f1000489))
+
+
+### 🐞 Bug Fixes
+
+* **import-v2:** Ignore slugs with no associated schema ([c6efb54](https://github.com/Baboo7/strapi-plugin-import-export-entries/commits/c6efb5461b08265173f68bc312b13dc5b9d752b9))
+
 ## [1.19.0](https://github.com/Baboo7/strapi-plugin-import-export-entries/compare/v1.18.1...v1.19.0) (2023-04-22)
 
 ### 🧪 Tests
