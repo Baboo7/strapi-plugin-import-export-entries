@@ -290,6 +290,17 @@ function setComponents(
       }
     } else if (isDynamicZoneAttribute(attribute)) {
       store[attributeName] = (attributeValue as FileEntryDynamicZone[]).map(({ __component, id }) => getComponentData(__component, `${id}`, { fileIdToDbId, componentsDataStore }));
+    } else if (isMediaAttribute(attribute)) {
+      if (attribute.multiple) {
+        store[attributeName] = (attributeValue as (number | string)[]).map((id) => fileIdToDbId.getMapping('plugin::upload.file', id)).filter((id) => id !== undefined);
+      } else {
+        store[attributeName] = fileIdToDbId.getMapping('plugin::upload.file', attributeValue as number | string);
+        // if the media wasn't found remove it from the update
+        if (!store[attributeName]) {
+          delete fileEntry[attributeName];
+          delete store[attributeName];
+        }
+      }
     }
   }
 
@@ -331,9 +342,14 @@ function getComponentData(
       store[attributeName] = (attributeValue as FileEntryDynamicZone[]).map(({ __component, id }) => getComponentData(__component, `${id}`, { fileIdToDbId, componentsDataStore }));
     } else if (isMediaAttribute(attribute)) {
       if (attribute.multiple) {
-        store[attributeName] = (attributeValue as (number | string)[]).map((id) => fileIdToDbId.getMapping('plugin::upload.file', id));
+        store[attributeName] = (attributeValue as (number | string)[]).map((id) => fileIdToDbId.getMapping('plugin::upload.file', id)).filter((id) => id !== undefined);
       } else {
         store[attributeName] = fileIdToDbId.getMapping('plugin::upload.file', attributeValue as number | string);
+        // if the media wasn't found remove it from the update
+        if (!store[attributeName]) {
+          delete fileEntry[attributeName];
+          delete store[attributeName];
+        }
       }
     } else if (isRelationAttribute(attribute)) {
       if (attribute.relation.endsWith('Many')) {
