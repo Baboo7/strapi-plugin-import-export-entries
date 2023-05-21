@@ -54,6 +54,7 @@
   "plugin.export.fetching-data": "Fetching data...",
   "plugin.export.export-format": "Export Format",
   "plugin.export.options": "Options",
+  "plugin.export.plugins-content-types": "Export plugins content types",
   "plugin.export.relations-as-id": "Export relations as id.",
   "plugin.export.apply-filters-and-sort": "Apply filters and sort to exported data.",
   "plugin.export.deepness": "Deepness",

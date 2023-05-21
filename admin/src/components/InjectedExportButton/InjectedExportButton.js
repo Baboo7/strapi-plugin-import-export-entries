@@ -3,11 +3,10 @@ import Download from '@strapi/icons/Download';
 import React, { useState } from 'react';
 import { useIntl } from 'react-intl';
 
-import { dataFormats } from '../../utils/dataFormats';
 import getTrad from '../../utils/getTrad';
 import { ExportModal } from '../ExportModal';
 
-export const InjectedExportButton = ({ availableExportFormats = [dataFormats.CSV, dataFormats.JSON_V2, dataFormats.JSON], fullWidth = false }) => {
+export const InjectedExportButton = ({ availableExportFormats, unavailableOptions, fullWidth = false }) => {
   const { formatMessage } = useIntl();
 
   const [exportVisible, setExportVisible] = useState(false);
@@ -26,7 +25,7 @@ export const InjectedExportButton = ({ availableExportFormats = [dataFormats.CSV
         {formatMessage({ id: getTrad('plugin.cta.export') })}
       </Button>
 
-      {exportVisible && <ExportModal availableExportFormats={availableExportFormats} onClose={closeExportModal} />}
+      {exportVisible && <ExportModal availableExportFormats={availableExportFormats} unavailableOptions={unavailableOptions} onClose={closeExportModal} />}
     </>
   );
 };
