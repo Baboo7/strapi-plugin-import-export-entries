@@ -14,7 +14,7 @@ import IconFile from '@strapi/icons/File';
 import React, { useState } from 'react';
 import { useHistory } from 'react-router-dom';
 
-import ImportProxy from '../../api/importProxy';
+import { api } from '../../api';
 import { useAlerts } from '../../hooks/useAlerts';
 import { useI18n } from '../../hooks/useI18n';
 import { useSlug } from '../../hooks/useSlug';
@@ -89,7 +89,7 @@ export const ImportModal = ({ onClose }) => {
   const uploadData = async () => {
     setUploadingData(true);
     try {
-      const res = await ImportProxy.importData({
+      const res = await api.importData({
         slug,
         data,
         format: dataFormat,

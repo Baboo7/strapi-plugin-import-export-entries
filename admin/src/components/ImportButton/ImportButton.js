@@ -6,7 +6,7 @@ import { useIntl } from 'react-intl';
 import getTrad from '../../utils/getTrad';
 import { ImportModal } from '../ImportModal';
 
-export const InjectedImportButton = ({ fullWidth = false }) => {
+export const ImportButton = ({ fullWidth = false }) => {
   const { formatMessage } = useIntl();
 
   const [importVisible, setImportVisible] = useState(false);

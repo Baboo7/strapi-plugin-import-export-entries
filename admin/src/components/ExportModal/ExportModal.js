@@ -15,7 +15,7 @@ import qs from 'qs';
 import React, { useState } from 'react';
 import { useLocation } from 'react-router-dom';
 
-import ExportProxy from '../../api/exportProxy';
+import { api } from '../../api';
 import { useAlerts } from '../../hooks/useAlerts';
 import { useDownloadFile } from '../../hooks/useDownloadFile';
 import { useI18n } from '../../hooks/useI18n';
@@ -30,9 +30,10 @@ const DEFAULT_OPTIONS = {
   applyFilters: false,
   relationsAsId: false,
   deepness: 5,
+  exportPluginsContentTypes: false,
 };
 
-export const ExportModal = ({ availableExportFormats = [dataFormats.CSV, dataFormats.JSON_V2, dataFormats.JSON], onClose }) => {
+export const ExportModal = ({ availableExportFormats = [dataFormats.CSV, dataFormats.JSON_V2, dataFormats.JSON], unavailableOptions = [], onClose }) => {
   const { i18n } = useI18n();
   const { search } = useLocation();
   const { downloadFile, withTimestamp } = useDownloadFile();
@@ -44,20 +45,23 @@ export const ExportModal = ({ availableExportFormats = [dataFormats.CSV, dataFor
   const [data, setData] = useState(null);
   const [fetchingData, setFetchingData] = useState(false);
 
-  const handleSetOption = (key) => (value) => {
-    setOptions((previous) => ({ ...previous, [key]: value }));
+  const handleSetOption = (optionName) => (value) => {
+    setOptions((previous) => ({ ...previous, [optionName]: value }));
   };
+
+  const shouldShowOption = (optionName) => unavailableOptions.indexOf(optionName) === -1;
 
   const getData = async () => {
     setFetchingData(true);
     try {
-      const res = await ExportProxy.getByContentType({
+      const res = await api.exportData({
         slug,
         search: qs.stringify(pick(qs.parse(search), ['filters', 'sort'])),
         applySearch: options.applyFilters,
         exportFormat: options.exportFormat,
         relationsAsId: options.relationsAsId,
         deepness: options.deepness,
+        exportPluginsContentTypes: options.exportPluginsContentTypes,
       });
       setData(res.data);
     } catch (err) {
@@ -113,42 +117,55 @@ export const ExportModal = ({ availableExportFormats = [dataFormats.CSV, dataFor
           )}
           {!data && !fetchingData && (
             <>
-              <Grid gap={8}>
-                <GridItem col={12}>
-                  <Select
-                    id="export-format"
-                    label={i18n('plugin.export.export-format')}
-                    required
-                    placeholder={i18n('plugin.export.export-format')}
-                    value={options.exportFormat}
-                    onChange={handleSetOption('exportFormat')}
-                  >
-                    {availableExportFormats.map((format) => (
-                      <Option key={format} value={format}>
-                        {i18n(`plugin.data-format.${format}`)}
-                      </Option>
-                    ))}
-                  </Select>
-                </GridItem>
-              </Grid>
+              {shouldShowOption('exportFormat') && (
+                <Grid gap={8}>
+                  <GridItem col={12}>
+                    <Select
+                      id="export-format"
+                      label={i18n('plugin.export.export-format')}
+                      required
+                      placeholder={i18n('plugin.export.export-format')}
+                      value={options.exportFormat}
+                      onChange={handleSetOption('exportFormat')}
+                    >
+                      {availableExportFormats.map((format) => (
+                        <Option key={format} value={format}>
+                          {i18n(`plugin.data-format.${format}`)}
+                        </Option>
+                      ))}
+                    </Select>
+                  </GridItem>
+                </Grid>
+              )}
 
               <Flex direction="column" alignItems="start" gap="16px">
                 <Typography fontWeight="bold" textColor="neutral800" as="h2">
                   {i18n('plugin.export.options')}
                 </Typography>
-                <Checkbox value={options.relationsAsId} onValueChange={handleSetOption('relationsAsId')}>
-                  {i18n('plugin.export.relations-as-id')}
-                </Checkbox>
-                <Checkbox value={options.applyFilters} onValueChange={handleSetOption('applyFilters')}>
-                  {i18n('plugin.export.apply-filters-and-sort')}
-                </Checkbox>
-                <Select label={i18n('plugin.export.deepness')} placeholder={i18n('plugin.export.deepness')} value={options.deepness} onChange={handleSetOption('deepness')}>
-                  {range(1, 21).map((deepness) => (
-                    <Option key={deepness} value={deepness}>
-                      {deepness}
-                    </Option>
-                  ))}
-                </Select>
+                {shouldShowOption('relationsAsId') && (
+                  <Checkbox value={options.relationsAsId} onValueChange={handleSetOption('relationsAsId')}>
+                    {i18n('plugin.export.relations-as-id')}
+                  </Checkbox>
+                )}
+                {shouldShowOption('applyFilters') && (
+                  <Checkbox value={options.applyFilters} onValueChange={handleSetOption('applyFilters')}>
+                    {i18n('plugin.export.apply-filters-and-sort')}
+                  </Checkbox>
+                )}
+                {shouldShowOption('exportPluginsContentTypes') && (
+                  <Checkbox value={options.exportPluginsContentTypes} onValueChange={handleSetOption('exportPluginsContentTypes')}>
+                    {i18n('plugin.export.plugins-content-types')}
+                  </Checkbox>
+                )}
+                {shouldShowOption('deepness') && (
+                  <Select label={i18n('plugin.export.deepness')} placeholder={i18n('plugin.export.deepness')} value={options.deepness} onChange={handleSetOption('deepness')}>
+                    {range(1, 21).map((deepness) => (
+                      <Option key={deepness} value={deepness}>
+                        {deepness}
+                      </Option>
+                    ))}
+                  </Select>
+                )}
               </Flex>
             </>
           )}

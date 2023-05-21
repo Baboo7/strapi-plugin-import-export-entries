@@ -20,7 +20,7 @@ import {
   setEntryProp,
   getEntryProp,
 } from '../../utils/models';
-const { convertToJson } = require('./converters-v2');
+import converters from './converters-v2';
 
 const dataFormats = {
   JSON: 'json',
@@ -28,11 +28,11 @@ const dataFormats = {
 
 const dataConverterConfigs = {
   [dataFormats.JSON]: {
-    convertEntries: convertToJson,
+    convertEntries: converters.convertToJson,
   },
 };
 
-type Export = {
+export type Export = {
   version: 2;
   data: ExportData;
 };
@@ -44,6 +44,7 @@ type ExportDataStore = {
     };
   };
 };
+export type ExportOptions = { dataFormat: EnumValues<typeof dataFormats> };
 
 module.exports = {
   exportDataV2,
@@ -52,8 +53,21 @@ module.exports = {
 /**
  * Export data.
  */
-async function exportDataV2({ slug, search, applySearch, deepness = 5 }: { slug: SchemaUID; search: string; applySearch: boolean; deepness: number }): Promise<string> {
-  const slugsToExport: SchemaUID[] = slug === CustomSlugs.WHOLE_DB ? getAllSlugs() : toArray(CustomSlugToSlug[slug] || slug);
+async function exportDataV2({
+  slug,
+  search,
+  applySearch,
+  deepness = 5,
+  exportPluginsContentTypes,
+}: {
+  slug: SchemaUID;
+  search: string;
+  applySearch: boolean;
+  deepness: number;
+  exportPluginsContentTypes: boolean;
+}): Promise<string> {
+  const slugsToExport: SchemaUID[] =
+    slug === CustomSlugs.WHOLE_DB ? getAllSlugs({ includePluginsContentTypes: exportPluginsContentTypes }) : toArray(CustomSlugToSlug[slug] || slug);
 
   let store: ExportDataStore = {};
   for (const slug of slugsToExport) {
@@ -65,7 +79,6 @@ async function exportDataV2({ slug, search, applySearch, deepness = 5 }: { slug:
     data: store,
   };
   const fileContent = convertData(jsoContent, {
-    slug,
     dataFormat: 'json',
   });
   return fileContent;
@@ -305,21 +318,10 @@ function buildFilterQuery(search = '') {
   };
 }
 
-/**
- *
- * @param {Object} data
- * @param {Array<Object>} data.entries
- * @param {Record<string, any>} data.hierarchy
- * @param {Object} options
- * @param {string} options.slug
- * @param {string} options.dataFormat
- * @param {boolean} options.relationsAsId
- * @returns
- */
-function convertData(data: any, options: any) {
+function convertData(exportContent: Export, options: { dataFormat: EnumValues<typeof dataFormats> }) {
   const converter = getConverter(options.dataFormat);
 
-  const convertedData = converter.convertEntries(data, options);
+  const convertedData = converter.convertEntries(exportContent, options);
 
   return convertedData;
 }
