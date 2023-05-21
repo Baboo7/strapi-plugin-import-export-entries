@@ -1,7 +1,7 @@
 import React from 'react';
 
-import { InjectedExportButton } from '../InjectedExportButton';
+import { ExportButton } from '../ExportButton';
 
 export const InjectedExportCollectionType = () => {
-  return <InjectedExportButton unavailableOptions={['exportPluginsContentTypes']} />;
+  return <ExportButton unavailableOptions={['exportPluginsContentTypes']} />;
 };

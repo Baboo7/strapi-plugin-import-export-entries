@@ -1,10 +1,10 @@
 import { prefixPluginTranslations } from '@strapi/helper-plugin';
 
 import pluginPkg from '../../package.json';
+import { ImportButton } from './components/ImportButton';
 import Initializer from './components/Initializer';
 import { Alerts } from './components/Injected/Alerts';
 import { InjectedExportCollectionType } from './components/InjectedExportCollectionType';
-import { InjectedImportButton } from './components/InjectedImportButton';
 import { InjectedImportExportSingleType } from './components/InjectedImportExportSingleType';
 import PluginIcon from './components/PluginIcon';
 import pluginId from './pluginId';
@@ -41,7 +41,7 @@ export default {
     });
     app.injectContentManagerComponent('listView', 'actions', {
       name: `${pluginId}-import`,
-      Component: InjectedImportButton,
+      Component: ImportButton,
     });
     app.injectContentManagerComponent('listView', 'actions', {
       name: `${pluginId}-export`,

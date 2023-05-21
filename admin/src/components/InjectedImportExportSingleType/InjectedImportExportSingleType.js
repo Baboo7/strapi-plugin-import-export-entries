@@ -5,8 +5,8 @@ import React from 'react';
 import { useIntl } from 'react-intl';
 
 import getTrad from '../../utils/getTrad';
-import { InjectedExportButton } from '../InjectedExportButton';
-import { InjectedImportButton } from '../InjectedImportButton';
+import { ExportButton } from '../ExportButton';
+import { ImportButton } from '../ImportButton';
 
 export const InjectedImportExportSingleType = () => {
   const { formatMessage } = useIntl();
@@ -21,9 +21,9 @@ export const InjectedImportExportSingleType = () => {
       </Box>
 
       <Box paddingBottom={1}></Box>
-      <InjectedImportButton fullWidth />
+      <ImportButton fullWidth />
       <Box paddingBottom={2}></Box>
-      <InjectedExportButton fullWidth unavailableOptions={['exportPluginsContentTypes']} />
+      <ExportButton fullWidth unavailableOptions={['exportPluginsContentTypes']} />
     </Box>
   );
 };

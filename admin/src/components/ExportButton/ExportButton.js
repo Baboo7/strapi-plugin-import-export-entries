@@ -6,7 +6,7 @@ import { useIntl } from 'react-intl';
 import getTrad from '../../utils/getTrad';
 import { ExportModal } from '../ExportModal';
 
-export const InjectedExportButton = ({ availableExportFormats, unavailableOptions, fullWidth = false }) => {
+export const ExportButton = ({ availableExportFormats, unavailableOptions, fullWidth = false }) => {
   const { formatMessage } = useIntl();
 
   const [exportVisible, setExportVisible] = useState(false);

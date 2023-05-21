@@ -8,10 +8,10 @@ import { Typography } from '@strapi/design-system/Typography';
 import range from 'lodash/range';
 import React, { memo, useState } from 'react';
 
+import { ExportButton } from '../../components/ExportButton';
 import { Header } from '../../components/Header';
+import { ImportButton } from '../../components/ImportButton';
 import { Alerts } from '../../components/Injected/Alerts';
-import { InjectedExportButton } from '../../components/InjectedExportButton';
-import { InjectedImportButton } from '../../components/InjectedImportButton';
 import { useI18n } from '../../hooks/useI18n';
 import { useLocalStorage } from '../../hooks/useLocalStorage';
 import { dataFormats } from '../../utils/dataFormats';
@@ -40,8 +40,8 @@ const HomePage = () => {
               <Box>
                 <Flex direction="column" alignItems="start" gap={4}>
                   <Flex gap={4}>
-                    <InjectedImportButton />
-                    <InjectedExportButton availableExportFormats={[dataFormats.JSON_V2]} />
+                    <ImportButton />
+                    <ExportButton availableExportFormats={[dataFormats.JSON_V2]} />
                   </Flex>
                 </Flex>
               </Box>
