@@ -11,15 +11,16 @@ Import/Export data from and to your database in just few clicks.
 ### Import
 
 - Import data directly from the Content Manager
-- Import data from CSV and JSON file or from typing raw text according to user permissions
-- Import contents to collection type/single type
+- Import data from JSON file or from typing raw text according to user permissions
+- Import contents to collection type/single type (components, dynamic zones and media are supported)
 
 ### Export
 
 - Export data directly from the Content Manager
-- Export CSV and JSON contents according to user permissions
+- Export JSON contents according to user permissions
 - Download files or copy exported data to clipboard
 - Filter & sort data using Content Manager filters & sorting
+- Export plugins content types
 
 ### Known Limitations
 
