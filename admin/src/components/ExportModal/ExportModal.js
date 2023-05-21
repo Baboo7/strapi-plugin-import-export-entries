@@ -15,7 +15,7 @@ import qs from 'qs';
 import React, { useState } from 'react';
 import { useLocation } from 'react-router-dom';
 
-import ExportProxy from '../../api/exportProxy';
+import { api } from '../../api';
 import { useAlerts } from '../../hooks/useAlerts';
 import { useDownloadFile } from '../../hooks/useDownloadFile';
 import { useI18n } from '../../hooks/useI18n';
@@ -54,7 +54,7 @@ export const ExportModal = ({ availableExportFormats = [dataFormats.CSV, dataFor
   const getData = async () => {
     setFetchingData(true);
     try {
-      const res = await ExportProxy.getByContentType({
+      const res = await api.exportData({
         slug,
         search: qs.stringify(pick(qs.parse(search), ['filters', 'sort'])),
         applySearch: options.applyFilters,

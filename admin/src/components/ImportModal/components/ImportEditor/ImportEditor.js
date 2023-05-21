@@ -4,7 +4,7 @@ import { Tab, TabGroup, TabPanel, TabPanels, Tabs } from '@strapi/design-system/
 import { Typography } from '@strapi/design-system/Typography';
 import React, { useEffect, useState } from 'react';
 
-import ImportProxy from '../../../../api/importProxy';
+import { api } from '../../../../api';
 import { useForm } from '../../../../hooks/useForm';
 import { useI18n } from '../../../../hooks/useI18n';
 import { Editor } from '../../../Editor/Editor';
@@ -17,7 +17,7 @@ export const ImportEditor = ({ file, data, dataFormat, slug, onDataChanged, onOp
 
   useEffect(() => {
     const fetchAttributeNames = async () => {
-      const attributeNames = await ImportProxy.getModelAttributes({ slug });
+      const attributeNames = await api.getModelAttributes({ slug });
       setAttributeNames(attributeNames);
     };
     fetchAttributeNames();
