@@ -53,8 +53,21 @@ module.exports = {
 /**
  * Export data.
  */
-async function exportDataV2({ slug, search, applySearch, deepness = 5 }: { slug: SchemaUID; search: string; applySearch: boolean; deepness: number }): Promise<string> {
-  const slugsToExport: SchemaUID[] = slug === CustomSlugs.WHOLE_DB ? getAllSlugs() : toArray(CustomSlugToSlug[slug] || slug);
+async function exportDataV2({
+  slug,
+  search,
+  applySearch,
+  deepness = 5,
+  exportPluginsContentTypes,
+}: {
+  slug: SchemaUID;
+  search: string;
+  applySearch: boolean;
+  deepness: number;
+  exportPluginsContentTypes: boolean;
+}): Promise<string> {
+  const slugsToExport: SchemaUID[] =
+    slug === CustomSlugs.WHOLE_DB ? getAllSlugs({ includePluginsContentTypes: exportPluginsContentTypes }) : toArray(CustomSlugToSlug[slug] || slug);
 
   let store: ExportDataStore = {};
   for (const slug of slugsToExport) {

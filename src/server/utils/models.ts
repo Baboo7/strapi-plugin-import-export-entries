@@ -31,8 +31,10 @@ module.exports = {
   deleteEntryProp,
 };
 
-function getAllSlugs(): SchemaUID[] {
-  return (Array.from(strapi.db.metadata) as [SchemaUID][]).map(([collectionName]) => collectionName).filter((collectionName) => collectionName.startsWith('api::'));
+function getAllSlugs({ includePluginsContentTypes = false }: { includePluginsContentTypes?: boolean } = {}): SchemaUID[] {
+  return (Array.from(strapi.db.metadata) as [SchemaUID][])
+    .filter(([collectionName]) => collectionName.startsWith('api::') || (includePluginsContentTypes && collectionName.startsWith('plugin::')))
+    .map(([collectionName]) => collectionName);
 }
 
 function getModel(slug: SchemaUID): Schema {
