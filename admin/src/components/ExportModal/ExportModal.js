@@ -103,7 +103,7 @@ export const ExportModal = ({ availableExportFormats = [dataFormats.CSV, dataFor
               {i18n('plugin.cta.export', 'Export')}
             </Typography>
             <Typography textColor="neutral800" id="title">
-              {isSlugWholeDb() ? i18n('plugin.export.whole-database', 'Whole database') : slug}
+              {isSlugWholeDb ? i18n('plugin.export.whole-database', 'Whole database') : slug}
             </Typography>
           </Flex>
         </ModalHeader>
