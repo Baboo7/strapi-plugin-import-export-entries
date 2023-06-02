@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useState } from 'react';
+import { useMemo } from 'react';
 import { useLocation } from 'react-router-dom';
 
 const SLUG_WHOLE_DB = 'custom:db';
@@ -6,22 +6,12 @@ const SLUG_WHOLE_DB = 'custom:db';
 export const useSlug = () => {
   const { pathname } = useLocation();
 
-  const [slug, setSlug] = useState('');
+  const slug = useMemo(() => {
+    const matches = pathname.match(/content-manager\/(collectionType|singleType)\/([a-zA-Z0-9\-:_.]*)/);
+    return matches?.[2] ? matches[2] : SLUG_WHOLE_DB;
+  }, [pathname]);
 
-  useEffect(() => {
-    const [kind, slug] = pathname.split('/').slice(-2);
-
-    if (['collectionType', 'singleType'].indexOf(kind) > -1) {
-      setSlug(slug);
-      return;
-    }
-
-    setSlug(SLUG_WHOLE_DB);
-  }, [pathname, setSlug]);
-
-  const isSlugWholeDb = useCallback(() => {
-    return slug === SLUG_WHOLE_DB;
-  }, [slug]);
+  const isSlugWholeDb = useMemo(() => slug === SLUG_WHOLE_DB, [slug]);
 
   return {
     slug,
