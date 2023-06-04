@@ -7,7 +7,9 @@ import { Alerts } from './components/Injected/Alerts';
 import { InjectedExportCollectionType } from './components/InjectedExportCollectionType';
 import { InjectedImportExportSingleType } from './components/InjectedImportExportSingleType';
 import PluginIcon from './components/PluginIcon';
+import { pluginPermissions } from './permissions';
 import pluginId from './pluginId';
+import getTrad from './utils/getTrad';
 
 const name = pluginPkg.strapi.name;
 
@@ -17,15 +19,17 @@ export default {
       to: `/plugins/${pluginId}`,
       icon: PluginIcon,
       intlLabel: {
-        id: `${pluginId}.plugin.name`,
-        defaultMessage: 'SEO',
+        id: getTrad(`plugin.name`),
+        defaultMessage: 'Import Export',
       },
+      permissions: pluginPermissions.main,
       Component: async () => {
-        const component = await import('./pages/App');
+        const component = await import(/* webpackChunkName: "import-export-entries" */ './pages/App');
 
         return component;
       },
     });
+
     app.registerPlugin({
       id: pluginId,
       initializer: Initializer,
@@ -61,7 +65,7 @@ export default {
   async registerTrads({ locales }) {
     const importedTrads = await Promise.all(
       locales.map((locale) => {
-        return import(`./translations/${locale}.json`)
+        return import(/* webpackChunkName: "import-export-entries-translation-[request]" */ `./translations/${locale}.json`)
           .then(({ default: data }) => {
             return {
               data: prefixPluginTranslations(data, pluginId),

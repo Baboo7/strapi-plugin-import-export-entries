@@ -5,6 +5,7 @@ import { ContentLayout } from '@strapi/design-system/Layout';
 import { Link } from '@strapi/design-system/Link';
 import { Option, Select } from '@strapi/design-system/Select';
 import { Typography } from '@strapi/design-system/Typography';
+import { CheckPagePermissions } from '@strapi/helper-plugin';
 import range from 'lodash/range';
 import React, { memo, useState } from 'react';
 
@@ -14,6 +15,7 @@ import { ImportButton } from '../../components/ImportButton';
 import { Alerts } from '../../components/Injected/Alerts';
 import { useI18n } from '../../hooks/useI18n';
 import { useLocalStorage } from '../../hooks/useLocalStorage';
+import { pluginPermissions } from '../../permissions';
 import { dataFormats } from '../../utils/dataFormats';
 
 const HomePage = () => {
@@ -28,7 +30,7 @@ const HomePage = () => {
   };
 
   return (
-    <>
+    <CheckPagePermissions permissions={pluginPermissions.main}>
       <Header />
 
       <ContentLayout>
@@ -103,7 +105,7 @@ const HomePage = () => {
       </ContentLayout>
 
       <Alerts />
-    </>
+    </CheckPagePermissions>
   );
 };
 

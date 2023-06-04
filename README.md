@@ -13,6 +13,7 @@ Import/Export data from and to your database in just few clicks.
 - Import data directly from the Content Manager
 - Import data from JSON file or from typing raw text according to user permissions
 - Import contents to collection type/single type (components, dynamic zones and media are supported)
+- Control which roles can import data from the admin UI.
 
 ### Export
 
@@ -21,6 +22,7 @@ Import/Export data from and to your database in just few clicks.
 - Download files or copy exported data to clipboard
 - Filter & sort data using Content Manager filters & sorting
 - Export plugins content types
+- Control which roles can export data from the admin UI.
 
 ### Known Limitations
 
@@ -46,6 +48,7 @@ At the moment, dynamic zones and media are not unit tested. Tests will be implem
 - [Installation](#installation)
 - [Rebuild The Admin Panel](#rebuild-the-admin-panel)
 - [Usage](#usage)
+  - [Access Control](#access-control)
   - [Preferences](#preferences)
   - [Config](#config)
     - [Available Options](#available-options)
@@ -101,6 +104,9 @@ module.exports = ({ env }) => ({
   //...
   'import-export-entries': {
     enabled: true,
+    config: {
+      // See `Config` section.
+    },
   },
   //...
 });
@@ -189,6 +195,25 @@ You can also export the whole database from the home page of the plugin.
 
 <p align="center">
   <img src="./doc/scr-homepage.png" alt="UI" width="500"/>
+</p>
+
+## Access Control
+
+You can define which roles can import and/or export data from the admin UI.
+
+Go to `Settings > Roles (under Administration Panel) > Plugins > Import-export-entries`.
+
+<p align="center">
+  <img style="display:block;" src="./doc/access-control-admin.png" alt="UI" width="500"/>
+  <em>Admin view.</em>
+</p>
+<p align="center">
+  <img style="display:block;" src="./doc/access-control-user-homepage.png" alt="UI" width="500"/>
+  <em>User view of the plugin home page that can only export data.</em>
+</p>
+<p align="center">
+  <img style="display:block;" src="./doc/access-control-user-content-manager.png" alt="UI" width="500"/>
+  <em>User view of the content management page that can only export data.</em>
 </p>
 
 ## Preferences
