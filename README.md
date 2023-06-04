@@ -204,15 +204,27 @@ You can define which roles can import and/or export data from the admin UI.
 Go to `Settings > Roles (under Administration Panel) > Plugins > Import-export-entries`.
 
 <p align="center">
-  <img style="display:block;" src="./doc/access-control-admin.png" alt="UI" width="500"/>
+  <img src="./doc/access-control-admin.png" alt="UI" width="500"/>
+</p>
+<p align="center">
   <em>Admin view.</em>
 </p>
+
+<br>
+
 <p align="center">
-  <img style="display:block;" src="./doc/access-control-user-homepage.png" alt="UI" width="500"/>
-  <em>User view of the plugin home page that can only export data.</em>
+  <img src="./doc/access-control-user-homepage.png" alt="UI" width="500"/>
 </p>
 <p align="center">
-  <img style="display:block;" src="./doc/access-control-user-content-manager.png" alt="UI" width="500"/>
+  <em>User view of the plugin home page that can only export data.</em>
+</p>
+
+<br>
+
+<p align="center">
+  <img src="./doc/access-control-user-content-manager.png" alt="UI" width="500"/>
+</p>
+<p align="center">
   <em>User view of the content management page that can only export data.</em>
 </p>
 
