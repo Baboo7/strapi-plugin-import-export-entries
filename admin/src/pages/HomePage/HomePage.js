@@ -30,7 +30,7 @@ const HomePage = () => {
   };
 
   return (
-    <CheckPagePermissions permissions={pluginPermissions.homePage}>
+    <CheckPagePermissions permissions={pluginPermissions.main}>
       <Header />
 
       <ContentLayout>

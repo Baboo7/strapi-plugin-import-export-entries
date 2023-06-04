@@ -22,7 +22,7 @@ export default {
         id: getTrad(`plugin.name`),
         defaultMessage: 'Import Export',
       },
-      permissions: pluginPermissions.homePage,
+      permissions: pluginPermissions.main,
       Component: async () => {
         const component = await import(/* webpackChunkName: "import-export-entries" */ './pages/App');
 
