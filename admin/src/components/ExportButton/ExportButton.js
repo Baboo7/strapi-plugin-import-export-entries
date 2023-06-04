@@ -1,8 +1,10 @@
 import { Button } from '@strapi/design-system/Button';
+import { CheckPermissions } from '@strapi/helper-plugin';
 import Download from '@strapi/icons/Download';
 import React, { useState } from 'react';
 import { useIntl } from 'react-intl';
 
+import { pluginPermissions } from '../../permissions';
 import getTrad from '../../utils/getTrad';
 import { ExportModal } from '../ExportModal';
 
@@ -20,12 +22,12 @@ export const ExportButton = ({ availableExportFormats, unavailableOptions, fullW
   };
 
   return (
-    <>
+    <CheckPermissions permissions={pluginPermissions.exportButton}>
       <Button startIcon={<Download />} onClick={openExportModal} fullWidth={fullWidth}>
         {formatMessage({ id: getTrad('plugin.cta.export') })}
       </Button>
 
       {exportVisible && <ExportModal availableExportFormats={availableExportFormats} unavailableOptions={unavailableOptions} onClose={closeExportModal} />}
-    </>
+    </CheckPermissions>
   );
 };
