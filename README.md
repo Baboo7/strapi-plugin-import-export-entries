@@ -72,7 +72,13 @@ Strapi v4 is required.
 ## Feedback
 
 <p align="center">
-  <img src="./doc/discord-logo.png" alt="UI" width="100"/>
+  <img src="./doc/map.png" alt="Product roadmap" width="100"/>
+</p>
+
+Access the [publicly available product roadmap](https://strapi-import-export-entries.canny.io) and suggest features, report bugs or upvote other people suggestions.
+
+<p align="center">
+  <img src="./doc/discord-logo.png" alt="Discord community" width="100"/>
 </p>
 
 Join the [Discord Community](https://discord.gg/dcqCAFFdP8) to give your feedback 📣 and get some help from the community ⛑️
