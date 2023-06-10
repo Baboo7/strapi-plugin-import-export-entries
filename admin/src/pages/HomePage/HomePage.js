@@ -82,19 +82,20 @@ const HomePage = () => {
 
           <Box style={{ alignSelf: 'stretch' }} background="neutral0" padding="32px" hasRadius={true}>
             <Flex direction="column" alignItems="start" gap={6}>
-              <Typography variant="alpha">{i18n('plugin.page.homepage.section.need-help.title', 'Need Help?')}</Typography>
+              <Typography variant="alpha">{i18n('plugin.page.homepage.section.need-help.title', 'Feature Request / Bug Report')}</Typography>
 
               <Box>
                 <Flex direction="column" alignItems="start" gap={4}>
-                  <Typography>
-                    {i18n('plugin.page.homepage.section.need-help.description', 'A feature to request? A bug to report? Feel free to reach out on discord or github ✌️')}
-                  </Typography>
+                  <Typography>{i18n('plugin.page.homepage.section.need-help.description', 'Feel free to reach out on the product roadmap, discord or github ✌️')}</Typography>
                   <Flex gap={4}>
+                    <Link href="https://strapi-import-export-entries.canny.io" isExternal>
+                      {i18n('plugin.page.homepage.section.need-help.product-roadmap', 'Product Roadmap')}
+                    </Link>
                     <Link href="https://discord.gg/dcqCAFFdP8" isExternal>
-                      Discord
+                      {i18n('plugin.page.homepage.section.need-help.discord', 'Discord')}
                     </Link>
                     <Link href="https://github.com/Baboo7/strapi-plugin-import-export-entries/issues" isExternal>
-                      GitHub
+                      {i18n('plugin.page.homepage.section.need-help.github', 'GitHub')}
                     </Link>
                   </Flex>
                 </Flex>
