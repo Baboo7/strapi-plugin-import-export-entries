@@ -118,63 +118,6 @@ module.exports = ({ env }) => ({
 });
 ```
 
-3. Update the webpack config:
-
-Create the file `src/admin/webpack.config.js`:
-
-```js
-'use strict';
-
-const MonacoWebpackPlugin = require('monaco-editor-webpack-plugin');
-
-module.exports = (config) => {
-  config.plugins.push(new MonacoWebpackPlugin());
-
-  return config;
-};
-```
-
-4. Rollback the config of the `security` middleware:
-
-> ⚠️ This step is only for users that used version <= `1.6.2`.
-
-The `security` middleware does not need to be configured anymore to use of the **Monaco** code editor.
-
-In the file `config/middlewares.js`, replace:
-
-```js
-module.exports = ({ env }) => ({
-  //...
-  {
-    name: "strapi::security",
-    config: {
-      contentSecurityPolicy: {
-        useDefaults: true,
-        directives: {
-          // Enable the download of the Monaco editor
-          // from cdn.jsdelivr.net.
-          "script-src": ["'self'", "cdn.jsdelivr.net", "blob:"],
-          upgradeInsecureRequests: null,
-        },
-      },
-    },
-  },
-  //...
-});
-```
-
-with
-
-```js
-module.exports = [
-  //...
-  'strapi::security',
-  //...
-];
-```
-
-The important part here is to remove `cdn.jsdelivr.net` from the `script-src` section as it is a security vulnerability.
-
 ## Rebuild The Admin Panel
 
 New releases can introduce changes to the administration panel that require a rebuild. Rebuild the admin panel with one of the following commands:
