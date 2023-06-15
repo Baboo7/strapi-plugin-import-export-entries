@@ -410,12 +410,12 @@ const updateOrCreateCollectionTypeEntry = async (
       }
     }
 
-    fileEntry = omit(fileEntry, ['localizations']);
     if (isEmpty(omit(fileEntry, ['id']))) {
       return null;
     }
 
     if (isDatumInDefaultLocale) {
+      fileEntry = omit(fileEntry, ['localizations']);
       if (!dbEntryDefaultLocaleId) {
         return strapi.entityService.create(slug, { data: fileEntry });
       } else {
@@ -427,8 +427,9 @@ const updateOrCreateCollectionTypeEntry = async (
       }
 
       if (!dbEntry) {
-        const insertLocalizedEntry = strapi.plugin('i18n').service('core-api').createCreateLocalizationHandler(getModel(slug));
-        return insertLocalizedEntry({ id: dbEntryDefaultLocaleId, data: omit({ ...fileEntry }, ['id']) });
+        const newEntry = await strapi.entityService.create(slug, { data: fileEntry });
+        await strapi.plugin('i18n').service('localizations').syncLocalizations(newEntry, { model: schema });
+        return newEntry;
       } else {
         return strapi.entityService.update(slug, dbEntry.id, { data: omit({ ...fileEntry }, ['id']) });
       }
