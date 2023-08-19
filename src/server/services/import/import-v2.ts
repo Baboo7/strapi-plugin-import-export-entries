@@ -177,7 +177,7 @@ const importContentTypeSlug = async (
 ): Promise<{ failures: ImportFailures[] }> => {
   let fileEntries = toPairs(slugEntries);
 
-  // Sort localized data with default locale first.
+  // Sort localized data with default locale last.
   const sortDataByLocale = async () => {
     const schema = getModel(slug);
 
@@ -187,9 +187,9 @@ const importContentTypeSlug = async (
         if (dataA[1].locale === defaultLocale && dataB[1].locale === defaultLocale) {
           return 0;
         } else if (dataA[1].locale === defaultLocale) {
-          return -1;
+          return 1;
         }
-        return 1;
+        return -1;
       });
     }
   };
@@ -391,44 +391,28 @@ const updateOrCreateCollectionTypeEntry = async (
         const localizedEntries = [dbEntry, ...(dbEntry?.localizations || [])];
         dbEntryDefaultLocaleId = localizedEntries.find((e: Entry) => e.locale === defaultLocale)?.id || null;
         dbEntry = localizedEntries.find((e: Entry) => e.locale === fileEntry.locale) || null;
-      } else {
-        // Otherwise try to find dbEntry for default locale through localized siblings.
-        let idx = 0;
-        const fileLocalizationsIds = (fileEntry?.localizations as EntryId[]) || [];
-        while (idx < fileLocalizationsIds.length && !dbEntryDefaultLocaleId && !dbEntry) {
-          const dbId = fileIdToDbId.getMapping(slug, fileLocalizationsIds[idx]);
-          const localizedEntry: Entry = await strapi.db.query(slug).findOne({ where: { id: dbId }, populate: ['localizations'] });
-          const localizedEntries = localizedEntry != null ? [localizedEntry, ...(localizedEntry?.localizations || [])] : [];
-          if (!dbEntryDefaultLocaleId) {
-            dbEntryDefaultLocaleId = localizedEntries.find((e: Entry) => e.locale === defaultLocale)?.id || null;
-          }
-          if (!dbEntry) {
-            dbEntry = localizedEntries.find((e: Entry) => e.locale === fileEntry.locale) || null;
-          }
-          idx += 1;
-        }
       }
     }
 
-    fileEntry = omit(fileEntry, ['localizations']);
     if (isEmpty(omit(fileEntry, ['id']))) {
       return null;
     }
 
     if (isDatumInDefaultLocale) {
       if (!dbEntryDefaultLocaleId) {
-        return strapi.entityService.create(slug, { data: fileEntry });
+        const newMainEntry = await strapi.entityService.create(slug, { data: fileEntry, populate: ['localizations'] });
+        await strapi.plugin('i18n').service('localizations').syncLocalizations(newMainEntry, { model: schema });
+        return newMainEntry;
       } else {
-        return strapi.entityService.update(slug, dbEntryDefaultLocaleId, { data: omit({ ...fileEntry }, ['id']) });
+        const updatedMainEntry = await strapi.entityService.update(slug, dbEntryDefaultLocaleId, { data: omit({ ...fileEntry }, ['id']), populate: ['localizations'] });
+        await strapi.plugin('i18n').service('localizations').syncLocalizations(updatedMainEntry, { model: schema });
+        return updatedMainEntry;
       }
     } else {
-      if (!dbEntryDefaultLocaleId) {
-        throw new Error(`Could not find default locale entry to import localization for slug ${slug} (data ${JSON.stringify(fileEntry)})`);
-      }
+      fileEntry = omit(fileEntry, ['localizations']);
 
       if (!dbEntry) {
-        const insertLocalizedEntry = strapi.plugin('i18n').service('core-api').createCreateLocalizationHandler(getModel(slug));
-        return insertLocalizedEntry({ id: dbEntryDefaultLocaleId, data: omit({ ...fileEntry }, ['id']) });
+        return strapi.entityService.create(slug, { data: fileEntry });
       } else {
         return strapi.entityService.update(slug, dbEntry.id, { data: omit({ ...fileEntry }, ['id']) });
       }
