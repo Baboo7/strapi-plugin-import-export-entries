@@ -5,8 +5,7 @@ import pick from 'lodash/pick';
 import { extract, toArray } from '../../../libs/arrays';
 import { ObjectBuilder } from '../../../libs/objects';
 import { getModel, getModelAttributes, isComponentAttribute, isDynamicZoneAttribute, isMediaAttribute, isRelationAttribute } from '../../utils/models';
-import { SchemaUID } from '@strapi/strapi/lib/types/utils';
-import { Entry, EntryId, Schema, User } from '../../types';
+import { Entry, EntryId, Schema, SchemaUID, User } from '../../types';
 import { toPairs } from 'lodash';
 import { FileEntry, FileEntryDynamicZone, FileId } from './types';
 import { findOrImportFile } from './utils/file';
@@ -389,8 +388,8 @@ const updateOrCreateCollectionTypeEntry = async (
         // If `dbEntry` has been found, `dbEntry` holds the data for the default locale and
         // the data for other locales in its `localizations` attribute.
         const localizedEntries = [dbEntry, ...(dbEntry?.localizations || [])];
-        dbEntryDefaultLocaleId = localizedEntries.find((e: Entry) => e.locale === defaultLocale)?.id || null;
-        dbEntry = localizedEntries.find((e: Entry) => e.locale === fileEntry.locale) || null;
+        dbEntryDefaultLocaleId = localizedEntries.find((e) => e.locale === defaultLocale)?.id || null;
+        (dbEntry as any) = localizedEntries.find((e) => e.locale === fileEntry.locale) || null;
       } else {
         // Otherwise try to find dbEntry for default locale through localized siblings.
         let idx = 0;
@@ -400,10 +399,10 @@ const updateOrCreateCollectionTypeEntry = async (
           const localizedEntry: Entry = await strapi.db.query(slug).findOne({ where: { id: dbId }, populate: ['localizations'] });
           const localizedEntries = localizedEntry != null ? [localizedEntry, ...(localizedEntry?.localizations || [])] : [];
           if (!dbEntryDefaultLocaleId) {
-            dbEntryDefaultLocaleId = localizedEntries.find((e: Entry) => e.locale === defaultLocale)?.id || null;
+            dbEntryDefaultLocaleId = localizedEntries.find((e) => e.locale === defaultLocale)?.id || null;
           }
           if (!dbEntry) {
-            dbEntry = localizedEntries.find((e: Entry) => e.locale === fileEntry.locale) || null;
+            (dbEntry as any) = localizedEntries.find((e) => e.locale === fileEntry.locale) || null;
           }
           idx += 1;
         }

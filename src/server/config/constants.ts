@@ -1,4 +1,4 @@
-import { SchemaUID } from '@strapi/strapi/lib/types/utils';
+import { SchemaUID } from '../types';
 
 export const CustomSlugs = {
   MEDIA: 'media',

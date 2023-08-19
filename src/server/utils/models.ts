@@ -1,7 +1,5 @@
-import { SchemaUID } from '@strapi/strapi/lib/types/utils';
 import { toArray } from '../../libs/arrays';
-import { Attribute, ComponentAttribute, DynamicZoneAttribute, Entry, MediaAttribute, RelationAttribute, Schema } from '../types';
-import { AttributeType } from '@strapi/strapi';
+import { Attribute, AttributeType, ComponentAttribute, DynamicZoneAttribute, Entry, MediaAttribute, RelationAttribute, Schema, SchemaUID } from '../types';
 
 export {
   getAllSlugs,

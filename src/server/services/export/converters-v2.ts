@@ -1,7 +1,7 @@
-import { SchemaUID } from '@strapi/strapi/lib/types/utils';
 import { fromPairs, pick, toPairs } from 'lodash';
 import { CustomSlugToSlug, CustomSlugs } from '../../config/constants';
 import { Export, ExportOptions } from './export-v2';
+import { SchemaUID } from '../../types';
 const { getConfig } = require('../../utils/getConfig');
 
 type Converter = (jsoContent: Export, options: ExportOptions) => string;

@@ -2,8 +2,8 @@ import csvtojson from 'csvtojson';
 import { isArraySafe } from '../../../libs/arrays';
 import { isObjectSafe } from '../../../libs/objects';
 import { getModelAttributes } from '../../utils/models';
-import { SchemaUID } from '@strapi/strapi/lib/types/utils';
 import { EnumValues } from '../../../types';
+import { SchemaUID } from '../../types';
 
 const inputFormatToParser = {
   csv: parseCsv,
