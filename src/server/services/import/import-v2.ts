@@ -366,7 +366,7 @@ const updateOrCreateCollectionTypeEntry = async (
   if (!schema.pluginOptions?.i18n?.localized) {
     let dbEntry: Entry = await strapi.db.query(slug).findOne({ where });
 
-    if (!dbEntry) {
+    if (!dbEntry || isEmpty(where)) {
       return strapi.entityService.create(slug, { data: fileEntry });
     } else {
       return strapi.entityService.update(slug, dbEntry.id, { data: omit(fileEntry, ['id']) });
