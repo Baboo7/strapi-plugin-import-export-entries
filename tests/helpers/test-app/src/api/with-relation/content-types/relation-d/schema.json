@@ -1,0 +1,44 @@
+{
+  "kind": "collectionType",
+  "collectionName": "relation_d",
+  "info": {
+    "singularName": "relation-d",
+    "pluralName": "relations-d",
+    "displayName": "RelationD"
+  },
+  "options": {
+    "draftAndPublish": false
+  },
+  "pluginOptions": {
+    "import-export-entries": {
+      "idField": "name"
+    }
+  },
+  "attributes": {
+    "name": {
+      "type": "string",
+      "unique": true,
+      "required": true
+    },
+    "relationOneToOne": {
+      "type": "relation",
+      "relation": "oneToOne",
+      "target": "api::with-relation.relation-c"
+    },
+    "relationOneToMany": {
+      "type": "relation",
+      "relation": "oneToMany",
+      "target": "api::with-relation.relation-c"
+    },
+    "relationManyToOne": {
+      "type": "relation",
+      "relation": "manyToOne",
+      "target": "api::with-relation.relation-c"
+    },
+    "relationManyToMany": {
+      "type": "relation",
+      "relation": "manyToMany",
+      "target": "api::with-relation.relation-c"
+    }
+  }
+}

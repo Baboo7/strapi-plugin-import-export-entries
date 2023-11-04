@@ -10,6 +10,8 @@ const SLUGS = {
   COMPONENT_COMPONENT: 'component.component',
   RELATION_A: 'api::with-relation.relation-a',
   RELATION_B: 'api::with-relation.relation-b',
+  RELATION_C: 'api::with-relation.relation-c',
+  RELATION_D: 'api::with-relation.relation-d',
   SINGLE_TYPE: 'api::single-type.single-type',
   SINGLE_TYPE_SIMPLE: 'api::single-type.single-type-simple',
 };
@@ -47,6 +49,18 @@ const generateData = (slug, customData = {}) => {
     };
   }
   if (slug === SLUGS.RELATION_B) {
+    return {
+      name: faker.helpers.unique(faker.word.noun),
+      ...customData,
+    };
+  }
+  if (slug === SLUGS.RELATION_C) {
+    return {
+      name: faker.helpers.unique(faker.word.noun),
+      ...customData,
+    };
+  }
+  if (slug === SLUGS.RELATION_D) {
     return {
       name: faker.helpers.unique(faker.word.noun),
       ...customData,
