@@ -289,6 +289,25 @@ function setComponents(
       }
     } else if (isDynamicZoneAttribute(attribute)) {
       store[attributeName] = (attributeValue as FileEntryDynamicZone[]).map(({ __component, id }) => getComponentData(__component, `${id}`, { fileIdToDbId, componentsDataStore }));
+    } else if (isRelationAttribute(attribute)) {
+      switch (attribute.relation) {
+        case 'oneToMany':
+        case 'manyToMany':
+          store[attributeName] = (attributeValue as (number | string)[]).map((id) => fileIdToDbId.getMapping(attribute.target, id));
+          break;
+        case 'oneToOne':
+        case 'manyToOne':
+          store[attributeName] = fileIdToDbId.getMapping(attribute.target, `${attributeValue as number | string}`);
+          break;
+      }
+    }
+    else if (isMediaAttribute(attribute)) {
+      if (attribute.multiple) {
+        store[attributeName] = (attributeValue as number[] | string[]).map((id) => fileIdToDbId.getMapping('plugin::upload.file', id));
+      }
+      else {
+        store[attributeName] = fileIdToDbId.getMapping('plugin::upload.file', `${attributeValue as number | string}`);
+      }
     }
   }
 

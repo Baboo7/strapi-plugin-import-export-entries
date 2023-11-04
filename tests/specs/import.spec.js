@@ -1,7 +1,8 @@
 const map = require('lodash/map');
 const pick = require('lodash/pick');
-const { getModel } = require('../../server/utils/models');
+const omit = require('lodash/omit');
 
+const { getModel } = require('../../server/utils/models');
 const { getService, SLUGS, generateData } = require('../utils');
 
 describe('import service', () => {
@@ -513,15 +514,13 @@ describe('import service', () => {
       expect(entriesA.length).toBe(CONFIG[SLUGS.RELATION_A].length);
       CONFIG[SLUGS.RELATION_A].forEach((configData, idx) => {
         expect(entriesA[idx].id).toBe(configData.id);
-        expect(entriesA[idx].title).toBe(configData.title);
-        expect(entriesA[idx].description).toBe(configData.description);
+        expect(entriesA[idx].name).toBe(configData.name);
       });
 
       expect(entriesB.length).toBe(CONFIG[SLUGS.RELATION_B].length);
       CONFIG[SLUGS.RELATION_B].forEach((configData, idx) => {
         expect(entriesB[idx].id).toBe(configData.id);
-        expect(entriesB[idx].title).toBe(configData.title);
-        expect(entriesB[idx].description).toBe(configData.description);
+        expect(entriesB[idx].name).toBe(configData.name);
       });
     });
 
@@ -539,12 +538,73 @@ describe('import service', () => {
       expect(failures.length).toBeGreaterThanOrEqual(1);
       expect(entries.length).toBe(0);
     });
+
+
+    it('should map document id to db id for one to one relation', async () => {
+      const CONFIG = {
+        [SLUGS.RELATION_A]: [generateData(SLUGS.RELATION_A, { id: 1, relationOneToOne: 12,  })],
+        [SLUGS.RELATION_B]: [generateData(SLUGS.RELATION_B, { id: 12,  })],
+      };
+      const fileContent = buildJsonV2FileContent(CONFIG, { omitId:true });
+
+      const { failures } = await getService('import').importDataV2(fileContent, { slug: SLUGS.RELATION_A, user: {}, idField: 'name' });
+      const [entriesA, entriesB] = await Promise.all([
+        strapi.db.query(SLUGS.RELATION_A).findMany({  populate: {"relationOneToOne":true}}),
+        strapi.db.query(SLUGS.RELATION_B).findMany()
+      ]);
+
+      expect(failures.length).toBe(0);
+
+      expect(entriesA.length).toBe(CONFIG[SLUGS.RELATION_A].length);
+      CONFIG[SLUGS.RELATION_A].forEach((configData, idx) => {
+        expect(entriesA[idx].id).toBe(configData.id);
+        expect(entriesA[idx].name).toBe(configData.name);
+        expect(entriesA[idx].relationOneToOne.id).toBe(entriesB[0].id);
+      });
+
+      expect(entriesB.length).toBe(CONFIG[SLUGS.RELATION_B].length);
+      CONFIG[SLUGS.RELATION_B].forEach((configData, idx) => {
+        expect(entriesB[idx].id).not.toBe(configData.id);
+        expect(entriesB[idx].name).toBe(configData.name);
+      });
+    });
+
+    it('should map document id to db id for one to many relation using idField in Strapi', async () => {
+      const CONFIG = {
+        [SLUGS.RELATION_C]: [generateData(SLUGS.RELATION_C, { id: 1, relationOneToMany: [11, 12],  })],
+        [SLUGS.RELATION_D]: [generateData(SLUGS.RELATION_D, { id: 11,  }), generateData(SLUGS.RELATION_D, { id: 12,  })],
+      };
+      const fileContent = buildJsonV2FileContent(CONFIG, { omitId:true });
+
+      const { failures } = await getService('import').importDataV2(fileContent, { slug: SLUGS.RELATION_C, user: {} });
+
+      const [entriesC, entriesD] = await Promise.all([
+        strapi.db.query(SLUGS.RELATION_C).findMany({  populate: {"relationOneToMany":true}}),
+        strapi.db.query(SLUGS.RELATION_D).findMany()
+      ]);
+
+
+      expect(failures.length).toBe(0);
+      expect(entriesC.length).toBe(CONFIG[SLUGS.RELATION_C].length);
+      CONFIG[SLUGS.RELATION_C].forEach((configData, idx) => {
+        expect(entriesC[idx].id).toBe(configData.id);
+        expect(entriesC[idx].name).toBe(configData.name);
+        expect(entriesC[idx].relationOneToMany.map(item=>item.id)).toStrictEqual(entriesD.map(item => item.id));
+      });
+
+
+      expect(entriesD.length).toBe(CONFIG[SLUGS.RELATION_D].length);
+      CONFIG[SLUGS.RELATION_D].forEach((configData, idx) => {
+        expect(entriesD[idx]).not.toBe(configData.id);
+        expect(entriesD[idx].name).toBe(configData.name);
+      });
+    });
   });
 });
 
-const buildJsonV2FileContent = (config) => {
+const buildJsonV2FileContent = (config, { omitId } = {}) => {
   return {
     version: 2,
-    data: Object.fromEntries(map(config, (data, slug) => [slug, Object.fromEntries(data.map((datum) => [datum.id, datum]))])),
+    data: Object.fromEntries(map(config, (data, slug) => [slug, Object.fromEntries(data.map((datum) => [datum.id, omitId ? omit(datum, ["id"]) : datum]))])),
   };
 };
