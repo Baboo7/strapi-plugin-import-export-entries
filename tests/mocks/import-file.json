@@ -1,0 +1,71 @@
+{
+  "version": 2,
+  "data": {
+    "api::restaurant.restaurant": {
+      "1": {
+        "id": 1,
+        "name": "Dubillot",
+        "description": "Awesome restaurant",
+        "rating": 5,
+        "owned_by": 1,
+        "utensils": [1, 2],
+        "locale": "en",
+        "localizations": [3]
+      },
+      "2": {
+        "id": 2,
+        "name": "Martin",
+        "description": "Checkout the chicken",
+        "rating": 4.5,
+        "owned_by": 2,
+        "utensils": [1],
+        "locale": "en",
+        "localizations": []
+      },
+      "3": {
+        "id": 3,
+        "name": "Dubillot",
+        "description": "Incroyable restaurant",
+        "rating": 5,
+        "owned_by": 1,
+        "utensils": [1, 2],
+        "locale": "fr",
+        "localizations": [1]
+      }
+    },
+    "api::restaurant-owner.restaurant-owner": {
+      "1": {
+        "id": 1,
+        "name": "Charles"
+      },
+      "2": {
+        "id": 2,
+        "name": "Victor"
+      }
+    },
+    "api::utensil-maker.utensil-maker": {
+      "1": {
+        "id": 1,
+        "name": "Moulinex"
+      },
+      "2": {
+        "id": 2,
+        "name": "SEB"
+      }
+    },
+    "shared.utensil": {
+      "1": {
+        "id": 1,
+        "name": "Fork",
+        "description": "Really useful",
+        "made_by": 1
+      },
+      "2": {
+        "id": 2,
+        "name": "Knife",
+        "description": "Be careful kiddo",
+        "made_by": 2
+      }
+    }
+  }
+}

@@ -1,6 +1,7 @@
 const map = require('lodash/map');
 const pick = require('lodash/pick');
 const { getModel } = require('../../server/utils/models');
+const importFile = require('../mocks/import-file.json');
 
 const { getService, SLUGS, generateData } = require('../utils');
 
@@ -21,7 +22,7 @@ describe('import service', () => {
 
       const { failures } = await getService('import').importDataV2(fileContent, { slug: SLUG, user: {}, idField: 'id' });
 
-      const entries = await strapi.db.query(SLUG).findMany();
+      const entries = await strapi.db.query(SLUG).findMany({});
 
       expect(failures.length).toBe(0);
       expect(entries.length).toBe(CONFIG[SLUG].length);
@@ -51,7 +52,7 @@ describe('import service', () => {
 
       const { failures } = await getService('import').importDataV2(fileContent, { slug: SLUG, user: {}, idField: 'id' });
 
-      const entries = await strapi.db.query(SLUG).findMany();
+      const entries = await strapi.db.query(SLUG).findMany({});
 
       const [entry] = entries;
 
@@ -78,7 +79,7 @@ describe('import service', () => {
 
       expect(failures.length).toBe(0);
       expect(entries.length).toBe(CONFIG[SLUG].length);
-      entries.forEach((entry, idx) => {
+      entries.forEach((entry: any, idx: any) => {
         const configData = CONFIG[SLUG][idx];
         if (configData.id) {
           expect(entry.id).toBe(configData.id);
@@ -107,7 +108,7 @@ describe('import service', () => {
 
       expect(failures.length).toBe(0);
       expect(entries.length).toBe(CONFIG[SLUG].length);
-      entries.forEach((entry, idx) => {
+      entries.forEach((entry: any, idx: any) => {
         const configData = CONFIG[SLUG][idx];
         if (configData.id) {
           expect(entry.id).toBe(configData.id);
@@ -138,7 +139,7 @@ describe('import service', () => {
         .findMany({ populate: ['localizations'] })
         .then((entries) =>
           entries.map((e) => {
-            e.localizations = e.localizations.map((l) => l.id);
+            e.localizations = e.localizations.map((l: any) => l.id);
             return e;
           }),
         );
@@ -190,7 +191,7 @@ describe('import service', () => {
         .findMany({ populate: ['localizations'] })
         .then((entries) =>
           entries.map((e) => {
-            e.localizations = e.localizations.map((l) => l.id);
+            e.localizations = e.localizations.map((l: any) => l.id);
             return e;
           }),
         );
@@ -225,7 +226,7 @@ describe('import service', () => {
 
       const { failures } = await getService('import').importDataV2(fileContent, { slug: SLUG, user: {}, idField: 'id' });
 
-      const entries = await strapi.db.query(SLUG).findMany({ populate: true });
+      const entries = await strapi.db.query(SLUG).findMany({ populate: true } as any);
 
       expect(failures.length).toBe(0);
       expect(entries.length).toBe(CONFIG[SLUG].length);
@@ -254,7 +255,7 @@ describe('import service', () => {
 
       const { failures } = await getService('import').importDataV2(fileContent, { slug: SLUG, user: {}, idField: 'id' });
 
-      const entries = await strapi.db.query(SLUG).findMany({ populate: true });
+      const entries = await strapi.db.query(SLUG).findMany({ populate: true } as any);
 
       expect(failures.length).toBe(0);
       expect(entries.length).toBe(CONFIG[SLUG].length);
@@ -282,7 +283,7 @@ describe('import service', () => {
 
       const { failures } = await getService('import').importDataV2(fileContent, { slug: SLUG, user: {}, idField: 'id' });
 
-      const entries = await strapi.db.query(SLUG).findMany();
+      const entries = await strapi.db.query(SLUG).findMany({});
 
       expect(failures.length).toBe(0);
       expect(entries.length).toBe(CONFIG[SLUG].length);
@@ -306,7 +307,7 @@ describe('import service', () => {
 
       const { failures } = await getService('import').importDataV2(fileContent, { slug: SLUG, user: {}, idField: 'id' });
 
-      const entries = await strapi.db.query(SLUG).findMany();
+      const entries = await strapi.db.query(SLUG).findMany({});
 
       expect(failures.length).toBe(0);
       expect(entries.length).toBe(CONFIG[SLUG].length);
@@ -327,7 +328,7 @@ describe('import service', () => {
 
       const { failures } = await getService('import').importDataV2(fileContent, { slug: SLUG, user: {}, idField: 'id' });
 
-      const entries = await strapi.db.query(SLUG).findMany();
+      const entries = await strapi.db.query(SLUG).findMany({});
 
       expect(failures.length).toBe(0);
       expect(entries.length).toBe(CONFIG[SLUG].length);
@@ -351,7 +352,7 @@ describe('import service', () => {
 
       const { failures } = await getService('import').importDataV2(fileContent, { slug: SLUG, user: {}, idField: 'id' });
 
-      const entries = await strapi.db.query(SLUG).findMany();
+      const entries = await strapi.db.query(SLUG).findMany({});
 
       expect(failures.length).toBe(0);
       expect(entries.length).toBe(CONFIG[SLUG].length);
@@ -372,7 +373,7 @@ describe('import service', () => {
 
       const { failures } = await getService('import').importDataV2(fileContent, { slug: SLUG, user: {}, idField: 'id' });
 
-      const entries = await strapi.db.query(SLUG).findMany();
+      const entries = await strapi.db.query(SLUG).findMany({});
 
       expect(failures.length).toBe(0);
       entries.forEach((entry, idx) => {
@@ -419,7 +420,7 @@ describe('import service', () => {
         .findMany({ populate: ['localizations'] })
         .then((entries) =>
           entries.map((e) => {
-            e.localizations = e.localizations.map((l) => l.id);
+            e.localizations = e.localizations.map((l: any) => l.id);
             return e;
           }),
         );
@@ -452,7 +453,7 @@ describe('import service', () => {
 
       const { failures } = await getService('import').importDataV2(fileContent, { slug: SLUG, user: {}, idField: 'id' });
 
-      const entries = await strapi.db.query(SLUG).findMany({ populate: true });
+      const entries = await strapi.db.query(SLUG).findMany({ populate: true } as any);
 
       expect(failures.length).toBe(0);
       expect(entries.length).toBe(CONFIG[SLUG].length);
@@ -478,7 +479,7 @@ describe('import service', () => {
 
       const { failures } = await getService('import').importDataV2(fileContent, { slug: SLUG, user: {}, idField: 'id' });
 
-      const entries = await strapi.db.query(SLUG).findMany({ populate: true });
+      const entries = await strapi.db.query(SLUG).findMany({ populate: true } as any);
 
       expect(failures.length).toBe(0);
       expect(entries.length).toBe(CONFIG[SLUG].length);
@@ -506,7 +507,7 @@ describe('import service', () => {
 
       const { failures } = await getService('import').importDataV2(fileContent, { slug: SLUGS.RELATION_A, user: {}, idField: 'id' });
 
-      const [entriesA, entriesB] = await Promise.all([strapi.db.query(SLUGS.RELATION_A).findMany(), strapi.db.query(SLUGS.RELATION_B).findMany()]);
+      const [entriesA, entriesB] = await Promise.all([strapi.db.query(SLUGS.RELATION_A).findMany({}), strapi.db.query(SLUGS.RELATION_B).findMany({})]);
 
       expect(failures.length).toBe(0);
 
@@ -534,17 +535,68 @@ describe('import service', () => {
 
       const { failures } = await getService('import').importDataV2(fileContent, { slug: SLUGS.RELATION_A, user: {}, idField: 'id' });
 
-      const entries = await strapi.db.query(SLUGS.RELATION_A).findMany();
+      const entries = await strapi.db.query(SLUGS.RELATION_A).findMany({});
 
       expect(failures.length).toBeGreaterThanOrEqual(1);
       expect(entries.length).toBe(0);
     });
+
+    it('should create entries when import file', async () => {
+      await getService('import').importDataV2(importFile, { slug: 'custom:db', user: {} });
+
+      const entries = await strapi.db.query('api::restaurant.restaurant').findMany({
+        populate: {
+          owned_by: true,
+          utensils: {
+            populate: true,
+          },
+          localizations: true,
+        },
+      } as any);
+
+      console.log(entries[0].utensils);
+
+      expect(entries.length).toBe(3);
+
+      expect(entries[0].name).toBe('Dubillot');
+      expect(entries[0].locale).toBe('en');
+      expect(entries[0].description).toBe('Awesome restaurant');
+      expect(entries[0].owned_by.name).toBe('Charles');
+      expect(entries[0].utensils.length).toBe(2);
+      expect(entries[0].utensils[0].name).toBe('Fork');
+      expect(entries[0].utensils[0].made_by.name).toBe('Moulinex');
+      expect(entries[0].utensils[1].name).toBe('Knife');
+      expect(entries[0].utensils[1].made_by.name).toBe('SEB');
+      expect(entries[0].localizations.length).toBe(1);
+      expect(entries[0].localizations[0].name).toBe('Dubillot');
+      expect(entries[0].localizations[0].locale).toBe('fr');
+
+      expect(entries[1].name).toBe('Martin');
+      expect(entries[1].locale).toBe('en');
+      expect(entries[1].description).toBe('Checkout the chicken');
+      expect(entries[1].owned_by.name).toBe('Victor');
+      expect(entries[1].utensils.length).toBe(1);
+      expect(entries[1].utensils[0].name).toBe('Fork');
+
+      expect(entries[2].name).toBe('Dubillot');
+      expect(entries[2].locale).toBe('fr');
+      expect(entries[2].description).toBe('Incroyable restaurant');
+      expect(entries[2].owned_by.name).toBe('Charles');
+      expect(entries[2].utensils.length).toBe(2);
+      expect(entries[2].utensils[0].name).toBe('Fork');
+      expect(entries[2].utensils[0].made_by.name).toBe('Moulinex');
+      expect(entries[2].utensils[1].name).toBe('Knife');
+      expect(entries[2].utensils[1].made_by.name).toBe('SEB');
+      expect(entries[2].localizations.length).toBe(1);
+      expect(entries[2].localizations[0].name).toBe('Dubillot');
+      expect(entries[2].localizations[0].locale).toBe('en');
+    });
   });
 });
 
-const buildJsonV2FileContent = (config) => {
+const buildJsonV2FileContent = (config: any) => {
   return {
     version: 2,
-    data: Object.fromEntries(map(config, (data, slug) => [slug, Object.fromEntries(data.map((datum) => [datum.id, datum]))])),
+    data: Object.fromEntries(map(config, (data: any, slug: any) => [slug, Object.fromEntries(data.map((datum: any) => [datum.id, datum]))])),
   };
 };
