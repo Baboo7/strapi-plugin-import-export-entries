@@ -558,7 +558,7 @@ describe('import service', () => {
 
       expect(entries.length).toBe(3);
 
-      expect(entries[0].name).toBe('Dubillot');
+      expect(entries[0].name).toBe('Dubillot Brasserie');
       expect(entries[0].locale).toBe('en');
       expect(entries[0].description).toBe('Awesome restaurant');
       expect(entries[0].owned_by.name).toBe('Charles');
@@ -568,17 +568,17 @@ describe('import service', () => {
       expect(entries[0].utensils[1].name).toBe('Knife');
       expect(entries[0].utensils[1].made_by.name).toBe('SEB');
       expect(entries[0].localizations.length).toBe(1);
-      expect(entries[0].localizations[0].name).toBe('Dubillot');
+      expect(entries[0].localizations[0].name).toBe('Brasserie Dubillot');
       expect(entries[0].localizations[0].locale).toBe('fr');
 
-      expect(entries[1].name).toBe('Martin');
+      expect(entries[1].name).toBe('Martin Brasserie');
       expect(entries[1].locale).toBe('en');
       expect(entries[1].description).toBe('Checkout the chicken');
       expect(entries[1].owned_by.name).toBe('Victor');
       expect(entries[1].utensils.length).toBe(1);
       expect(entries[1].utensils[0].name).toBe('Fork');
 
-      expect(entries[2].name).toBe('Dubillot');
+      expect(entries[2].name).toBe('Brasserie Dubillot');
       expect(entries[2].locale).toBe('fr');
       expect(entries[2].description).toBe('Incroyable restaurant');
       expect(entries[2].owned_by.name).toBe('Charles');
@@ -588,7 +588,7 @@ describe('import service', () => {
       expect(entries[2].utensils[1].name).toBe('Knife');
       expect(entries[2].utensils[1].made_by.name).toBe('SEB');
       expect(entries[2].localizations.length).toBe(1);
-      expect(entries[2].localizations[0].name).toBe('Dubillot');
+      expect(entries[2].localizations[0].name).toBe('Dubillot Brasserie');
       expect(entries[2].localizations[0].locale).toBe('en');
     });
   });

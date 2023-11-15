@@ -4,7 +4,7 @@
     "api::restaurant.restaurant": {
       "1": {
         "id": 1,
-        "name": "Dubillot",
+        "name": "Dubillot Brasserie",
         "description": "Awesome restaurant",
         "rating": 5,
         "owned_by": 1,
@@ -14,7 +14,7 @@
       },
       "2": {
         "id": 2,
-        "name": "Martin",
+        "name": "Martin Brasserie",
         "description": "Checkout the chicken",
         "rating": 4.5,
         "owned_by": 2,
@@ -24,7 +24,7 @@
       },
       "3": {
         "id": 3,
-        "name": "Dubillot",
+        "name": "Brasserie Dubillot",
         "description": "Incroyable restaurant",
         "rating": 5,
         "owned_by": 1,
