@@ -1,7 +1,8 @@
 const map = require('lodash/map');
 const pick = require('lodash/pick');
 const { getModel } = require('../../server/utils/models');
-const importFile = require('../mocks/import-file.json');
+const dataCreate = require('../mocks/data-create.json');
+const dataUpdate = require('../mocks/data-update.json');
 
 const { getService, SLUGS, generateData } = require('../utils');
 
@@ -542,9 +543,9 @@ describe('import service', () => {
     });
 
     it('should create entries when import file', async () => {
-      await getService('import').importDataV2(importFile, { slug: 'custom:db', user: {} });
+      await getService('import').importDataV2(dataCreate, { slug: 'custom:db', user: {} });
 
-      const entries = await strapi.db.query('api::restaurant.restaurant').findMany({
+      let entries = await strapi.db.query('api::restaurant.restaurant').findMany({
         populate: {
           owned_by: true,
           utensils: {
@@ -553,8 +554,6 @@ describe('import service', () => {
           localizations: true,
         },
       } as any);
-
-      console.log(entries[0].utensils);
 
       expect(entries.length).toBe(3);
 
@@ -587,6 +586,109 @@ describe('import service', () => {
       expect(entries[2].utensils[0].made_by.name).toBe('Moulinex');
       expect(entries[2].utensils[1].name).toBe('Knife');
       expect(entries[2].utensils[1].made_by.name).toBe('SEB');
+      expect(entries[2].localizations.length).toBe(1);
+      expect(entries[2].localizations[0].name).toBe('Dubillot Brasserie');
+      expect(entries[2].localizations[0].locale).toBe('en');
+    });
+
+    it('should be idempotent when import same file multiple times', async () => {
+      // 1st import.
+      await getService('import').importDataV2(dataCreate, { slug: 'custom:db', user: {} });
+      // 2nd import.
+      await getService('import').importDataV2(dataCreate, { slug: 'custom:db', user: {} });
+
+      const entries = await strapi.db.query('api::restaurant.restaurant').findMany({
+        populate: {
+          owned_by: true,
+          utensils: {
+            populate: true,
+          },
+          localizations: true,
+        },
+      } as any);
+
+      expect(entries.length).toBe(3);
+
+      expect(entries[0].name).toBe('Dubillot Brasserie');
+      expect(entries[0].locale).toBe('en');
+      expect(entries[0].description).toBe('Awesome restaurant');
+      expect(entries[0].owned_by.name).toBe('Charles');
+      expect(entries[0].utensils.length).toBe(2);
+      expect(entries[0].utensils[0].name).toBe('Fork');
+      expect(entries[0].utensils[0].made_by.name).toBe('Moulinex');
+      expect(entries[0].utensils[1].name).toBe('Knife');
+      expect(entries[0].utensils[1].made_by.name).toBe('SEB');
+      expect(entries[0].localizations.length).toBe(1);
+      expect(entries[0].localizations[0].name).toBe('Brasserie Dubillot');
+      expect(entries[0].localizations[0].locale).toBe('fr');
+
+      expect(entries[1].name).toBe('Martin Brasserie');
+      expect(entries[1].locale).toBe('en');
+      expect(entries[1].description).toBe('Checkout the chicken');
+      expect(entries[1].owned_by.name).toBe('Victor');
+      expect(entries[1].utensils.length).toBe(1);
+      expect(entries[1].utensils[0].name).toBe('Fork');
+
+      expect(entries[2].name).toBe('Brasserie Dubillot');
+      expect(entries[2].locale).toBe('fr');
+      expect(entries[2].description).toBe('Incroyable restaurant');
+      expect(entries[2].owned_by.name).toBe('Charles');
+      expect(entries[2].utensils.length).toBe(2);
+      expect(entries[2].utensils[0].name).toBe('Fork');
+      expect(entries[2].utensils[0].made_by.name).toBe('Moulinex');
+      expect(entries[2].utensils[1].name).toBe('Knife');
+      expect(entries[2].utensils[1].made_by.name).toBe('SEB');
+      expect(entries[2].localizations.length).toBe(1);
+      expect(entries[2].localizations[0].name).toBe('Dubillot Brasserie');
+      expect(entries[2].localizations[0].locale).toBe('en');
+    });
+
+    it('should update entries when import file', async () => {
+      // First, create entries.
+      await getService('import').importDataV2(dataCreate, { slug: 'custom:db', user: {} });
+      // Then, update entries.
+      await getService('import').importDataV2(dataUpdate, { slug: 'custom:db', user: {} });
+
+      const entries = await strapi.db.query('api::restaurant.restaurant').findMany({
+        populate: {
+          owned_by: true,
+          utensils: {
+            populate: true,
+          },
+          localizations: true,
+        },
+      } as any);
+
+      expect(entries.length).toBe(3);
+
+      expect(entries[0].name).toBe('Dubillot Brasserie');
+      expect(entries[0].locale).toBe('en');
+      expect(entries[0].description).toBe('Awesome restaurant with insane wines');
+      expect(entries[0].owned_by.name).toBe('Charles Magne');
+      expect(entries[0].utensils.length).toBe(1);
+      expect(entries[0].utensils[0].name).toBe('Fork');
+      expect(entries[0].utensils[0].description).toBe('Really efficient in chess');
+      expect(entries[0].utensils[0].made_by.name).toBe('Moulinex');
+      expect(entries[0].localizations.length).toBe(1);
+      expect(entries[0].localizations[0].name).toBe('Brasserie Dubillot');
+      expect(entries[0].localizations[0].locale).toBe('fr');
+
+      expect(entries[1].name).toBe('Martin Brasserie');
+      expect(entries[1].locale).toBe('en');
+      expect(entries[1].description).toBe('Checkout the chicken and the French fries');
+      expect(entries[1].owned_by.name).toBe('Victor Ovitch');
+      expect(entries[1].utensils.length).toBe(1);
+      expect(entries[1].utensils[0].name).toBe('Fork');
+      expect(entries[1].utensils[0].description).toBe('Really efficient in chess');
+
+      expect(entries[2].name).toBe('Brasserie Dubillot');
+      expect(entries[2].locale).toBe('fr');
+      expect(entries[2].description).toBe('Incroyable restaurant avec ses excellents vins');
+      expect(entries[2].owned_by.name).toBe('Charles Magne');
+      expect(entries[2].utensils.length).toBe(1);
+      expect(entries[2].utensils[0].name).toBe('Fork');
+      expect(entries[2].utensils[0].description).toBe('Really efficient in chess');
+      expect(entries[2].utensils[0].made_by.name).toBe('Moulinex');
       expect(entries[2].localizations.length).toBe(1);
       expect(entries[2].localizations[0].name).toBe('Dubillot Brasserie');
       expect(entries[2].localizations[0].locale).toBe('en');
