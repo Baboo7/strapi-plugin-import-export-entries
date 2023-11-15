@@ -9,4 +9,9 @@ module.exports = {
   testPathIgnorePatterns: ['/node_modules/', '.tmp', '.cache'],
   testTimeout: 30_000,
   verbose: true,
+  globals: {
+    'ts-jest': {
+      strapi: true,
+    },
+  },
 };
