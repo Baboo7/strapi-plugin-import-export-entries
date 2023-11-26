@@ -2,6 +2,27 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+## [1.22.0](https://github.com/Baboo7/strapi-plugin-import-export-entries/compare/v1.21.1...v1.22.0) (2023-11-26)
+
+
+### 🐞 Bug Fixes
+
+* **types:** Fix typing ([5c86e4f](https://github.com/Baboo7/strapi-plugin-import-export-entries/commits/5c86e4f5bc42a68c1e0d852c4092930729c4db84))
+
+
+### 🧪 Tests
+
+* **config:** Define global strapi for ts ([de75c22](https://github.com/Baboo7/strapi-plugin-import-export-entries/commits/de75c22fe876eaae97e24b2d1063c3d2ccbc5b9f))
+* **import:** Set restaurant name unique ([99f1221](https://github.com/Baboo7/strapi-plugin-import-export-entries/commits/99f1221f7c6ba53647daf909353f6641c1be08c6))
+* **import:** Setup import file ([b3e14bb](https://github.com/Baboo7/strapi-plugin-import-export-entries/commits/b3e14bb9bfa4036570c0b0fd9536a570a87a957e))
+* **import:** Test update data ([8b47c9f](https://github.com/Baboo7/strapi-plugin-import-export-entries/commits/8b47c9fbe81c783506b9ba30e48a329b30089a37))
+
+
+### 🧹 Chores
+
+* Setup ts jest ([fdd406b](https://github.com/Baboo7/strapi-plugin-import-export-entries/commits/fdd406b14bc46da9e0c71a1aadc94db1c38adfcd))
+* Support node v20.x.x ([1c8f591](https://github.com/Baboo7/strapi-plugin-import-export-entries/commits/1c8f5917cfac12129af1be1934736694f61d7708))
+
 ### [1.19.1](https://github.com/Baboo7/strapi-plugin-import-export-entries/compare/v1.19.0...v1.19.1) (2023-04-25)
 
 ### 🧹 Chores
