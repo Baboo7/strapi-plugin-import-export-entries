@@ -7,6 +7,7 @@
         "name": "Dubillot Brasserie",
         "description": "Awesome restaurant",
         "rating": 5,
+        "logo": 1,
         "owned_by": 1,
         "utensils": [1, 2],
         "locale": "en",
@@ -17,6 +18,7 @@
         "name": "Martin Brasserie",
         "description": "Checkout the chicken",
         "rating": 4.5,
+        "logo": 2,
         "owned_by": 2,
         "utensils": [1],
         "locale": "en",
@@ -27,6 +29,7 @@
         "name": "Brasserie Dubillot",
         "description": "Incroyable restaurant",
         "rating": 5,
+        "logo": 1,
         "owned_by": 1,
         "utensils": [1, 2],
         "locale": "fr",
@@ -51,6 +54,16 @@
       "2": {
         "id": 2,
         "name": "SEB"
+      }
+    },
+    "plugin::upload.file": {
+      "1": {
+        "id": 1,
+        "url": "https://storage.googleapis.com/gtv-videos-bucket/sample/images/BigBuckBunny.jpg"
+      },
+      "2": {
+        "id": 2,
+        "url": "https://storage.googleapis.com/gtv-videos-bucket/sample/images/ForBiggerBlazes.jpg"
       }
     },
     "shared.utensil": {

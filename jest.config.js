@@ -14,4 +14,12 @@ module.exports = {
       strapi: true,
     },
   },
+  transform: {
+    '^.+\\.tsx?$': [
+      'ts-jest',
+      {
+        strapi: true,
+      },
+    ],
+  },
 };
