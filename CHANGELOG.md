@@ -2,6 +2,18 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [1.22.1](https://github.com/Baboo7/strapi-plugin-import-export-entries/compare/v1.22.0...v1.22.1) (2023-11-30)
+
+
+### 🧹 Chores
+
+* Update node version ([8b24d01](https://github.com/Baboo7/strapi-plugin-import-export-entries/commits/8b24d01507c570a94eefffc1c04c0efc8bbe6cca))
+
+
+### 🐞 Bug Fixes
+
+* **import-v2:** Import media files once ([f0a4518](https://github.com/Baboo7/strapi-plugin-import-export-entries/commits/f0a4518421a11968f0c6903d4f4088c680ba1e9b))
+
 ## [1.22.0](https://github.com/Baboo7/strapi-plugin-import-export-entries/compare/v1.21.1...v1.22.0) (2023-11-26)
 
 
