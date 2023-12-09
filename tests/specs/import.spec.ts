@@ -598,17 +598,30 @@ describe('import service', () => {
       let entries = await strapi.db.query('api::restaurant.restaurant').findMany({
         populate: {
           logo: true,
-          owned_by: true,
-          utensils: {
-            populate: true,
-          },
-          localizations: true,
         },
       } as any);
 
       expect(entries[0].logo.name).toBe('gtv-videos-bucket-sample-images-BigBuckBunny.jpg');
       expect(entries[1].logo.name).toBe('gtv-videos-bucket-sample-images-ForBiggerBlazes.jpg');
       expect(entries[0].logo.name).toBe('gtv-videos-bucket-sample-images-BigBuckBunny.jpg');
+    });
+
+    it('should download media of component when import file', async () => {
+      await getService('import').importDataV2(dataCreate, { slug: 'custom:db', user: {} });
+
+      let entries = await strapi.db.query('api::restaurant.restaurant').findMany({
+        populate: {
+          utensils: {
+            populate: true,
+          },
+        },
+      } as any);
+
+      expect(entries[0].utensils[0].picture.name).toBe('gtv-videos-bucket-sample-images-ForBiggerJoyrides.jpg');
+      expect(entries[0].utensils[1].picture.name).toBe('gtv-videos-bucket-sample-images-TearsOfSteel.jpg');
+      expect(entries[2].utensils[0].picture.name).toBe('gtv-videos-bucket-sample-images-ForBiggerJoyrides.jpg');
+      expect(entries[2].utensils[0].picture.name).toBe('gtv-videos-bucket-sample-images-ForBiggerJoyrides.jpg');
+      expect(entries[2].utensils[1].picture.name).toBe('gtv-videos-bucket-sample-images-TearsOfSteel.jpg');
     });
 
     it('should be idempotent when import same file multiple times', async () => {
@@ -670,19 +683,8 @@ describe('import service', () => {
       // 2nd import.
       await getService('import').importDataV2(dataCreate, { slug: 'custom:db', user: {} });
 
-      const entries = await strapi.db.query('api::restaurant.restaurant').findMany({
-        populate: {
-          logo: true,
-          owned_by: true,
-          utensils: {
-            populate: true,
-          },
-          localizations: true,
-        },
-      } as any);
-
       const fileEntries = await strapi.db.query('plugin::upload.file').findMany({});
-      expect(fileEntries.length).toBe(2);
+      expect(fileEntries.length).toBe(4);
     });
 
     it('should update entries when import file', async () => {

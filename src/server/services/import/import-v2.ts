@@ -7,7 +7,7 @@ import { extract, toArray } from '../../../libs/arrays';
 import { ObjectBuilder } from '../../../libs/objects';
 import { getModel, getModelAttributes, isComponentAttribute, isDynamicZoneAttribute, isMediaAttribute, isRelationAttribute } from '../../utils/models';
 import { Entry, EntryId, Schema, SchemaUID, User } from '../../types';
-import { toPairs } from 'lodash';
+import { head, toPairs } from 'lodash';
 import { FileEntry, FileEntryDynamicZone, FileId } from './types';
 import { findOrImportFile } from './utils/file';
 
@@ -364,6 +364,12 @@ function getComponentData(
         store[attributeName] = (attributeValue as (number | string)[]).map((id) => fileIdToDbId.getMapping(attribute.target, id));
       } else {
         store[attributeName] = fileIdToDbId.getMapping(attribute.target, attributeValue as number | string);
+      }
+    } else if (isMediaAttribute(attribute)) {
+      if (attribute.multiple) {
+        store[attributeName] = castArray(attributeValue as number | string | (number | string)[]).map((id) => fileIdToDbId.getMapping('plugin::upload.file', id));
+      } else {
+        store[attributeName] = fileIdToDbId.getMapping('plugin::upload.file', `${head(castArray(attributeValue as number | string))}`);
       }
     }
   }

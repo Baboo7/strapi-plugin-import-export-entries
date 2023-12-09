@@ -64,6 +64,14 @@
       "2": {
         "id": 2,
         "url": "https://storage.googleapis.com/gtv-videos-bucket/sample/images/ForBiggerBlazes.jpg"
+      },
+      "3": {
+        "id": 3,
+        "url": "https://storage.googleapis.com/gtv-videos-bucket/sample/images/ForBiggerJoyrides.jpg"
+      },
+      "4": {
+        "id": 4,
+        "url": "https://storage.googleapis.com/gtv-videos-bucket/sample/images/TearsOfSteel.jpg"
       }
     },
     "shared.utensil": {
@@ -71,12 +79,14 @@
         "id": 1,
         "name": "Fork",
         "description": "Really useful",
+        "picture": 3,
         "made_by": 1
       },
       "2": {
         "id": 2,
         "name": "Knife",
         "description": "Be careful kiddo",
+        "picture": 4,
         "made_by": 2
       }
     }
