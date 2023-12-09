@@ -561,7 +561,6 @@ describe('import service', () => {
       expect(entries[0].name).toBe('Dubillot Brasserie');
       expect(entries[0].locale).toBe('en');
       expect(entries[0].description).toBe('Awesome restaurant');
-      expect(entries[0].logo.name).toBe('gtv-videos-bucket-sample-images-BigBuckBunny.jpg');
       expect(entries[0].owned_by.name).toBe('Charles');
       expect(entries[0].utensils.length).toBe(2);
       expect(entries[0].utensils[0].name).toBe('Fork');
@@ -575,7 +574,6 @@ describe('import service', () => {
       expect(entries[1].name).toBe('Martin Brasserie');
       expect(entries[1].locale).toBe('en');
       expect(entries[1].description).toBe('Checkout the chicken');
-      expect(entries[1].logo.name).toBe('gtv-videos-bucket-sample-images-ForBiggerBlazes.jpg');
       expect(entries[1].owned_by.name).toBe('Victor');
       expect(entries[1].utensils.length).toBe(1);
       expect(entries[1].utensils[0].name).toBe('Fork');
@@ -583,7 +581,6 @@ describe('import service', () => {
       expect(entries[2].name).toBe('Brasserie Dubillot');
       expect(entries[2].locale).toBe('fr');
       expect(entries[2].description).toBe('Incroyable restaurant');
-      expect(entries[0].logo.name).toBe('gtv-videos-bucket-sample-images-BigBuckBunny.jpg');
       expect(entries[2].owned_by.name).toBe('Charles');
       expect(entries[2].utensils.length).toBe(2);
       expect(entries[2].utensils[0].name).toBe('Fork');
@@ -593,6 +590,25 @@ describe('import service', () => {
       expect(entries[2].localizations.length).toBe(1);
       expect(entries[2].localizations[0].name).toBe('Dubillot Brasserie');
       expect(entries[2].localizations[0].locale).toBe('en');
+    });
+
+    it('should download media when import file', async () => {
+      await getService('import').importDataV2(dataCreate, { slug: 'custom:db', user: {} });
+
+      let entries = await strapi.db.query('api::restaurant.restaurant').findMany({
+        populate: {
+          logo: true,
+          owned_by: true,
+          utensils: {
+            populate: true,
+          },
+          localizations: true,
+        },
+      } as any);
+
+      expect(entries[0].logo.name).toBe('gtv-videos-bucket-sample-images-BigBuckBunny.jpg');
+      expect(entries[1].logo.name).toBe('gtv-videos-bucket-sample-images-ForBiggerBlazes.jpg');
+      expect(entries[0].logo.name).toBe('gtv-videos-bucket-sample-images-BigBuckBunny.jpg');
     });
 
     it('should be idempotent when import same file multiple times', async () => {
@@ -617,7 +633,6 @@ describe('import service', () => {
       expect(entries[0].name).toBe('Dubillot Brasserie');
       expect(entries[0].locale).toBe('en');
       expect(entries[0].description).toBe('Awesome restaurant');
-      expect(entries[0].logo.name).toBe('gtv-videos-bucket-sample-images-BigBuckBunny.jpg');
       expect(entries[0].owned_by.name).toBe('Charles');
       expect(entries[0].utensils.length).toBe(2);
       expect(entries[0].utensils[0].name).toBe('Fork');
@@ -631,7 +646,6 @@ describe('import service', () => {
       expect(entries[1].name).toBe('Martin Brasserie');
       expect(entries[1].locale).toBe('en');
       expect(entries[1].description).toBe('Checkout the chicken');
-      expect(entries[1].logo.name).toBe('gtv-videos-bucket-sample-images-ForBiggerBlazes.jpg');
       expect(entries[1].owned_by.name).toBe('Victor');
       expect(entries[1].utensils.length).toBe(1);
       expect(entries[1].utensils[0].name).toBe('Fork');
@@ -639,7 +653,6 @@ describe('import service', () => {
       expect(entries[2].name).toBe('Brasserie Dubillot');
       expect(entries[2].locale).toBe('fr');
       expect(entries[2].description).toBe('Incroyable restaurant');
-      expect(entries[2].logo.name).toBe('gtv-videos-bucket-sample-images-BigBuckBunny.jpg');
       expect(entries[2].owned_by.name).toBe('Charles');
       expect(entries[2].utensils.length).toBe(2);
       expect(entries[2].utensils[0].name).toBe('Fork');
@@ -649,6 +662,24 @@ describe('import service', () => {
       expect(entries[2].localizations.length).toBe(1);
       expect(entries[2].localizations[0].name).toBe('Dubillot Brasserie');
       expect(entries[2].localizations[0].locale).toBe('en');
+    });
+
+    it('should download media only once when import same file multiple times', async () => {
+      // 1st import.
+      await getService('import').importDataV2(dataCreate, { slug: 'custom:db', user: {} });
+      // 2nd import.
+      await getService('import').importDataV2(dataCreate, { slug: 'custom:db', user: {} });
+
+      const entries = await strapi.db.query('api::restaurant.restaurant').findMany({
+        populate: {
+          logo: true,
+          owned_by: true,
+          utensils: {
+            populate: true,
+          },
+          localizations: true,
+        },
+      } as any);
 
       const fileEntries = await strapi.db.query('plugin::upload.file').findMany({});
       expect(fileEntries.length).toBe(2);
