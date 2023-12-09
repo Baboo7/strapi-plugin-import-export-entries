@@ -10,9 +10,7 @@ module.exports = {
   testTimeout: 30_000,
   verbose: true,
   globals: {
-    'ts-jest': {
-      strapi: true,
-    },
+    strapi: true,
   },
   transform: {
     '^.+\\.tsx?$': [
