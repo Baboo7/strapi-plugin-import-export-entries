@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+## [1.23.0](https://github.com/Baboo7/strapi-plugin-import-export-entries/compare/v1.22.2...v1.23.0) (2023-12-23)
+
+
+### ⚡️ Features
+
+* 🎸 Added uk locale ([0049591](https://github.com/Baboo7/strapi-plugin-import-export-entries/commits/00495915d50281901b87f1ebe07c8e51b4b6a24c))
+
 ### [1.22.2](https://github.com/Baboo7/strapi-plugin-import-export-entries/compare/v1.22.1...v1.22.2) (2023-12-09)
 
 
