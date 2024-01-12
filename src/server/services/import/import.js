@@ -1,6 +1,5 @@
 const { isArraySafe, toArray } = require('../../../libs/arrays');
 const { ObjectBuilder, isObjectSafe } = require('../../../libs/objects');
-const { CustomSlugs } = require('../../config/constants');
 const { getModelAttributes, getModel } = require('../../utils/models');
 const { findOrImportFile } = require('./utils/file');
 const { parseInputData } = require('./parsers');
@@ -29,6 +28,16 @@ const importData = async (dataRaw, { slug, format, user, idField }) => {
   let data = await parseInputData(format, dataRaw, { slug });
   data = toArray(data);
 
+  const results = [];
+
+  for (const datum of data) {
+    results.push(await createCandidate(datum, { slug, user, idField }));
+  }
+
+  return { failures: [] };
+
+  // Code from original implementation
+  /*
   let res;
   if (slug === CustomSlugs.MEDIA) {
     res = await importMedia(data, { user });
@@ -37,6 +46,7 @@ const importData = async (dataRaw, { slug, format, user, idField }) => {
   }
 
   return res;
+  */
 };
 
 const importMedia = async (fileData, { user }) => {
@@ -79,6 +89,25 @@ const importOtherSlug = async (data, { slug, user, idField }) => {
   return {
     failures,
   };
+};
+
+const createCandidate = async (data, { slug, user, idField }) => {
+  const relationName = 'api::candidate.candidate';
+
+  const publishedAt = data.published === 'true' ? new Date() : undefined;
+
+  let [candidate] = await strapi.db.query(relationName).findMany({ where: { email: data.email } });
+
+  if (!candidate) {
+    candidate = await strapi.db.query(relationName).create({ data: { ...data, publishedAt } });
+  } else {
+    // Don't do anything
+    /*
+    candidate = await strapi.db.query(relationName).update({ where: { id: candidate.id }, data: { ...data, publishedAt } });
+    */
+  }
+
+  return candidate;
 };
 
 /**

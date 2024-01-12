@@ -4,8 +4,6 @@ import pluginPkg from '../../package.json';
 import { ImportButton } from './components/ImportButton';
 import Initializer from './components/Initializer';
 import { Alerts } from './components/Injected/Alerts';
-import { InjectedExportCollectionType } from './components/InjectedExportCollectionType';
-import { InjectedImportExportSingleType } from './components/InjectedImportExportSingleType';
 import PluginIcon from './components/PluginIcon';
 import { pluginPermissions } from './permissions';
 import pluginId from './pluginId';
@@ -19,7 +17,7 @@ export default {
       to: `/plugins/${pluginId}`,
       icon: PluginIcon,
       intlLabel: {
-        id: getTrad(`plugin.name`),
+        id: getTrad('plugin.name'),
         defaultMessage: 'Import Export',
       },
       permissions: pluginPermissions.main,
@@ -47,6 +45,9 @@ export default {
       name: `${pluginId}-import`,
       Component: ImportButton,
     });
+
+    // Hide export button and editView options
+    /*
     app.injectContentManagerComponent('listView', 'actions', {
       name: `${pluginId}-export`,
       Component: InjectedExportCollectionType,
@@ -60,6 +61,7 @@ export default {
       name: `${pluginId}-import-export`,
       Component: InjectedImportExportSingleType,
     });
+    */
   },
 
   async registerTrads({ locales }) {

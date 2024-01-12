@@ -8,7 +8,11 @@ import { pluginPermissions } from '../../permissions';
 import getTrad from '../../utils/getTrad';
 import { ImportModal } from '../ImportModal';
 
+const enabledCollections = ['candidate.candidate'];
+
 export const ImportButton = ({ fullWidth = false }) => {
+  const pathname = window.location.pathname;
+
   const { formatMessage } = useIntl();
 
   const [importVisible, setImportVisible] = useState(false);
@@ -20,6 +24,10 @@ export const ImportButton = ({ fullWidth = false }) => {
   const closeImportModal = () => {
     setImportVisible(false);
   };
+
+  if (!enabledCollections.some((collection) => pathname.includes(collection))) {
+    return null;
+  }
 
   return (
     <CheckPermissions permissions={pluginPermissions.importButton}>

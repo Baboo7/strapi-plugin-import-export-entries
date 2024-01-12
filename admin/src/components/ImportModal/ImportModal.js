@@ -182,6 +182,8 @@ export const ImportModal = ({ onClose }) => {
                   </Typography>
                   <input type="file" accept=".csv,.json" hidden="" onChange={onReadFile} />
                 </label>
+                {/* Hide code editor */}
+                {/*
                 <label className="plugin-ie-import_modal_label plugin-ie-import_modal_button-label" onClick={openCodeEditor}>
                   <span className="plugin-ie-import_modal_label-icon-wrapper">
                     <IconCode />
@@ -190,6 +192,7 @@ export const ImportModal = ({ onClose }) => {
                     {i18n('plugin.import.use-code-editor')}
                   </Typography>
                 </label>
+                */}
               </Flex>
             </>
           )}
