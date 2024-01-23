@@ -25,10 +25,10 @@ const exportData = async (ctx) => {
 };
 
 const hasPermissions = (ctx) => {
-  let { slug } = ctx.request.body;
+  let { slug, exportPluginsContentTypes } = ctx.request.body;
   const { userAbility } = ctx.state;
 
-  const slugs = slug === CustomSlugs.WHOLE_DB ? getAllSlugs() : [slug];
+  const slugs = slug === CustomSlugs.WHOLE_DB ? getAllSlugs({ includePluginsContentTypes: exportPluginsContentTypes }) : [slug];
 
   const allowedSlugs = slugs.filter((slug) => {
     const permissionChecker = strapi.plugin('content-manager').service('permission-checker').create({ userAbility, model: slug });
