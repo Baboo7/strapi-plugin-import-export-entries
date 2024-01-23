@@ -5,7 +5,7 @@ import pick from 'lodash/pick';
 import castArray from 'lodash/castArray';
 import { extract, toArray } from '../../../libs/arrays';
 import { ObjectBuilder } from '../../../libs/objects';
-import { getModel, getModelAttributes, isComponentAttribute, isDynamicZoneAttribute, isMediaAttribute, isRelationAttribute } from '../../utils/models';
+import { getModel, getModelAttributes, isComponentAttribute, isDynamicZoneAttribute, isMediaAttribute, isBasicRelationsTypeAttribute } from '../../utils/models';
 import { Entry, EntryId, Schema, SchemaUID, User } from '../../types';
 import { head, toPairs } from 'lodash';
 import { FileEntry, FileEntryDynamicZone, FileId } from './types';
@@ -359,7 +359,7 @@ function getComponentData(
       } else {
         store[attributeName] = fileIdToDbId.getMapping('plugin::upload.file', attributeValue as number | string);
       }
-    } else if (isRelationAttribute(attribute)) {
+    } else if (isBasicRelationsTypeAttribute(attribute)) {
       if (attribute.relation.endsWith('Many')) {
         store[attributeName] = (attributeValue as (number | string)[]).map((id) => fileIdToDbId.getMapping(attribute.target, id));
       } else {

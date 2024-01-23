@@ -1,3 +1,4 @@
+import { BasicRelationsType } from '@strapi/strapi';
 import { toArray } from '../../libs/arrays';
 import { Attribute, AttributeType, ComponentAttribute, DynamicZoneAttribute, Entry, MediaAttribute, RelationAttribute, Schema, SchemaUID } from '../types';
 
@@ -9,7 +10,7 @@ export {
   isComponentAttribute,
   isDynamicZoneAttribute,
   isMediaAttribute,
-  isRelationAttribute,
+  isBasicRelationsTypeAttribute,
   getEntryProp,
   setEntryProp,
   deleteEntryProp,
@@ -23,7 +24,7 @@ module.exports = {
   isComponentAttribute,
   isDynamicZoneAttribute,
   isMediaAttribute,
-  isRelationAttribute,
+  isBasicRelationsTypeAttribute,
   getEntryProp,
   setEntryProp,
   deleteEntryProp,
@@ -101,8 +102,10 @@ function isMediaAttribute(attribute: any): attribute is MediaAttribute {
   return (attribute as { type: AttributeType }).type === 'media';
 }
 
-function isRelationAttribute(attribute: any): attribute is RelationAttribute {
-  return (attribute as { type: AttributeType }).type === 'relation';
+function isBasicRelationsTypeAttribute(attribute: any): attribute is RelationAttribute {
+  const relation = (attribute as { relation: BasicRelationsType }).relation;
+
+  return (attribute as { type: AttributeType }).type === 'relation' && (relation === 'oneToOne' || relation === 'oneToMany' || relation === 'manyToOne' || relation === 'manyToMany');
 }
 
 function getEntryProp(entry: Entry, prop: string): any {
