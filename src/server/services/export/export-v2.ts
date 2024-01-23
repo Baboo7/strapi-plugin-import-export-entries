@@ -25,7 +25,7 @@ import {
   isComponentAttribute,
   isDynamicZoneAttribute,
   isMediaAttribute,
-  isRelationAttribute,
+  isBasicRelationsTypeAttribute,
   getModel,
   deleteEntryProp,
   setEntryProp,
@@ -164,7 +164,7 @@ async function findEntriesForHierarchy(
         }));
       } else if (isMediaAttribute(propAttribute)) {
         return flattenEntryCommon(propEntries);
-      } else if (isRelationAttribute(propAttribute)) {
+      } else if (isBasicRelationsTypeAttribute(propAttribute)) {
         return flattenEntryCommon(propEntries);
       }
       return propEntries;
@@ -373,7 +373,7 @@ function getPopulateFromSchema(slug: string, deepness = 5): Populate | true | un
         return compPopulate === true ? zonePopulate : merge(zonePopulate, compPopulate);
       }, {});
       populate[attributeName] = isEmpty(dynamicPopulate) ? true : dynamicPopulate;
-    } else if (isRelationAttribute(attribute)) {
+    } else if (isBasicRelationsTypeAttribute(attribute)) {
       const relationPopulate = getPopulateFromSchema(attribute.target, deepness - 1);
       if (relationPopulate) {
         populate[attributeName] = relationPopulate;
@@ -413,7 +413,7 @@ function buildSlugHierarchy(slug: SchemaUID, deepness = 5): Hierarchy {
       hierarchy[attributeName] = buildSlugHierarchy(attribute.component, deepness - 1);
     } else if (isDynamicZoneAttribute(attribute)) {
       hierarchy[attributeName] = Object.fromEntries(attribute.components.map((componentSlug) => [componentSlug, buildSlugHierarchy(componentSlug, deepness - 1)]));
-    } else if (isRelationAttribute(attribute)) {
+    } else if (isBasicRelationsTypeAttribute(attribute)) {
       const relationHierarchy = buildSlugHierarchy(attribute.target, deepness - 1);
       if (relationHierarchy) {
         hierarchy[attributeName] = relationHierarchy;
