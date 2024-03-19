@@ -1,6 +1,6 @@
 import { Button } from '@strapi/design-system';
 import { CheckPermissions } from '@strapi/helper-plugin';
-import Download from '@strapi/icons/Download';
+import Upload from '@strapi/icons/Download';
 import React, { useState } from 'react';
 import { useIntl } from 'react-intl';
 
@@ -23,7 +23,7 @@ export const ExportButton = ({ availableExportFormats, unavailableOptions, fullW
 
   return (
     <CheckPermissions permissions={pluginPermissions.exportButton}>
-      <Button startIcon={<Download />} onClick={openExportModal} fullWidth={fullWidth}>
+      <Button startIcon={<Upload />} onClick={openExportModal} fullWidth={fullWidth}>
         {formatMessage({ id: getTrad('plugin.cta.export') })}
       </Button>
 
