@@ -116,7 +116,7 @@ const importDataV2 = async (
     for (const slugFromFile of slugs) {
       const model = getModel(slugFromFile);
       // TODO: handle case when `id` is not a number;
-      await strapi.db.connection.raw(`SELECT SETVAL((SELECT PG_GET_SERIAL_SEQUENCE('${model.collectionName}', 'id')), (SELECT MAX(id) FROM ${model.collectionName}) + 1, FALSE);`);
+      await strapi.db.connection.raw(`SELECT SETVAL((SELECT PG_GET_SERIAL_SEQUENCE('${model.collectionName}', 'id')), (SELECT MAX(id) FROM "${model.collectionName}") + 1, FALSE);`);
     }
   }
 
